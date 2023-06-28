@@ -1,0 +1,6 @@
+LIBRARY plugin
+
+EXPORTS
+SetGameVer
+GetPluginVersion
+GetPluginName
