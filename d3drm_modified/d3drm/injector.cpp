@@ -9,7 +9,6 @@ namespace Injector {
 	typedef void(__stdcall* SubTitansLibrary_InitializeLibrary)(unsigned long);
 	typedef void(__stdcall* SubTitansLibrary_ReleaseLibrary)();
 
-
 	void __stdcall LoadModule()
 	{
 		SubTitansLibrary = LoadLibrary(L"subtitans.dll");
@@ -25,8 +24,6 @@ namespace Injector {
 			MessageBox(NULL, L"Failed to retrieve InitializeLibrary from subtitans.dll!", L"D3DRM (Custom)", MB_ICONERROR);
 			ExitProcess(-1);
 		}
-
-		//LoadPlugins();
 
 		initializeLibrary(GameVersion);
 	}
