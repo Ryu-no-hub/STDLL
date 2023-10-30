@@ -115,7 +115,8 @@
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(OutputPath)STDLL.asi" "C:\GOG Games\Submarine Titans 2\plugins"</Command>
+      <Command>copy "$(OutputPath)STDLL.asi" "C:\GOG Games\Submarine Titans 2\plugins"
+copy "C:\Users\Professional\Desktop\Submarine Titans\STDLL\Release\d3drm.dll" "C:\GOG Games\Submarine Titans 2"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

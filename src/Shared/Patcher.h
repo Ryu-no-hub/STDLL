@@ -9,6 +9,7 @@
 #include "windows.h"
 #include "winhttp.h"
 #include <string>
+#include <fstream>
 
 #if !defined(_M_IX86) && !defined(__i386__)
 #error "Patcher supports only x86 systems"
@@ -183,11 +184,19 @@ bool inline AutosaveCheck()
     return (*game_mode_ptr == 3 && *host_flag);
 }
 
-//bool inline ReadDbFile()
-//{
-//
-//    return 0;
-//}
+bool inline ReadDbFile()
+{
+    std::ifstream patchListFile("patchlist.db");
+    std::string patchList;
+    if (patchListFile.is_open())
+    {
+        while (patchListFile)
+        {
+            std::getline(patchListFile, patchList);
+        }
+    }
+    return 0;
+}
 
 static unsigned long AnnounceGameStart_Jmp = 0x005D48A9;
 static unsigned long AnnounceGameStart_JmpBack = AnnounceGameStart_Jmp + 5;
@@ -289,7 +298,7 @@ __declspec(naked) void inline DontResetHostFlag()
     }
 }
 
-static unsigned long MinesDetectionWS_Jmp = 0x005C9E69;
+static unsigned long MinesDetectionWS_Jmp = 0x0044F826;
 static unsigned long MinesDetectionWS_JmpBack = MinesDetectionWS_Jmp + 5;
 __declspec(naked) void inline MinesDetectionWS()
 {
@@ -302,7 +311,7 @@ __declspec(naked) void inline MinesDetectionWS()
     __asm jmp[MinesDetectionWS_JmpBack];
 }
 
-static unsigned long MinesDetectionBO_Jmp = 0x005C9E69;
+static unsigned long MinesDetectionBO_Jmp = 0x0044F89E;
 static unsigned long MinesDetectionBO_JmpBack = MinesDetectionBO_Jmp + 5;
 __declspec(naked) void inline MinesDetectionBO()
 {
@@ -315,7 +324,7 @@ __declspec(naked) void inline MinesDetectionBO()
     __asm jmp[MinesDetectionBO_JmpBack];
 }
 
-static unsigned long MinesDetectionSI_Jmp = 0x005C9E69;
+static unsigned long MinesDetectionSI_Jmp = 0x0044F920;
 static unsigned long MinesDetectionSI_JmpBack = MinesDetectionSI_Jmp + 5;
 __declspec(naked) void inline MinesDetectionSI()
 {
@@ -328,32 +337,34 @@ __declspec(naked) void inline MinesDetectionSI()
     __asm jmp[MinesDetectionSI_JmpBack];
 }
 
-static unsigned long UPGNRGACCUM_decrease_deposit_Jmp = 0x005C9E69;
+static unsigned long UPGNRGACCUM_decrease_deposit_Jmp = 0x004E0FA4;
 static unsigned long UPGNRGACCUM_decrease_deposit_JmpBack = UPGNRGACCUM_decrease_deposit_Jmp + 9;
 __declspec(naked) void inline UPGNRGACCUM_decrease_deposit()
 {
-    __asm push 80;
-    __asm push[esi + 0x24];
-    __asm mov eax, 0x0040186B;
-    __asm call eax;
+    __asm {
+    push 80
+    push[esi + 0x24]
+    mov eax, 0x0040186B
+    call eax
 
-    __asm test ax, ax;
-    __asm jle stock;
-    __asm xor eax, eax;
-    __asm add eax, -06;
-    __asm jmp originalcode;
+    test ax, ax
+    jle stock
+    xor eax, eax
+    add eax, -6
+    jmp originalcode
 
-    __asm stock:;
-    __asm xor eax, eax;
-    __asm add eax, -05;
+    stock:
+    xor eax, eax
+    add eax, -5
 
-    __asm originalcode:;
-    __asm add[esi + 0x000004E0], eax;
+    originalcode:
+    add[esi + 0x000004E0], eax
 
-    __asm jmp[UPGNRGACCUM_decrease_deposit_JmpBack];
+    jmp[UPGNRGACCUM_decrease_deposit_JmpBack]
+    }
 }
 
-static unsigned long UPGNRGACCUM_increase_accum_Jmp = 0x005C9E69;
+static unsigned long UPGNRGACCUM_increase_accum_Jmp = 0x004E0FBF;
 static unsigned long UPGNRGACCUM_increase_accum_JmpBack = UPGNRGACCUM_increase_accum_Jmp + 9;
 __declspec(naked) void inline UPGNRGACCUM_increase_accum()
 {
@@ -577,7 +588,7 @@ __declspec(naked) void inline UpgRepairSpeedPlatf()
 {
     __asm push ecx;
     __asm push 32;
-    __asm push[ebx + 0x24];
+    __asm push[esi + 0x24];
     __asm mov eax, 0x0040186B;
     __asm call eax;
     __asm test ax, ax;
@@ -586,7 +597,7 @@ __declspec(naked) void inline UpgRepairSpeedPlatf()
 
     __asm push ecx;
     __asm push 139;
-    __asm push[ebx + 0x24];
+    __asm push[esi + 0x24];
     __asm mov eax, 0x0040186B;
     __asm call eax;
     __asm test ax, ax;
@@ -641,12 +652,13 @@ __declspec(naked) void inline OrbitalLaserFasterBuild()
         buildsat:
         add esi,25
         cmp edx,esi
-        jmp exit
+        jmp exitt
 
         originalcode:
         add esi,0x32
         cmp edx,esi
 
+        exitt:
         pop eax
         jmp[OrbitalLaserFasterBuild_JmpBack]
     }
@@ -682,11 +694,14 @@ __declspec(naked) void inline RecycleMetalContainerQuarterCoeff()
 }
 
 static unsigned long RecycleContainerCallUpdate_Jmp = 0x004B7EB2;
-static unsigned long RecycleContainerCallUpdate_JmpBack = RecycleContainerCallUpdate_JmpBack + 5;
+static unsigned long RecycleContainerCallUpdate_JmpBack = RecycleContainerCallUpdate_Jmp + 5;
 __declspec(naked) void inline RecycleContainerCallUpdate()
 {
     __asm {
-        mov ecx, [0x007FA174]
+        mov ecx, 0x00404B8D
+        call ecx
+        mov ecx, 0x007FA174
+        //mov ecx, [ecx]
         pop edi
         xor eax,eax
         pop esi
@@ -759,7 +774,8 @@ __declspec(naked) void inline AcousticMinesCheck()
 }
 
 static unsigned long CasseteShellExpl3CellsB4Target_Jmp = 0x00641930;
-static unsigned long CasseteShellExpl3CellsB4Target_JmpBack = CasseteShellExpl3CellsB4Target_Jmp + 6;
+static unsigned long CasseteShellExpl3CellsB4Target_JmpBack = CasseteShellExpl3CellsB4Target_Jmp +
+                                                              6;
 __declspec(naked) void inline CasseteShellExpl3CellsB4Target()
 {
     __asm {
@@ -794,6 +810,46 @@ __declspec(naked) void inline CasseteShellExpl3CellsB4Target()
         pop ecx
         pop eax
         jmp[CasseteShellExpl3CellsB4Target_JmpBack]
+    }
+}
+
+static unsigned long CasseteShellExplMidWay_Jmp = 0x00641930;
+static unsigned long CasseteShellExplMidWay_JmpBack = CasseteShellExplMidWay_Jmp + 6;
+__declspec(naked) void inline CasseteShellExplMidWay()
+{
+    __asm {
+        push eax
+        push ecx
+        push edx
+        movsx eax,word ptr [ebx+0x3E]
+        push eax
+        movsx ecx,word ptr [ebx+0x3C]
+        push ecx
+        movsx edx,word ptr [ebx+0x3A]
+        push edx
+        movsx eax,word ptr [ebx+0x38]
+        push eax
+        movsx ecx,word ptr [ebx+0x36]
+        push ecx
+        movsx edx,word ptr [ebx+0x34]
+        push edx
+        mov eax, 0x006ACF0D
+        call eax
+        pop edx
+        pop edx
+        pop edx
+        pop edx
+        pop edx
+        pop edx
+
+        xor edx, edx
+        mov ecx, 2
+        div ecx
+        pop edx
+        cmp edx,eax
+        pop ecx
+        pop eax
+        jmp[CasseteShellExplMidWay_JmpBack]
     }
 }
 
@@ -1976,7 +2032,8 @@ __declspec(naked) void inline AutosaveDontCheckIfFileExists()
         pop ebx
         pop eax
         pop edx
-        mov eax,0
+
+        mov eax, 0
         jmp exitt
 
         go_out:
@@ -1991,6 +2048,118 @@ __declspec(naked) void inline AutosaveDontCheckIfFileExists()
         jmp[AutosaveDontCheckIfFileExists_JmpBack]
     }
 }
+
+//static unsigned long AutosaveDontCheckIfFileExists_Jmp = 0x005355BD;
+//static unsigned long AutosaveDontCheckIfFileExists_JmpBack = AutosaveDontCheckIfFileExists_Jmp + 5;
+//__declspec(naked) void inline AutosaveDontCheckIfFileExists()
+//{
+//    __asm {
+//        push eax
+//        push ebx
+//        push edx
+//        
+//        call[AutosaveCheck]
+//        test eax, eax
+//        jz go_out
+//
+//        xor edx,edx
+//        mov eax,0x802A38
+//        mov eax,[eax]
+//        mov eax,[eax+0xE4]
+//        test eax, eax
+//        jz go_out
+//        mov ebx,1500
+//        div ebx //В eax - результат деления
+//        cmp dx,0
+//        jnz go_out
+//
+//            //Пропуск проверки
+//        pop edx
+//        pop ebx
+//        pop eax
+//                // pop edx
+//
+//        push edx
+//        push ebx
+//        push eax
+//
+//        mov al,[ebx+0x000001A4]
+//        push 00
+//        push 00
+//        push 00
+//        push 00
+//        push 00
+//        push 00
+//        push 0x0000C0B1
+//        push 0x0000C0A1
+//        cmp al,0xE
+//        push 00
+//        push 0x007C3894
+//        je exitt
+//        mov eax, 0x0040577C
+//        call eax
+//        add esp,8
+//        mov ecx,ebx
+//        push eax
+//        push 1
+//        push 0x7C
+//        push 0x5D
+//        push 0x01
+//        push 00
+//        mov eax, 0x0040398B
+//        call eax
+//        push 00
+//        push 00
+//        push 00
+//        push 00
+//        push 00
+//        push 00
+//        push 0x0000C0B2
+//        push 0x0000C0A2
+//        push 00
+//        push 0x007C3894
+//        mov [ebx+0x000001BD],eax
+//        mov eax, 0x0040577C
+//        call eax
+//        add esp,8
+//        mov ecx,ebx
+//        push eax
+//        push 1
+//        push 0x7C
+//        push 0x00000094
+//        push 1
+//        push 0
+//        mov eax, 0x0040398B
+//        call eax
+//        mov [ebx+0x000001C1],eax
+//        mov eax,[ebx+0x000001E1]
+//        push eax
+//        mov ecx,ebx
+//
+//        mov eax, 0x00403FBC
+//        call eax
+//
+//        pop eax
+//        pop ebx
+//        pop edx
+//        mov eax, 0x00402874
+//        call eax
+//
+//            // mov eax,0
+//        jmp exitt
+//
+//        go_out:
+//        pop edx
+//        pop ebx
+//        pop eax
+//
+//        mov eax, 0x00402874
+//        call eax
+//
+//        exitt:
+//        jmp[AutosaveDontCheckIfFileExists_JmpBack]
+//    }
+//}
 
 static unsigned long AutosaveSkipToggleMenu_Jmp = 0x005336BD;
 static unsigned long AutosaveSkipToggleMenu_JmpBack = AutosaveSkipToggleMenu_Jmp + 7;
@@ -3462,12 +3631,12 @@ __declspec(naked) void inline PSGCreateStruct()
         shl ecx,4
         add ecx,eax
         mov edx,[ecx*2+0x007F5862]
-        mov eax,0x004D1762
-        jmp eax
+        mov ecx,0x004D1762
+        jmp ecx
 
         jumpregion:
-        mov eax,0x004D153B
-        jmp eax
+        mov ecx,0x004D153B
+        jmp ecx
 
         originalcode:
         cmp eax,0x64
@@ -3548,16 +3717,16 @@ __declspec(naked) void inline PSGPlacingCheck()
         jl region
 
         jumpregion3:
-        mov eax,0x004AEC9D
-        jmp eax
+        mov ecx,0x004AEC9D
+        jmp ecx
             
         jumpregion:
-        mov eax,0x004AE985
-        jmp eax
+        mov ecx,0x004AE985
+        jmp ecx
 
         jumpregion2:
-        mov eax,0x004AEC96
-        jmp eax
+        mov ecx,0x004AEC96
+        jmp ecx
             
         originalcode:
         cmp eax,0x64
@@ -3617,7 +3786,7 @@ __declspec(naked) void inline PSGClearStruct()
         add edx,eax
         mov eax,[edx*2+0x007F5862]
         push eax
-        mov eax, 0x006ACC70
+        mov eax, 0x006B0C70
         call eax
 
         region1:
@@ -3642,12 +3811,12 @@ __declspec(naked) void inline PSGClearStruct()
         mov dword ptr [edx*2+0x007F5862],edi
 
         jumpregion3:
-        mov eax,0x004D2DC7
-        jmp eax
+        mov ecx,0x004D2DC7
+        jmp ecx
             
         jumpregion:
-        mov eax,0x004D2990
-        jmp eax
+        mov ecx,0x004D2990
+        jmp ecx
                         
         originalcode:
         cmp eax,0x64
@@ -3677,8 +3846,8 @@ __declspec(naked) void inline PSGClearStruct2()
         jmp exitt
 
         jumpregion:
-        mov eax,0x004B9AF9
-        jmp eax
+        mov ecx,0x004B9AF9
+        jmp ecx
 
         exitt:
         jmp[PSGClearStruct2_JmpBack]
@@ -3728,11 +3897,11 @@ __declspec(naked) void inline PSGFuncClearForcefieldUse3()
     __asm {
         cmp [esi+0x5AC],0x4C
         jne originalcode
-        mov ecx,[edx*2+0x007F5862]
+        mov eax,[edx*2+0x007F5862]
         jmp exitt
 
         originalcode:
-        mov ecx,[edx*2+0x007F5802]
+        mov eax,[edx*2+0x007F5802]
 
         exitt:
         jmp[PSGFuncClearForcefieldUse3_JmpBack]
@@ -3746,11 +3915,11 @@ __declspec(naked) void inline PSGFuncClearForcefieldUse4()
     __asm {
         cmp [esi+0x5AC],0x4C
         jne originalcode
-        mov ecx,[ecx*2+0x007F5862]
+        mov eax,[eax*2+0x007F5862]
         jmp exitt
 
         originalcode:
-        mov ecx,[ecx*2+0x007F5802]
+        mov eax,[eax*2+0x007F5802]
 
         exitt:
         jmp[PSGFuncClearForcefieldUse4_JmpBack]
@@ -3783,14 +3952,14 @@ __declspec(naked) void inline PSGAddNumberBeforeComplete()
         cmp eax,0x4C
         jne originalcode
         mov ecx,esi
-        mov eax, 0x004045A2
+        mov eax, 0x004045A2 //func_make_power_protector_description
         call eax
         mov eax, 0x004B99D4
         jmp eax
 
         jumpregion:
-        mov eax, 0x004B9982
-        jmp eax
+        mov ecx, 0x004B9982
+        jmp ecx
 
         originalcode:
         cmp eax,0x4D
@@ -3811,7 +3980,7 @@ __declspec(naked) void inline PSGFuncMakePowerProtectorUse()
         jmp exitt
 
         originalcode:
-        mov eax,[ecx*2+0x07F5802]
+        mov eax,[ecx*2+0x007F5802]
         exitt:
         jmp[PSGFuncMakePowerProtectorUse_JmpBack]
     }
@@ -3839,7 +4008,7 @@ static unsigned long PSGFuncMakePowerProtectorUse3_JmpBack = PSGFuncMakePowerPro
 __declspec(naked) void inline PSGFuncMakePowerProtectorUse3()
 {
     __asm {
-        cmp [esi+0x5AC],0x4C
+        cmp [ebx+0x5AC],0x4C
         jne originalcode
         mov ecx,[eax*2+0x007F5862]
         jmp exitt
@@ -4019,7 +4188,7 @@ __declspec(naked) void inline CheckHumanResearchCenters()
         shl ecx,4
         add ecx,eax
         mov eax,[ecx*2+0x007F5866]
-        cmp eax,4
+        cmp eax,5 //max centers
 
         pop edx
         pop ecx
@@ -4060,7 +4229,7 @@ __declspec(naked) void inline CheckSIModules()
         add ecx,ebx
         lea ebx,[ecx*2+edi]
         mov ecx,[ebx]
-        cmp ecx, 5
+        cmp ecx, 7 //max modules
 
         pop edx
         pop ecx
@@ -4233,7 +4402,7 @@ __declspec(naked) void inline DismantledModulesAndHumanCenters()
         pop edx
         pop ecx
         pop ebx
-        jmp exit
+        jmp exitt
 
         humans:
         push ebx
@@ -4254,13 +4423,13 @@ __declspec(naked) void inline DismantledModulesAndHumanCenters()
         pop ebx
 
         exitt:
+        pop eax
         jmp[DismantledModulesAndHumanCenters_JmpBack]
     }
 }
 
 static unsigned long CancelledModulesAndHumanCenters_Jmp = 0x004D3765;
-static unsigned long CancelledModulesAndHumanCenters_JmpBack = CancelledModulesAndHumanCenters_Jmp +
-                                                               6;
+static unsigned long CancelledModulesAndHumanCenters_JmpBack = CancelledModulesAndHumanCenters_Jmp + 6;
 __declspec(naked) void inline CancelledModulesAndHumanCenters()
 {
     __asm {
@@ -4920,19 +5089,77 @@ __declspec(naked) void inline DodgeFlagSet4()
     }
 }
 
+ 
+static unsigned long TradeStep10_Jmp = 0x0072434D;
+static unsigned long TradeStep10_JmpBack = TradeStep10_Jmp + 5;
+__declspec(naked) void inline TradeStep10()
+{
+    __asm {
+        imul eax, [ecx+0x60]
+        inc eax
+        imul eax, 0xA
+        jmp[TradeStep10_JmpBack]
+    }
+}
 
 
-
-
-
-
-
-
-
-
-
-
+//static unsigned long TeleportPersonalDistanceCharge_Jmp = 0x0047A9D2;
+//static unsigned long TeleportPersonalDistanceCharge_JmpBack = TeleportPersonalDistanceCharge_Jmp + 6;
+//__declspec(naked) void inline TeleportPersonalDistanceCharge()
+//{
+//    __asm {
+//        //add eax, 20
+//        push ebx
+//        mov ebx, eax
 //
+//        movsx eax, word ptr [esi+1627] 
+//        push eax
+//        movsx eax, word ptr [esi+1625] 
+//        push eax
+//        movsx eax, word ptr [esi+1623] 
+//        push eax
+//        
+//        movsx eax, word ptr [esi+75] 
+//        push eax
+//        movsx eax, word ptr [esi+73] 
+//        push eax
+//        movsx eax, word ptr [esi+71] 
+//        push eax
+//
+//        mov dword ptr [eax], 0x006AADD0
+//        call eax
+//
+//        sub ebx,eax
+//        test ebx, ebx
+//        jnb bigger
+//
+//        cmp eax,20
+//        ja bigger
+//
+//        sub eax, 20
+//        neg eax
+//        mov [esi+1822], eax
+//
+//
+//        bigger:
+//
+//        jmp[TeleportPersonalDistanceCharge_JmpBack]
+//    }
+//}
+
+
+
+static unsigned long ChangeGameVersion_Jmp = 0x005B324F;
+static unsigned long ChangeGameVersion_JmpBack = ChangeGameVersion_Jmp + 5;
+__declspec(naked) void inline ChangeGameVersion()
+{
+    __asm {
+        mov eax, 0x00807DD5
+        mov dword ptr [eax], 0x0102000B //0x0101002A
+        mov eax, [eax]
+        jmp[ChangeGameVersion_JmpBack]
+    }
+}
 
 
 const size_t CallJmpSize = 5;
@@ -5327,6 +5554,8 @@ struct SPatch
     }
 
     size_t WriteNops(void *addr, size_t count) { return WriteFill(addr, 0x90, count); }
+
+    size_t WriteZeros(void *addr, size_t count) { return WriteFill(addr, 0x00, count); }
 
     size_t WriteNopsToAddr(void *addr, const void *to)
     {
