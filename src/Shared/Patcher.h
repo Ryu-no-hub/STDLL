@@ -5147,7 +5147,18 @@ __declspec(naked) void inline TradeStep10()
 //    }
 //}
 
-
+ 
+//static unsigned long HalfArmorT4_Jmp = 0x00459E8F;
+//static unsigned long HalfArmorT4_JmpBack = HalfArmorT4_Jmp + 7;
+//__declspec(naked) void inline HalfArmorT4()
+//{
+//    __asm {
+//        lea     edx, ds:0[ecx*4+ecx]
+//add edx, ecx
+//
+//        jmp[HalfArmorT4_JmpBack]
+//    }
+//}
 
 static unsigned long ChangeGameVersion_Jmp = 0x005B324F;
 static unsigned long ChangeGameVersion_JmpBack = ChangeGameVersion_Jmp + 5;
@@ -5155,7 +5166,7 @@ __declspec(naked) void inline ChangeGameVersion()
 {
     __asm {
         mov eax, 0x00807DD5
-        mov dword ptr [eax], 0x0102000B //0x0101002A
+        mov dword ptr [eax], 0x0102000D //0x0101002A standart current
         mov eax, [eax]
         jmp[ChangeGameVersion_JmpBack]
     }

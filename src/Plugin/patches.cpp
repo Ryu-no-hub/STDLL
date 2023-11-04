@@ -1404,9 +1404,10 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     // patch.WriteU32((void *)0x007E04D4, ); // Destroyer buildtime
 
     // HP
-    patch.WriteU32((void *)0x007DFBB0, 210);  // Sentinel hp
-    patch.WriteU32((void *)0x007DFBB4, 540);  // Hunter hp
+    patch.WriteU32((void *)0x007DFBB0, 200);  // Sentinel hp
+    patch.WriteU32((void *)0x007DFBB4, 520);  // Hunter hp
     patch.WriteU32((void *)0x007DFBE0, 300);  // Fighter hp
+    patch.WriteU32((void *)0x007DFBE4, 580);  // Destroyer hp
     patch.WriteU32((void *)0x007DFBBC, 1600); // DC Bomber hp
 
     // patch.WriteU32((void *)0x007DFBE4, 300); // Destroyer hp
@@ -1434,6 +1435,8 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007E6498, 200); // Cruiser T3 damage
     patch.WriteU32((void *)0x007E649C, 230); // Cruiser T4 damage
     patch.WriteU32((void *)0x007E64A0, 270); // Cruiser T5 damage
+    //patch.WriteU32((void *)0x007A8C5C, 35); // Sentinel reload
+    
     // patch.WriteU32((void *)0x007E6520, 70); // Sentinel dmg T2
     patch.WriteU32((void *)0x007E65E4, 600); // DC Bomb damage
     
@@ -1453,6 +1456,19 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     // patch.WriteU32((void *)0x007E6648, );  // Gas Shell Launcher damage
 
     patch.WriteU32((void *)0x007E6580, 800); // Plasma damage
+    patch.WriteByte((void *)0x00642ABA, 3);   // Laser reflection % (25 -> 12.5)
+        
+
+    patch.WriteByte((void *)0x00459E86, 0x11); // Half damage T2 jump
+    patch.WriteByte((void *)0x00459E9C, 0xC9); // Half damage T2 value (90%)
+    patch.WriteNops((void *)0x00459E9D, 2);    // Half damage T2 nops
+         
+    patch.WriteByte((void *)0x00459E89, 0x17); // Half damage T3 jump
+
+    patch.WriteByte((void *)0x00459E91, 0x89); // Half damage T4
+    patch.WriteU16((void *)0x00459E92, 0xCA01); // Half damage T4
+    patch.WriteU16((void *)0x00459E94, 0xCA01); // Half damage T4
+
     return true;
 }
 
