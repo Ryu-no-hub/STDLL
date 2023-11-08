@@ -139,9 +139,22 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     patch.WriteU32((void *)0x005C8253, 0x0079C050); // Random map directory - custom
     patch.WriteU32((void *)0x005C851C, 0x0079C050); // Random map directory - custom 2
     patch.WriteU32((void *)0x005C7AE8, 0x0079C050); // Random map directory - custom 3
-    
-    patch.WriteU32((void *)0x0047A44E, 0); // Give ghost state teleport
 
+    patch.WriteU32((void *)0x0047A44E, 0); // Give ghost state teleport
+    patch.WriteByte((void *)0x004ECC7D, 12); // Increase teleshield range
+    //patch.WriteJumpSized(SetMineInSubLocation_Jmp, 21, (unsigned long)SetMineInSubLocation);
+
+    
+    patch.WriteU16((void *)0x004767E3, 75); // Set mine in submarine location z
+    patch.WriteU16((void *)0x004767EA, 73); // Set mine in submarine location y
+    patch.WriteU16((void *)0x004767F1, 71); // Set mine in submarine location x    
+
+    
+    patch.WriteJumpSized(ReturnResourcesCanceledBuilding_Jmp, 7, (unsigned long)ReturnResourcesCanceledBuilding);
+    
+    patch.WriteJumpSized(FixIonFieldResist_Jmp, 6, (unsigned long)FixIonFieldResist);
+    patch.WriteNops((void *)0x004BB442, 24); // Nops for prev script
+    
 
     patch.WriteJumpSized(MessageResearchComplete_Jmp, 6, (unsigned long)MessageResearchComplete);
 
@@ -915,7 +928,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteByte((void *)0x007BFFE4, 22); // WS SHRKCNTRL dep
     patch.WriteByte((void *)0x007BFD8C, 15); // WS PSIFIELD dep
     patch.WriteByte((void *)0x007BFE22, 29); // WS CORIUM276 dep
-    patch.WriteByte((void *)0x007BFDBE, 21); // WS TERMINATOR dep
+    patch.WriteByte((void *)0x007BFDBE, 8); // WS TERMINATOR dep
     patch.WriteByte((void *)0x007BFDC3, 31); // WS TERMINATOR dep2
     patch.WriteByte((void *)0x007BFDC7, 1);  // WS TERMINATOR dep2 lvl
     patch.WriteByte((void *)0x007BFD5A, 21); // WS UPG USG dep
@@ -1458,16 +1471,31 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007E6580, 800); // Plasma damage
     patch.WriteByte((void *)0x00642ABA, 3);   // Laser reflection % (25 -> 12.5)
         
+    //Submarines armor
+    patch.WriteByte((void *)0x00459E86, 0x11); // Half armor T2 jump
+    patch.WriteByte((void *)0x00459E9C, 0xC9); // Half armor T2 value (90%)
+    patch.WriteNops((void *)0x00459E9D, 2);    // Half armor T2 nops
 
-    patch.WriteByte((void *)0x00459E86, 0x11); // Half damage T2 jump
-    patch.WriteByte((void *)0x00459E9C, 0xC9); // Half damage T2 value (90%)
-    patch.WriteNops((void *)0x00459E9D, 2);    // Half damage T2 nops
-         
-    patch.WriteByte((void *)0x00459E89, 0x17); // Half damage T3 jump
+    patch.WriteByte((void *)0x00459E89, 0x17); // Half armor T3 jump
 
-    patch.WriteByte((void *)0x00459E91, 0x89); // Half damage T4
-    patch.WriteU16((void *)0x00459E92, 0xCA01); // Half damage T4
-    patch.WriteU16((void *)0x00459E94, 0xCA01); // Half damage T4
+    patch.WriteByte((void *)0x00459E91, 0x89);  // Half armor T4
+    patch.WriteU16((void *)0x00459E92, 0xCA01); // Half armor T4
+    patch.WriteU16((void *)0x00459E94, 0xCA01); // Half armor T4
+        
+    //Buildings armor
+    patch.WriteByte((void *)0x004BB5A1, 0x12); // Half armor T2 jump
+    patch.WriteByte((void *)0x004BB5B9, 0xC9); // Half armor T2 value (90%)
+    patch.WriteNops((void *)0x004BB5BA, 2);    // Half armor T2 nops
+
+    patch.WriteByte((void *)0x004BB5A4, 0x19); // Half armor T3 jump
+
+    patch.WriteByte((void *)0x004BB5AD, 0x89);  // Half armor T4
+    patch.WriteU16((void *)0x004BB5AE, 0xCA01); // Half armor T4
+    patch.WriteU16((void *)0x004BB5B0, 0xCA01); // Half armor T4
+
+    
+    patch.WriteU32((void *)0x004BB5DF, 0x3E8); // max blocked damage check
+    patch.WriteU32((void *)0x004BB5E6, 0x3E8); // max blocked damage replace
 
     return true;
 }

@@ -5160,13 +5160,197 @@ __declspec(naked) void inline TradeStep10()
 //    }
 //}
 
+static unsigned long SetMineInSubLocation_Jmp = 0x004767E0;
+static unsigned long SetMineInSubLocation_JmpBack = SetMineInSubLocation_Jmp + 21;
+__declspec(naked) void inline SetMineInSubLocation()
+{
+    __asm {
+        movsx eax, word ptr [esi+75]
+        movsx ecx, word ptr [esi+73]
+        movsx edx, word ptr [esi+71]
+
+        jmp[SetMineInSubLocation_JmpBack]
+    }
+}
+
+static unsigned long ReturnResourcesCanceledBuilding_Jmp = 0x004D284F;
+static unsigned long ReturnResourcesCanceledBuilding_JmpBack = ReturnResourcesCanceledBuilding_Jmp + 7;
+__declspec(naked) void inline ReturnResourcesCanceledBuilding()
+{
+    __asm {
+        cmp dword ptr [esi+680], 0
+        je exitt
+        cmp dword ptr [esi+680], 100
+        je exitt
+        
+        push eax
+        push ecx
+        push edx
+
+        mov eax,[esi+0x368]
+        mov ecx,[esi+0x36C]
+        xor edi,edi
+        lea edx,[eax+eax*2]
+        add edx,ecx
+        mov ecx,[edx*4+0x007E1C50]
+        cmp ecx,edi
+        jz metal
+        mov eax,[esi+680]
+        imul eax,ecx
+        lea eax,[eax+eax*2]
+        lea ecx,[eax+eax*4]
+        mov eax,0x68DB8BAD
+        shl ecx,02
+        imul ecx
+        mov cl,[esi+0x24]
+        sar edx,0xC
+        mov eax,edx
+        shr eax,0x1F
+        add edx,eax
+        push edx //result corium to replenish
+        push ecx //player
+        mov ecx,[0x007FA174]
+        mov eax, 0x00404412
+        call eax
+        
+        metal:
+        mov eax,[esi+0x368]
+        mov ecx,[esi+0x36C]
+        xor edi,edi
+        lea edx,[eax+eax*2]
+        add edx,ecx
+        mov ecx,[edx*4+0x007E24FC]
+        cmp ecx,edi
+        jz silicon
+        mov eax,[esi+680]
+        imul eax,ecx
+        lea eax,[eax+eax*2]
+        lea ecx,[eax+eax*4]
+        mov eax,0x68DB8BAD
+        shl ecx,02
+        imul ecx
+        mov cl,[esi+0x24]
+        sar edx,0xC
+        mov eax,edx
+        shr eax,0x1F
+        add edx,eax
+        push edx // result metal to replenish
+        push ecx // player
+        mov ecx,[0x007FA174]
+        mov eax, 0x004055E7
+        call eax
+            
+        silicon:
+        mov eax,[esi+0x368]
+        mov ecx,[esi+0x36C]
+        xor edi,edi
+        lea edx,[eax+eax*2]
+        add edx,ecx
+        mov ecx,[edx*4+0x007E3160]
+        cmp ecx,edi
+        jz gold
+        mov eax,[esi+680]
+        imul eax,ecx
+        lea eax,[eax+eax*2]
+        lea ecx,[eax+eax*4]
+        mov eax,0x68DB8BAD
+        shl ecx,02
+        imul ecx
+        mov cl,[esi+0x24]
+        sar edx,0xC
+        mov eax,edx
+        shr eax,0x1F
+        add edx,eax
+        push edx // result silicon to replenish
+        push ecx // player
+        mov ecx,[0x007FA174]
+        mov eax, 0x00405E6B
+        call eax
+            
+        gold:
+        mov eax,[esi+0x368]
+        mov ecx,[esi+0x36C]
+        xor edi,edi
+        lea edx,[eax+eax*2]
+        add edx,ecx
+        mov ecx,[edx*4+0x008545AC]
+        cmp ecx,edi
+        jz updateres
+        mov eax,[esi+680]
+        imul eax,ecx
+        lea eax,[eax+eax*2]
+        lea ecx,[eax+eax*4]
+        mov eax,0x68DB8BAD
+        shl ecx,02
+        imul ecx
+        mov cl,[esi+0x24]
+        sar edx,0xC
+        mov eax,edx
+        shr eax,0x1F
+        add edx,eax
+        push edx // result gold to replenish
+        push ecx // player
+        mov ecx,[0x007FA174]
+        mov eax, 0x00404336
+        call eax
+
+        updateres:
+        mov dl,[esi+0x24]
+        mov ecx,[0x007FA174]
+        push edx
+        mov eax, 0x004028F6
+        call eax
+        mov eax,0x0080874D
+        xor ecx, ecx
+        mov cl,[eax]
+        mov eax,[esi+0x24]
+        cmp eax,ecx
+        jne outt
+        mov ecx,[0x007FA174]
+        mov dl,al
+        push edx
+        mov eax, 0x00404B8D //update resource panel
+        call eax
+
+
+        outt:
+        pop edx
+        pop ecx
+        pop eax
+
+        exitt:
+        xor edi, edi
+        cmp dword ptr [esi+680], 100
+        jmp[ReturnResourcesCanceledBuilding_JmpBack]
+    }
+}
+
+
+static unsigned long FixIonFieldResist_Jmp = 0x004BB43C;
+static unsigned long FixIonFieldResist_JmpBack = FixIonFieldResist_Jmp + 6;
+__declspec(naked) void inline FixIonFieldResist()
+{
+    __asm {
+        lea ecx, [ecx+ecx*4]
+        lea ecx, [ecx+ecx*4]
+        shl ecx, 1
+        mov edx, eax
+        mov eax, ecx
+        mov ecx, edx
+        xor edx, edx
+        div ecx
+        mov ecx, eax
+        jmp[FixIonFieldResist_JmpBack]
+    }
+}
+
 static unsigned long ChangeGameVersion_Jmp = 0x005B324F;
 static unsigned long ChangeGameVersion_JmpBack = ChangeGameVersion_Jmp + 5;
 __declspec(naked) void inline ChangeGameVersion()
 {
     __asm {
         mov eax, 0x00807DD5
-        mov dword ptr [eax], 0x0102000D //0x0101002A standart current
+        mov dword ptr [eax], 0x01020011 // 0x0101002A standart current
         mov eax, [eax]
         jmp[ChangeGameVersion_JmpBack]
     }
