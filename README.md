@@ -20,3 +20,7 @@
 copy "$(OutputPath)STDLL.asi" "C:\GOG Games\Submarine Titans\plugins"
 
 copy "(Путь к папке с проектом)\STDLL\Release\d3drm.dll" "C:\GOG Games\Submarine Titans"
+
+
+## Справочная информация
+В файле ST.exe собраны адреса ключевых параметров.
