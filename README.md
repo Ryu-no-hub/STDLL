@@ -1,37 +1,41 @@
-  Example of plugin for addon.dll
+Проект для сборки патчей для Морских Титанов
 -----------------------------------
 
-This is an example of a plugin for addon.dll
+### Требуется
+- Visual Studio 2019
 
-## How to build
+### Как менять значения
+Переменные (хп, урон, скорость, и т.д.) имеют разный размер в байтах: 1, 2 и 4 байт.
+Например строки:
 
-### Prerequisites
+    patch.WriteByte((void *)0x007C0980, 123); // SI IONFIELD dep
+Означает перезапись значения размером 1 байт по адресу 0x007C0980 (оттуда игрой считывается id исследования, которое должно быть изучено) на значение 123. Максимальное число для 1 байта = 255.
 
-- Visual Studio 2010 or newer
-- CMake (optional)
+    patch.WriteU16((void *)0x004BB5B0, 0xCA01); // Half armor T4
+Означает перезапись значения размером 2 байта по адресу 0x004BB5B0 (здесь изменён сам код программы, а не значение переменной) на значение 0xCA01 (можно написать не в 16-ричном виде, а в 10-ричном, будет 51 713). Максимальное число для 2 байт = 65 535.
+    
+    patch.WriteU32((void *)0x007E4428, 1000);  // Pulsar HP
+Означает перезапись значения размером 4 байта по адресу 0x007E4428 (оттуда игрой считывается хп Пульсара) на значение 1000. Максимальное число для 4 байт = 4 294 967 295.
 
-### Method 1:
+### Как собрать патч :
+1. Открыть проект plugin.sln в Visual Studio
+2. Сборка -> Собрать решение (F7)
 
-1. Open plugin.sln with Visual Studio
-2. Press Build -> Build Solution
+## Как активировать патчи
+1. Положить d3drm.dll в игровую папку (1 раз, это механизм загрузки патчей).
+2. Создать папку 'plugins' и положить туда STDLL.asi (после каждого изменения - это сам патч).
 
-### Method 2 (using build.bat)
+## Настроить автоматическое перекладывание результирующих файлов в папки игры (опционально):
+Проект -> Свойства: 'имя проекта' -> События сборки -> Событие после сборки -> Командная строка -> <Изменить> (по стрелке справа)
 
-1. Open Visual Studio Command Prompt in repository directory
-2. Use the following command: `build.bat debug` (or `build.bat release`)
+Вписать 2 строки, внеся изменения в пути:
 
-### Method 3 (using CMake directly):
+copy "$(OutputPath)STDLL.asi" "C:\GOG Games\Submarine Titans\plugins"
 
-1. Open Command Prompt in repository directory
-2. Use the following commands:
+copy "(Путь к папке с проектом)\STDLL\Release\d3drm.dll" "C:\GOG Games\Submarine Titans"
 
-    ```
-    mkdir build
-    cd build
-    cmake ..
-    cmake --build .
-    ```
 
-## How to enable it
+## Справочная информация
+В эксель файле ST.xlsx собраны адреса начала областей с параметрами юнитов и др. в .exe игры.
 
-Drop d3drm.dll to game folder, create folder 'plugins' and drop STDLL.asi to this directory.
+Без IDA PRO можно менять значения, которые уже есть в проекте. С ней возможно увидеть адрес недостающей переменной, ориентируясь по эксель файлу, и добавить её.
