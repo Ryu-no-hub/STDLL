@@ -420,6 +420,7 @@ __declspec(naked) void inline Transport_waiting_mine_distance2()
 }
 
 static unsigned long OpenMap_Jmp = 0x00553B98;
+static unsigned long OpenMap_Jmp_2 = 0x00553B9A;
 static unsigned long OpenMap_JmpBack = OpenMap_Jmp + 6;
 __declspec(naked) void inline OpenMap()
 {
@@ -959,6 +960,129 @@ __declspec(naked) void inline SplinterTorpedoAoEDamageCheckLvl()
         jmp[SplinterTorpedoAoEDamageCheckLvl_JmpBack]
     }
 }
+
+static unsigned long ChangeSubsRange_Jmp = 0x0044F7F7;
+static unsigned long ChangeSubsRange_JmpBack = ChangeSubsRange_Jmp + 7;
+__declspec(naked) void inline ChangeSubsRange()
+{
+    __asm {
+        push eax
+        mov eax,[ebx+1783]
+        cmp eax,2 //6
+        je range_6
+        cmp eax,4
+        je range_6
+        cmp eax,5
+        je range_6
+        cmp eax,6
+        je range_6
+        cmp eax,11
+        je range_6
+        cmp eax,38
+        je range_6
+        cmp eax,13
+        je range_6
+        cmp eax,17
+        je range_6
+        cmp eax,18
+        je range_6
+        cmp eax,23
+        je range_6
+        cmp eax,39
+        je range_6
+        cmp eax,32
+        je range_6
+        cmp eax,33
+        je range_6
+        cmp eax,28
+        je range_6
+
+        cmp eax,3 // 5
+        je outt
+        cmp eax,10
+        je outt
+        cmp eax,15
+        je outt
+        cmp eax,16
+        je outt
+        cmp eax,22
+        je outt
+        cmp eax,31
+        je outt
+        
+        //range_7:
+        mov WORD PTR [ebx+0x814], 0x57F
+        mov WORD PTR [ebx+0x816], 7
+        jmp outt
+
+        range_6:
+        mov WORD PTR [ebx+0x814], 0x4B6
+        mov WORD PTR [ebx+0x816], 6
+
+        outt:
+        //mov byte ptr [ebx+1129],0 //dodge distance
+        pop eax
+        jmp dword ptr [eax*4+0x0045B044]
+    }
+}
+
+//static unsigned long ChangeSubsRange_Jmp = 0x0044F7F7;
+//static unsigned long ChangeSubsRange_JmpBack = ChangeSubsRange_Jmp + 7;
+//__declspec(naked) void inline ChangeSubsRange()
+//{
+//    __asm {
+//        push eax
+//        mov eax,[ebx+1783]
+//        cmp eax,1 //6
+//        je range_6
+//        cmp eax,3
+//        je range_6
+//        cmp eax,13
+//        je range_6
+//        cmp eax,38
+//        je range_6
+//        cmp eax,14
+//        je range_6
+//        cmp eax,18
+//        je range_6
+//        cmp eax,23
+//        je range_6
+//        cmp eax,30
+//        je range_6
+//        cmp eax,32
+//        je range_6
+//        cmp eax,28
+//        je range_6
+//        cmp eax,33
+//        je range_6
+//        cmp eax,39
+//        je range_6
+//
+//        cmp eax,31 // 5
+//        je outt
+//        cmp eax,22
+//        je outt
+//        cmp eax,15
+//        je outt
+//        cmp eax,16
+//        je outt
+//        cmp eax,10
+//        je outt
+//        
+//        //range_7:
+//        mov WORD PTR [ebx+0x814], 0x57F
+//        mov WORD PTR [ebx+0x816], 7
+//        jmp outt
+//
+//        range_6:
+//        mov WORD PTR [ebx+0x814], 0x4B6
+//        mov WORD PTR [ebx+0x816], 6
+//
+//        outt:
+//        pop eax
+//        jmp dword ptr [eax*4+0x0045B044]
+//    }
+//}
 
 static unsigned long BOFlagshipRange6_Jmp = 0x0044F94A;
 static unsigned long BOFlagshipRange6_JmpBack = BOFlagshipRange6_Jmp + 5;
@@ -4506,6 +4630,31 @@ __declspec(naked) void inline ModifyAimGpsV2()
         test eax,eax
         jz idle
 
+        // Check if too close        
+        push eax
+        push ecx
+        push edx
+        movsx eax,word ptr [edx+0x4B]
+        push eax
+        movsx ecx,word ptr [edx+0x49]
+        push ecx
+        movsx edx,word ptr [edx+0x47]
+        push edx
+        movsx eax,word ptr [edi+0x4B]
+        push eax
+        movsx ecx,word ptr [edi+0x49]
+        push ecx
+        movsx edx,word ptr [edi+0x47]
+        push edx
+        mov eax, 0x006AADD0
+        call eax
+        cmp eax, 2
+        pop edx
+        pop ecx
+        pop eax
+        jbe idle
+        //---
+
         mov eax,[edx+0xAF]
         test eax,eax
         jne non_zero
@@ -4636,6 +4785,34 @@ __declspec(naked) void inline ModifyTurretTurnV2()
         pop eax
         jz idle
 
+        
+        // Check if too close        
+        push eax   
+        push ebx
+        push ecx
+        push edx
+        movsx ebx,word ptr [eax+0x4B]
+        push ebx
+        movsx ecx,word ptr [eax+0x49]
+        push ecx
+        movsx edx,word ptr [eax+0x47]
+        push edx
+        movsx ebx,word ptr [edi+0x4B]
+        push ebx
+        movsx ecx,word ptr [edi+0x49]
+        push ecx
+        movsx edx,word ptr [edi+0x47]
+        push edx
+        mov eax, 0x006AADD0
+        call eax
+        cmp eax, 2
+        pop edx
+        pop ecx
+        pop ebx
+        pop eax
+        jbe idle
+        //---
+
         mov edx,[eax+0xAF]
         test edx,edx
         jne non_zero
@@ -4755,6 +4932,34 @@ __declspec(naked) void inline ModifyTurretTurnCheckV2()
         test eax,eax
         pop eax
         jz idle
+
+        
+        // Check if too close        
+        push ebx
+        push ecx
+        push edx
+        push eax
+        movsx ebx,word ptr [eax+0x4B]
+        push ebx
+        movsx ecx,word ptr [eax+0x49]
+        push ecx
+        movsx edx,word ptr [eax+0x47]
+        push edx
+        movsx ebx,word ptr [esi+0x4B]
+        push ebx
+        movsx ecx,word ptr [esi+0x49]
+        push ecx
+        movsx edx,word ptr [esi+0x47]
+        push edx
+        mov eax, 0x006AADD0
+        call eax
+        cmp eax, 2
+        pop eax
+        pop edx
+        pop ecx
+        pop ebx
+        jbe idle
+        //---
 
         mov edx,[eax+0xAF]
         test edx,edx
@@ -5089,6 +5294,26 @@ __declspec(naked) void inline DodgeFlagSet4()
     }
 }
 
+static unsigned long DodgeFlagSet5_Jmp = 0x00472710;
+static unsigned long DodgeFlagSet5_JmpBack = DodgeFlagSet5_Jmp + 10;
+__declspec(naked) void inline DodgeFlagSet5()
+{
+    __asm {
+        mov dword ptr [esi+0x82E],0
+        jmp[DodgeFlagSet5_JmpBack]
+    }
+}
+
+static unsigned long DodgeFlagSet6_Jmp = 0x00471E6B;
+static unsigned long DodgeFlagSet6_JmpBack = DodgeFlagSet6_Jmp + 6;
+__declspec(naked) void inline DodgeFlagSet6()
+{
+    __asm {
+        mov dword ptr [esi+0x82E],0
+        jmp[DodgeFlagSet6_JmpBack]
+    }
+}
+
  
 static unsigned long TradeStep10_Jmp = 0x0072434D;
 static unsigned long TradeStep10_JmpBack = TradeStep10_Jmp + 5;
@@ -5256,7 +5481,7 @@ __declspec(naked) void inline ReturnResourcesCanceledBuilding()
         mov eax,0x68DB8BAD
         shl ecx,02
         imul ecx
-        mov cl,[esi+0x24]
+        mov ecx,[esi+0x24]
         sar edx,0xC
         mov eax,edx
         shr eax,0x1F
@@ -5344,13 +5569,25 @@ __declspec(naked) void inline FixIonFieldResist()
     }
 }
 
+//static unsigned long ScoutDetectInvis_Jmp = 0x0041C4AA;
+//static unsigned long ScoutDetectInvis_JmpBack = ScoutDetectInvis_Jmp + 6;
+//__declspec(naked) void inline ScoutDetectInvis()
+//{
+//    __asm {
+//        add     eax, 0x0FFFFFFFB
+//        cmp     eax, 32
+//
+//        jmp[ScoutDetectInvis_JmpBack]
+//    }
+//}
+
 static unsigned long ChangeGameVersion_Jmp = 0x005B324F;
 static unsigned long ChangeGameVersion_JmpBack = ChangeGameVersion_Jmp + 5;
 __declspec(naked) void inline ChangeGameVersion()
 {
     __asm {
         mov eax, 0x00807DD5
-        mov dword ptr [eax], 0x01020011 // 0x0101002A standart current
+        mov dword ptr [eax], 0x01030000 // 0x0101002A standart current
         mov eax, [eax]
         jmp[ChangeGameVersion_JmpBack]
     }
