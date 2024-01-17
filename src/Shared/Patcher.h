@@ -4606,6 +4606,52 @@ __declspec(naked) void inline CancelledModulesAndHumanCenters()
     }
 }
 
+static unsigned long AntiAbuseHumanCenters_Jmp = 0x00452E31;
+static unsigned long AntiAbuseHumanCenters_JmpBack = AntiAbuseHumanCenters_Jmp + 13;
+__declspec(naked) void inline AntiAbuseHumanCenters()
+{
+    __asm {
+        push eax
+        push edx
+        push ecx
+
+        mov eax, [ebx+0x24]
+        lea edx, [eax+eax*4]
+        lea ecx, [eax+edx*8]
+        lea edx, [eax+ecx*2]
+        shl edx, 4
+        add edx, eax
+        cmp dword ptr [ebx+889],53
+        jne originalcode
+        
+        //проверка на кол-во        
+        cmp [edx*2+0x007F5866], 5
+        jb originalcode
+
+        //сброс приказа
+        mov ecx,0x17
+        xor eax,eax
+        lea edi, [ebx+716]
+        rep stosd
+        mov [ebx+708], 0
+        pop ecx
+        pop edx
+        pop eax
+        mov edx,0x00458C63
+        jmp edx
+
+        originalcode:
+        pop ecx
+        pop edx
+        pop eax
+        push esi
+        mov ecx, ebx
+        mov dword ptr [ebx+1117], 17
+
+        jmp[AntiAbuseHumanCenters_JmpBack]
+    }
+}
+
 static unsigned long ModifyAimGpsV2_Jmp = 0x004C3902;
 static unsigned long ModifyAimGpsV2_JmpBack = ModifyAimGpsV2_Jmp + 7;
 __declspec(naked) void inline ModifyAimGpsV2()
@@ -5587,7 +5633,8 @@ __declspec(naked) void inline ChangeGameVersion()
 {
     __asm {
         mov eax, 0x00807DD5
-        mov dword ptr [eax], 0x01030000 // 0x0101002A standart current
+        //mov dword ptr [eax], 0x01030000 // 0x0102002A - standart, 0x0102001A - V2, 0x01030000 - V3
+        mov dword ptr [eax], 0x0102001C
         mov eax, [eax]
         jmp[ChangeGameVersion_JmpBack]
     }
@@ -5705,8 +5752,8 @@ bool inline ApplyDetour(unsigned long origin, unsigned long length, unsigned lon
                          &previousProtection) == FALSE)
         return false;
 
-    // Hard length limit of 10...
-    unsigned char bytesToCopy[] = { 0xE9, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
+    // Hard length limit of 13...
+    unsigned char bytesToCopy[] = { 0xE9, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
     if (sizeof(bytesToCopy) < length)
         return false;
 
