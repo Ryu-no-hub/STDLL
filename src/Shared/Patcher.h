@@ -39,7 +39,7 @@ void inline AnnounceGameHost()
             if (hconnect)
             {
                 HINTERNET hRequest = WinHttpOpenRequest(
-                    hconnect, L"POST", L"/api/v10/channels/1140961298692190238/messages", NULL,
+                    hconnect, L"POST", L"/api/v10/channels/919149425182523426/messages", NULL,
                     WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, WINHTTP_FLAG_SECURE);
                 if (hRequest)
                 {
@@ -756,7 +756,7 @@ __declspec(naked) void inline BioassaulterAddMinesResearched()
 
 static unsigned long AcousticMinesCheck_Jmp = 0x004E653F;
 static unsigned long AcousticMinesCheck_JmpBack = AcousticMinesCheck_Jmp + 5;
-__declspec(naked) void inline AcousticMinesCheck()
+__declspec(naked) void inline AcousticMinesCheck() // BROKEN, 74 - Обнаружитель невидимок
 {
     __asm {
         cmp ebx,65 //0x41
@@ -1013,11 +1013,40 @@ __declspec(naked) void inline ChangeSubsRange()
         //range_7:
         mov WORD PTR [ebx+0x814], 0x57F
         mov WORD PTR [ebx+0x816], 7
+        mov WORD PTR [ebx+1802], 7
         jmp outt
 
         range_6:
         mov WORD PTR [ebx+0x814], 0x4B6
         mov WORD PTR [ebx+0x816], 6
+        mov WORD PTR [ebx+1802], 6
+
+        outt:
+        //mov byte ptr [ebx+1129],0 //dodge distance
+        pop eax
+        jmp dword ptr [eax*4+0x0045B044]
+    }
+}
+
+static unsigned long ChangeSubsRangeStd_Jmp = 0x0044F7F7;
+static unsigned long ChangeSubsRangeStd_JmpBack = ChangeSubsRangeStd_Jmp + 7;
+__declspec(naked) void inline ChangeSubsRangeStd()
+{
+    __asm {
+        push eax
+        mov eax,[ebx+1783]
+        cmp eax,2 //6
+        je range_6
+        cmp eax,13
+        je range_6
+        cmp eax,30
+        je range_6
+        jmp outt
+
+        range_6:
+        mov WORD PTR [ebx+0x814], 0x4B6
+        mov WORD PTR [ebx+0x816], 6
+        mov WORD PTR [ebx+1802], 6
 
         outt:
         //mov byte ptr [ebx+1129],0 //dodge distance
@@ -1104,6 +1133,7 @@ __declspec(naked) void inline SIFlagshipRange7()
         mov eax,0x1DF
         mov WORD PTR [ebx+0x814], 0x57F
         mov WORD PTR [ebx+0x816], 7
+        mov WORD PTR [ebx+1802], 7
         jmp[SIFlagshipRange7_JmpBack]
     }
 }
@@ -1138,10 +1168,10 @@ static unsigned long NoPlatformLoadFlagships_JmpBack = NoPlatformLoadFlagships_J
 __declspec(naked) void inline NoPlatformLoadFlagships()
 {
     __asm {
-        cmp eax,38
-        je outt
-        cmp eax,39
-        je outt
+        //cmp eax,38
+        //je outt
+        //cmp eax,39
+        //je outt
         cmp eax,40
         je outt
         jmp originalcode
@@ -4312,7 +4342,7 @@ __declspec(naked) void inline CheckHumanResearchCenters()
         shl ecx,4
         add ecx,eax
         mov eax,[ecx*2+0x007F5866]
-        cmp eax,5 //max centers
+        cmp eax,3 //max centers
 
         pop edx
         pop ecx
@@ -4334,6 +4364,8 @@ __declspec(naked) void inline CheckSIModules()
         call eax
 
         mov edi,[ebp-4]
+        cmp edi,87     // Exclude armor module
+        je unavailable //
         cmp edi,84
         jb exitt
         cmp edi,90
@@ -4353,12 +4385,14 @@ __declspec(naked) void inline CheckSIModules()
         add ecx,ebx
         lea ebx,[ecx*2+edi]
         mov ecx,[ebx]
-        cmp ecx, 7 //max modules
+        cmp ecx, 5 //max modules
 
         pop edx
         pop ecx
         pop ebx
         jb exitt
+
+        unavailable:
         mov eax,0
 
         exitt:
@@ -4625,7 +4659,7 @@ __declspec(naked) void inline AntiAbuseHumanCenters()
         jne originalcode
         
         //проверка на кол-во        
-        cmp [edx*2+0x007F5866], 5
+        cmp [edx*2+0x007F5866], 3 //max centers
         jb originalcode
 
         //сброс приказа
@@ -5374,63 +5408,6 @@ __declspec(naked) void inline TradeStep10()
 }
 
 
-//static unsigned long TeleportPersonalDistanceCharge_Jmp = 0x0047A9D2;
-//static unsigned long TeleportPersonalDistanceCharge_JmpBack = TeleportPersonalDistanceCharge_Jmp + 6;
-//__declspec(naked) void inline TeleportPersonalDistanceCharge()
-//{
-//    __asm {
-//        //add eax, 20
-//        push ebx
-//        mov ebx, eax
-//
-//        movsx eax, word ptr [esi+1627] 
-//        push eax
-//        movsx eax, word ptr [esi+1625] 
-//        push eax
-//        movsx eax, word ptr [esi+1623] 
-//        push eax
-//        
-//        movsx eax, word ptr [esi+75] 
-//        push eax
-//        movsx eax, word ptr [esi+73] 
-//        push eax
-//        movsx eax, word ptr [esi+71] 
-//        push eax
-//
-//        mov dword ptr [eax], 0x006AADD0
-//        call eax
-//
-//        sub ebx,eax
-//        test ebx, ebx
-//        jnb bigger
-//
-//        cmp eax,20
-//        ja bigger
-//
-//        sub eax, 20
-//        neg eax
-//        mov [esi+1822], eax
-//
-//
-//        bigger:
-//
-//        jmp[TeleportPersonalDistanceCharge_JmpBack]
-//    }
-//}
-
- 
-//static unsigned long HalfArmorT4_Jmp = 0x00459E8F;
-//static unsigned long HalfArmorT4_JmpBack = HalfArmorT4_Jmp + 7;
-//__declspec(naked) void inline HalfArmorT4()
-//{
-//    __asm {
-//        lea     edx, ds:0[ecx*4+ecx]
-//add edx, ecx
-//
-//        jmp[HalfArmorT4_JmpBack]
-//    }
-//}
-
 static unsigned long SetMineInSubLocation_Jmp = 0x004767E0;
 static unsigned long SetMineInSubLocation_JmpBack = SetMineInSubLocation_Jmp + 21;
 __declspec(naked) void inline SetMineInSubLocation()
@@ -5627,6 +5604,21 @@ __declspec(naked) void inline FixIonFieldResist()
 //    }
 //}
 
+
+static unsigned long Regen20Percent_Jmp = 0x004D715E;
+static unsigned long Regen20Percent_JmpBack = Regen20Percent_Jmp + 7;
+__declspec(naked) void inline Regen20Percent()
+{
+    __asm {
+        shl ecx,2
+        mul ecx
+        shr edx,5
+        jmp[Regen20Percent_JmpBack]
+    }
+}
+
+
+
 static unsigned long ChangeGameVersion_Jmp = 0x005B324F;
 static unsigned long ChangeGameVersion_JmpBack = ChangeGameVersion_Jmp + 5;
 __declspec(naked) void inline ChangeGameVersion()
@@ -5634,7 +5626,7 @@ __declspec(naked) void inline ChangeGameVersion()
     __asm {
         mov eax, 0x00807DD5
         //mov dword ptr [eax], 0x01030000 // 0x0102002A - standart, 0x0102001A - V2, 0x01030000 - V3
-        mov dword ptr [eax], 0x0102001C
+        mov dword ptr [eax], 0x0102001F
         mov eax, [eax]
         jmp[ChangeGameVersion_JmpBack]
     }
