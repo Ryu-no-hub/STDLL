@@ -7,8 +7,17 @@
 #include "injector.h"
 #include <string>
 #include <fstream>
+
 //#include <boost/property_tree/ptree.hpp>
 //#include <boost/property_tree/ini_parser.hpp>
+// 
+//#define YAML_CPP_STATIC_DEFINE
+//#define YAML_CPP_DLL
+//#include "yaml-cpp/yaml.h"
+//#include <iostream>
+//
+//using namespace YAML;
+using namespace std;
 
 #ifdef _DEBUG
 	#pragma comment(lib, "../Debug/shared.lib")
@@ -44,49 +53,141 @@ uint32_t GetSubTitansVersion()
 	}
 }
 
+//string get(list<string> _list, int _i)
+//{
+//    list<string>::iterator it = _list.begin();
+//    for (int i = 0; i < _i; i++)
+//    {
+//        ++it;
+//    }
+//    return *it;
+//}
+
 
 DWORD LoadPlugins(unsigned long gameVersion)
 {
-	DWORD result;
-	void* v1;
-	struct _WIN32_FIND_DATAA FindFileData;
-	CHAR Buffer[264];
-	CHAR String1[264];
+    DWORD result;
+    void *v1;
+    struct _WIN32_FIND_DATAA FindFileData;
+    CHAR Buffer[264];
+    CHAR String1[264];
 
-	typedef int(__cdecl* procSetVar)(unsigned long version);
+    typedef int(__cdecl * procSetVar)(unsigned long version);
 
-	result = GetCurrentDirectoryA(260, Buffer);
-	if (result)
-	{
-		lstrcatA(Buffer, "\\plugins\\*.asi");
-		auto file = FindFirstFileA(Buffer, &FindFileData);
-		v1 = file;
-		if (result != -1)
-		{
-			do
-			{
-				GetCurrentDirectoryA(260, String1);
-				lstrcatA(String1, "\\plugins\\");
-				lstrcatA(String1, FindFileData.cFileName);
-				auto pluglib = LoadLibraryA(String1);
-				if (!pluglib)
-				{
-					MessageBox(NULL, L"Failed to load any plugin!", L"D3DRM(Custom)", MB_ICONERROR);
-					//ExitProcess(-1);
-				}
-				else {
-					procSetVar procSetGameVer = (procSetVar)GetProcAddress(pluglib, "SetGameVer");
-					if (!procSetGameVer(gameVersion)) {
-						FreeLibrary(pluglib);
-						MessageBox(NULL, L"Some plugin is not for this executable!", L"D3DRM(Custom)", MB_ICONERROR);
-					}
-				}
-			} while (FindNextFileA(v1, &FindFileData));
-			return FindClose(v1);
-		}
-	}
-	return result;
+    //std::ifstream fin("plugins\config.yaml");
+    //YAML::Node doc = YAML::Load(fin);
+    //Emitter emitter;
+
+    //list<string> doc_test;
+    //for (unsigned i = 0; i < doc.size(); i++)
+    //{
+    //    emitter << doc[i];
+    //    doc_test.push_back(emitter.c_str());
+    //    cout << doc[i] << "\n";
+    //}
+
+    result = GetCurrentDirectoryA(260, Buffer);
+    if (result)
+    {
+        lstrcatA(Buffer, "\\plugins\\*.asi");
+        auto file = FindFirstFileA(Buffer, &FindFileData);
+        v1 = file;
+        if (result != -1)
+        {
+            do
+            {
+                GetCurrentDirectoryA(260, String1);
+                lstrcatA(String1, "\\plugins\\");
+                lstrcatA(String1, FindFileData.cFileName);
+                auto pluglib = LoadLibraryA(String1);
+                if (!pluglib)
+                {
+                    MessageBox(NULL, L"No plugins detected", L"d3drm", MB_ICONINFORMATION);
+                    // ExitProcess(-1);
+                }
+                else
+                {
+                    procSetVar procSetGameVer = (procSetVar)GetProcAddress(pluglib, "SetGameVer");
+                    if (!procSetGameVer(gameVersion))
+                    {
+                        FreeLibrary(pluglib);
+                        MessageBox(NULL, L"Some plugin is not for this executable!",
+                                   L"D3DRM(Custom)", MB_ICONERROR);
+                    }
+                }
+            } while (FindNextFileA(v1, &FindFileData));
+            return FindClose(v1);
+        }
+    }
+    return result;
 }
+
+
+//DWORD LoadPlugins(unsigned long gameVersion)
+//{
+//    DWORD result;
+//    void *v1;
+//    struct _WIN32_FIND_DATAA FindFileData;
+//    CHAR Buffer[264];
+//    CHAR String1[264];
+//
+//    typedef int(__cdecl * procSetVar)(unsigned long version);
+//
+//    // Node config = LoadFile("plugins\config.yaml");
+//    std::ifstream fin("plugins\config.yaml");
+//    YAML::Node doc = YAML::Load(fin);
+//    Emitter emitter;
+//    // std::cout << "Node :" << emitter.c_str() << std::endl;
+//
+//    list<string> doc_test;
+//    for (unsigned i = 0; i < doc.size(); i++)
+//    {
+//        emitter << doc[i];
+//        doc_test.push_back(emitter.c_str());
+//        cout << doc[i] << "\n";
+//    }
+//
+//    result = GetCurrentDirectoryA(260, Buffer);
+//    if (result)
+//    {
+//        lstrcatA(Buffer, "\\plugins\\*.asi");
+//        auto file = FindFirstFileA(Buffer, &FindFileData);
+//        v1 = file;
+//        if (result != -1)
+//        {
+//            do
+//            {
+//                GetCurrentDirectoryA(260, String1);
+//                lstrcatA(String1, "\\plugins\\");
+//                lstrcatA(String1, FindFileData.cFileName);
+//                auto pluglib = LoadLibraryA(String1);
+//                if (!pluglib)
+//                {
+//                    // MessageBox(NULL, L"No plugins detected", L"d3drm", MB_ICONINFORMATION);
+//                    for (unsigned i = 0; i < doc_test.size(); i++)
+//                    {
+//                        string str = get(doc_test, i);
+//                        wstring temp = wstring(str.begin(), str.end());
+//                        MessageBox(NULL, temp.c_str(), L"d3drm", MB_ICONINFORMATION);
+//                    }
+//                    // ExitProcess(-1);
+//                }
+//                else
+//                {
+//                    procSetVar procSetGameVer = (procSetVar)GetProcAddress(pluglib, "SetGameVer");
+//                    if (!procSetGameVer(gameVersion))
+//                    {
+//                        FreeLibrary(pluglib);
+//                        MessageBox(NULL, L"Some plugin is not for this executable!",
+//                                   L"D3DRM(Custom)", MB_ICONERROR);
+//                    }
+//                }
+//            } while (FindNextFileA(v1, &FindFileData));
+//            return FindClose(v1);
+//        }
+//    }
+//    return result;
+//}
 
 //DWORD LoadPlugins(unsigned long gameVersion)
 //{

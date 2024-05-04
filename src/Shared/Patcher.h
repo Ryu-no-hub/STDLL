@@ -39,7 +39,8 @@ void inline AnnounceGameHost()
             if (hconnect)
             {
                 HINTERNET hRequest = WinHttpOpenRequest(
-                    hconnect, L"POST", L"/api/v10/channels/919149425182523426/messages", NULL,
+                    //hconnect, L"POST", L"/api/v10/channels/919149425182523426/messages", NULL,
+                    hconnect, L"POST", L"/api/v10/channels/1140961298692190238/messages", NULL,
                     WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, WINHTTP_FLAG_SECURE);
                 if (hRequest)
                 {
@@ -677,9 +678,11 @@ static unsigned long RecycleSiliconHalfCoeff_Jmp = 0x004B7E92;
 static unsigned long RecycleSiliconHalfCoeff_JmpBack = RecycleSiliconHalfCoeff_Jmp + 7;
 __declspec(naked) void inline RecycleSiliconHalfCoeff()
 {
-    __asm mov esi, [eax * 4 + 0x007E09DC];
-    __asm sar esi, 1;
-    __asm jmp[RecycleSiliconHalfCoeff_JmpBack]
+    __asm {
+        mov esi, [eax * 4 + 0x007E09DC];
+        sar esi, 1;
+        jmp[RecycleSiliconHalfCoeff_JmpBack]
+    }
 }
 
 static unsigned long RecycleMetalContainerQuarterCoeff_Jmp = 0x004B7E5B;
@@ -712,13 +715,25 @@ __declspec(naked) void inline RecycleContainerCallUpdate()
 }
 
 static unsigned long RecycleContainerPushPlayer_Jmp = 0x004B7E99;
-static unsigned long RecycleContainerPushPlayer_JmpBack = RecycleContainerPushPlayer_Jmp + 6;
+static unsigned long RecycleContainerPushPlayer_JmpBack = RecycleContainerPushPlayer_Jmp + 12;
 __declspec(naked) void inline RecycleContainerPushPlayer()
 {
     __asm {
-        mov ecx,[ecx+0x24]
+        mov ecx, [ecx+0x24]
         push ecx
-        lea eax,[edx+esi]
+        lea eax, [edx+esi]
+        lea edx, [eax+edx*2]
+        lea eax, [edx+edi]
+        mov edx, eax
+        push eax
+
+        mov eax, 0x66666667
+        imul edx
+        sar edx, 1
+        pop eax
+        sub eax, edx
+        sub eax, edx
+
         jmp[RecycleContainerPushPlayer_JmpBack]
     }
 }
@@ -862,10 +877,9 @@ __declspec(naked) void inline CyberNoArmor()
         mov eax, 0x0040186B
         call eax
         push ecx
-        mov ecx,[ebx+0x6F7]
-        cmp ecx,9
+        cmp [ebx+0x6F7], 9
         je cyber
-        cmp ecx,15
+        cmp [ebx+0x6F7], 21
         je cyber
         jmp exitt
 
@@ -1314,32 +1328,44 @@ __declspec(naked) void inline DecreaseShowHPState()
     }
 }
 
+
 //Shift
-static unsigned long SkipStopResetOrderMove_Move_Jmp = 0x004523B4;
-static unsigned long SkipStopResetOrderMove_Move_JmpBack =
-    SkipStopResetOrderMove_Move_Jmp + 5;
+//static unsigned long SkipStopResetOrderMove_Move_Jmp = 0x004523B4;
+static unsigned long SkipStopResetOrderMove_Move_Jmp = 0x00452EBB;
+static unsigned long SkipStopResetOrderMove_Move_JmpBack = SkipStopResetOrderMove_Move_Jmp + 5;
 __declspec(naked) void inline SkipStopResetOrderMove_Move()
 {
     __asm {
-        push eax
-        push ecx
-        push edx
-        push 0x10
-        mov eax, 0x0085BDF0
-        call dword ptr [eax]
-        and eax,0x8000
+        push eax        
+        mov eax,[ebx+0x9F]
         test eax,eax
-        pop edx
-        pop ecx
+        jz outt
+        cmp [eax+34],1
         pop eax
-        jnz shift_pressed
+        je shift_pressed
         jmp originalcode
 
         shift_pressed:
+        //cmp [ebx+0x508],2  // статус строительства
+        //je originalcode
+        //cmp [ebx+0x508],5
+        //je originalcode
         pop esi
+        mov eax,0x00403A44
+        call eax
+
+        // +func_with_radio_clutter
+        mov edx,[ebx]
+        mov ecx,ebx
+        mov eax,[edx+216]
+        call eax
+        //
+
         mov eax,0
         jmp exitt
 
+        outt:
+        pop eax
         originalcode:
         mov eax, 0x00403DF0
         call eax
@@ -1355,23 +1381,23 @@ __declspec(naked) void inline SkipStopResetOrderIdle_Build()
 {
     __asm {
         push eax
-        push ecx
-        push edx
-        push 0x10
-        mov eax, 0x0085BDF0
-        call dword ptr [eax]
-        and eax,0x8000
+        mov eax,[ebx+0x9F]
         test eax,eax
-        pop edx
-        pop ecx
+        jz outt
+        cmp [eax+34],1
         pop eax
-        jnz shift_pressed
+        je shift_pressed
         jmp originalcode
+
+
 
         shift_pressed:
         pop esi
         mov eax,0
         jmp exitt
+
+        outt:
+        pop eax
 
         originalcode:
         mov eax, 0x0040493A
@@ -1387,31 +1413,37 @@ static unsigned long SkipStopResetOrderBuild_Build_JmpBack = SkipStopResetOrderB
 __declspec(naked) void inline SkipStopResetOrderBuild_Build()
 {
     __asm {
+
         push eax
-        push ecx
-        push edx
-        push 0x10
-        mov eax, 0x0085BDF0
-        call dword ptr [eax]
-        and eax,0x8000
+        mov eax,[ebx+0x9F]
         test eax,eax
-        pop edx
-        pop ecx
+        jz outt
+        cmp [eax+34],1
         pop eax
-        jnz shift_pressed
+        je shift_pressed
         jmp originalcode
 
         shift_pressed:
-        cmp [ebx+0x508],2
-        je originalcode
-        cmp [ebx+0x508],5
-        je originalcode
+        //cmp [ebx+0x508],2  // статус строительства
+        //je originalcode
+        //cmp [ebx+0x508],5
+        //je originalcode
         pop esi
+        mov eax,0x00403A44
+        call eax
+
+        // +func_with_radio_clutter
+        mov edx,[ebx]
+        mov ecx,ebx
+        mov eax,[edx+216]
+        call eax
+        //
+
         mov eax,0
         jmp exitt
 
-            // out:
-            // pop eax
+        outt:
+        pop eax
         originalcode:
         mov eax, 0x00401113
         call eax
@@ -1421,7 +1453,7 @@ __declspec(naked) void inline SkipStopResetOrderBuild_Build()
     }
 }
 
-static unsigned long EnableShiftAltInput_Jmp = 0x00731B878;
+static unsigned long EnableShiftAltInput_Jmp = 0x0071B878;
 static unsigned long EnableShiftAltInput_JmpBack = EnableShiftAltInput_Jmp + 5;
 __declspec(naked) void inline EnableShiftAltInput()
 {
@@ -1438,16 +1470,26 @@ __declspec(naked) void inline DontEraseOldOrder()
 {
     __asm {
         push ecx
-        push edx
-        push 0x10
-        mov eax, 0x0085BDF0
-        call dword ptr [eax]
-        and eax,0x8000
-        test eax,eax
-        pop edx
+        //push edx
+        //push 0x10
+        //mov eax, 0x0085BDF0
+        //call dword ptr [eax]
+        //and eax,0x8000
+        //test eax,eax
+        //pop edx
+        mov ecx,[esi+0x9F]
+        test ecx,ecx
+        jz outt
+        cmp [ecx+34],1
         pop ecx
-        jnz shift_pressed
+        //jnz shift_pressed
+        je shift_pressed
+        jmp originalcode
 
+        outt:
+        pop ecx
+
+        originalcode:
         lea ecx,[esi+0x0000009F]
         jmp exitt
 
@@ -1465,53 +1507,69 @@ static unsigned long AppendOrderInsteadOfReplace_JmpBack = AppendOrderInsteadOfR
 __declspec(naked) void inline AppendOrderInsteadOfReplace()
 {
     __asm {
-        push eax
-        push ecx
-        push edx
-        push 0x10
-        mov eax, 0x0085BDF0
-        call dword ptr [eax]
-        and eax,0x8000
         test eax,eax
-        pop edx
-        pop ecx
-        pop eax
-        jnz shift_pressed
-        jmp originalcode
-
-        shift_pressed:
-        mov dword ptr [ebx+0xE3],1 /////добавка 27.03.2023 для начала движения в stop_move
+        jz skip_set_flag
         push edx
         mov edx,[ebx+0x0000009F] //взять текущий приказ
         test edx,edx
         jz zero
+        //push eax
+        //push ecx
+        //push edx
+        //push 0x10
+        //mov eax, 0x0085BDF0
+        //call dword ptr [eax]
+        //and eax,0x8000
+        //test eax,eax
+        //pop edx
+        //pop ecx
+        //pop eax
+        //jnz shift_pressed
+        //jmp originalcode
+
+        push eax
+        mov eax,[ebx+0x9F]
+        cmp [eax+34],1
+        pop eax
+        je shift_pressed
+        //jmp originalcode
+        jmp zero
+
+        shift_pressed:
+        //mov dword ptr [ebx+0xE3],1 /////добавка 27.03.2023 для начала движения в stop_move
+        mov [ebx+0xE3],1 /////добавка 27.03.2023 для начала движения в stop_move
         push ebx
 
         go_deeper:
         mov ebx,edx
-        mov dword ptr [edx+0xC],0 //флаг отличия момента задания флага нового приказа
+        //mov dword ptr [edx+0xC],0 //флаг отличия момента задания флага нового приказа
         mov edx,[edx+8]
         cmp edx,0xFFFFFFFF
         jne go_deeper
         mov edx,ebx
         pop ebx
         mov dword ptr [edx+8], eax //вложить приказ
+        //mov dword ptr [edx+0xC],0 //флаг распаковки
+        mov dword ptr [eax+0xC],0 //флаг распаковки
         pop edx
         test eax,eax
         jmp exitt
 
         zero:
         pop edx
-        mov dword ptr [ebx+0x0000009F],eax
-        test eax,eax
-        jmp exit
-
-        originalcode:
         test eax,eax
         jz skip_set_flag
-        mov dword ptr [eax+0xC],0 //флаг отличия момента задания флага нового приказа
+        //mov dword ptr [eax+0xC],0 //флаг отличия момента задания флага нового приказа
         skip_set_flag:
         mov dword ptr [ebx+0x0000009F],eax
+        jmp exitt
+
+        //originalcode:
+        //test eax,eax
+        //jz skip_set_flag
+        //mov dword ptr [eax+0xC],0 //флаг отличия момента задания флага нового приказа
+        //skip_set_flag:
+        //mov dword ptr [ebx+0x0000009F],eax
 
         exitt:
         jmp[AppendOrderInsteadOfReplace_JmpBack]
@@ -1528,16 +1586,25 @@ __declspec(naked) void inline OrderEndProcedure()
         push eax //сохранение старого приказа
         test eax, eax
         jz vanilla
-        mov eax,[eax+8] //достать вложенный приказ
-        cmp eax,0xFFFFFFFF
-        jz vanilla
+        //mov eax,[eax+8] //достать вложенный приказ
+        //cmp eax,0xFFFFFFFF     
+        //jz vanilla   
+        cmp [eax+34],1
+        jne vanilla
+        //
+
         cmp [esi+0x508],7
         jne area4
-        mov dword ptr [eax+0xC],1
+        mov eax,[eax+8]
+        cmp eax,0xFFFFFFFF
+        je vanilla   
+        //mov dword ptr [eax+0xC],1
         mov dword ptr [esi+0xA7],0 // travelled
         mov dword ptr [esi+0x9F],eax //замена на вложенный приказ
-        mov dword ptr [esi+0x2C4],1 //флаг вложенный приказа
+        mov dword ptr [esi+0x2C4],1 //флаг нового приказа
         mov dword ptr [esi+0x30C],1 //флаг приказа строительства
+        mov dword ptr [eax+34],1 //флаг распознавания шифт-приказа
+        mov dword ptr [eax+0xC],1 // мой флаг распаковки
         pop eax //возврат старого приказа
         mov edi,[eax+0x34] //Прочитать дистанцию до приказа из старого приказа
         mov dword ptr [esi+0xA3],edi //Положить её в подлодку
@@ -1570,6 +1637,8 @@ __declspec(naked) void inline OrderEndProcedure()
 
 
         vanilla:
+        cmp [esi+0x508],7 //
+        jne area4 //
         pop eax
         cmp dword ptr [esi+0x0000008F],-1
         jne some_area
@@ -1595,25 +1664,37 @@ __declspec(naked) void inline NewBuildOrderWithShift()
 {
     __asm {
         push eax
-        push ecx
-        push edx
-        push 0x10
-        mov eax, 0x0085BDF0
-        call dword ptr [eax]
-        and eax,0x8000
-        test eax,eax
-        pop edx
-        pop ecx
-        pop eax
-        jnz shift_pressed
-        jmp originalcode
+        mov eax,[ebp+12]
+        cmp [eax+18],1
+        je shift_pressed 
+        jmp vanilla 
 
+        //push eax
+        //push ecx
+        //push edx
+        //push 0x10
+        //mov eax, 0x0085BDF0
+        //call dword ptr [eax]
+        //and eax,0x8000
+        //test eax,eax
+        //pop edx
+        //pop ecx
+        //pop eax
+        //jnz shift_pressed
+        //jmp originalcode
+        
         shift_pressed:
-        push eax
-        push ebx
+        //push eax
         mov eax,[edi+0x9F]
         test eax,eax
-        jz vanilla //нет текущего приказа
+        //pop eax
+        jnz has_order 
+
+
+        jmp vanilla //нет текущего приказа
+
+        has_order:
+        push ebx
         go_deeper:
         mov ebx,eax //сохранить ненулевой приказ
         mov eax,[eax+8] //прочитать вложенный приказ
@@ -1632,13 +1713,18 @@ __declspec(naked) void inline NewBuildOrderWithShift()
         jmp exitt
 
         vanilla:
-        pop ebx
+        mov eax,[edi+0x9F]
+        test eax,eax
+        jz outt
+        mov dword ptr [eax+34],0
+
+        outt:
         pop eax
 
-        originalcode:
-        mov dword ptr [edi+0x0000030C],esi
-        mov esi,[ebp+0x0C]
-        mov ecx,0x00000008
+        //originalcode:
+        mov dword ptr [edi+780],esi
+        mov esi,[ebp+12]
+        mov ecx,8
         add edi,0x0000036F
         repe movsd
         movsw
@@ -1655,24 +1741,28 @@ __declspec(naked) void inline PtrDistanceToTargetWithShift()
 {
     __asm {
         push eax
-        push ecx
-        push edx
-        push 0x10
-        mov eax, 0x0085BDF0
-        call dword ptr [eax]
-        and eax,0x8000
-        test eax,eax
-        pop edx
-        pop ecx
-        pop eax
-        jnz shift_pressed
-        jmp originalcode
-
-        shift_pressed:
-        push eax
         mov eax,[ebx+0x9F]
         test eax,eax
         jz vanilla
+        //push eax
+        //push ecx
+        //push edx
+        //push 0x10
+        //mov eax, 0x0085BDF0
+        //call dword ptr [eax]
+        //and eax,0x8000
+        //test eax,eax
+        //pop edx
+        //pop ecx
+        //pop eax
+        //jnz shift_pressed
+        //jmp originalcode
+        
+        cmp [eax+34],1
+        je shift_pressed
+        jmp vanilla
+
+        shift_pressed:
         push ecx
 
         go_deeper:
@@ -1688,7 +1778,7 @@ __declspec(naked) void inline PtrDistanceToTargetWithShift()
 
         vanilla:
         pop eax
-        originalcode:
+        //originalcode:
         lea ecx,[ebx+0x000000A3]
 
         exitt:
@@ -1712,12 +1802,13 @@ __declspec(naked) void inline DontResetOrderWhenChanged()
         push ebx
         mov ecx,esi
         mov eax, 0x00403B34
-        call dword ptr [eax]
+        call eax
         jmp[DontResetOrderWhenChanged_JmpBack]
     }
 }
 
-static unsigned long DontResetOrderWhenChanged2x2_Jmp = 0x0046BF9B;
+//static unsigned long DontResetOrderWhenChanged2x2_Jmp = 0x0046BF9B;
+static unsigned long DontResetOrderWhenChanged2x2_Jmp = 0x0046C30C;
 static unsigned long DontResetOrderWhenChanged2x2_JmpBack = DontResetOrderWhenChanged2x2_Jmp + 9;
 __declspec(naked) void inline DontResetOrderWhenChanged2x2()
 {
@@ -1733,8 +1824,493 @@ __declspec(naked) void inline DontResetOrderWhenChanged2x2()
         push ebx
         mov ecx,esi
         mov eax, 0x00403B34
-        call dword ptr [eax]
+        call eax
         jmp[DontResetOrderWhenChanged2x2_JmpBack]
+    }
+}
+
+
+static unsigned long CheckMyFlagToNotMakeNewOrder_Jmp = 0x0045FF8B;
+static unsigned long CheckMyFlagToNotMakeNewOrder_JmpBack = CheckMyFlagToNotMakeNewOrder_Jmp + 5;
+__declspec(naked) void inline CheckMyFlagToNotMakeNewOrder()
+{
+    __asm {
+        //push eax
+        //mov eax,[esi+0x9F]
+        //test eax,eax
+        //jz originalcode
+        //cmp [eax+0xC],1
+        //jne originalcode
+        //mov [eax+0xC],0
+        //pop eax
+        //jmp dont_create
+
+        
+        push eax
+        mov eax,[esi+0x9F]
+        test eax,eax
+        jz originalcode
+        cmp byte ptr [eax+34],1
+        //cmp dword ptr [eax+8], 0xFFFFFFFF
+        
+        jne originalcode
+
+        cmp [eax+0xC],1
+        je outt
+        //mov [eax+0xC],1        
+
+        //push ebx
+        //go_deeper:
+        //mov ebx,eax //сохранить ненулевой приказ
+        //cmp [eax+8],0xFFFFFFFF //прочитать вложенный приказ
+        //jne go_deeper
+        //pop ebx
+
+        // if 
+        ////mov [eax+0xC],1
+        //pop eax
+        //jmp dont_create
+
+
+        originalcode:
+        pop eax
+        mov eax,0x00402B26
+        call eax
+        jmp exitt
+
+        outt:
+        mov [eax+0xC],0
+        pop eax
+
+        //dont_create:
+        pop edx
+        pop edx
+
+        exitt:
+        jmp[CheckMyFlagToNotMakeNewOrder_JmpBack]
+    }
+}
+
+
+static unsigned long CheckNestedOrderToNotCheckDistance_Jmp = 0x0045FF96;
+static unsigned long CheckNestedOrderToNotCheckDistance_JmpBack = CheckNestedOrderToNotCheckDistance_Jmp + 7;
+__declspec(naked) void inline CheckNestedOrderToNotCheckDistance()
+{
+    __asm {        
+        push eax
+        mov eax,[esi+0x9F]
+        test eax,eax
+        jz no_order
+        //cmp dword ptr [eax+8], 0xFFFFFFFF
+        cmp byte ptr [eax+34],1
+        pop eax
+        jne originalcode
+        cmp [esi+1288],6
+        je originalcode
+        cmp [esi+1288],2
+        je originalcode
+        mov eax,1
+        jmp exitt
+
+        no_order:
+        pop eax
+
+        originalcode:
+        push eax
+        push edi
+        mov eax,0x0040230B
+        call eax
+        
+        exitt:
+        jmp[CheckNestedOrderToNotCheckDistance_JmpBack]
+    }
+}
+
+
+static unsigned long CheckOrderStateSpecialCases_Jmp = 0x0040D566;
+static unsigned long CheckOrderStateSpecialCases_JmpBack = CheckOrderStateSpecialCases_Jmp + 6;
+__declspec(naked) void inline CheckOrderStateSpecialCases()
+{
+    __asm {        
+        push eax
+        mov eax,[esi+0x9F]
+        test eax,eax
+        jz no_order
+        //cmp dword ptr [eax+8], 0xFFFFFFFF
+        cmp byte ptr [eax+34],1
+        pop eax
+        jne originalcode
+        cmp [esi+1288],6
+        je special_case
+        cmp [esi+1288],2
+        je special_case
+        jmp originalcode
+
+        special_case:
+        push eax
+        mov eax,[esi+0x9F]
+        mov eax,[eax+8]
+        cmp eax,-1
+        je no_order
+        mov ecx, dword ptr [eax+0x14] // X next order
+
+        jmp exitt
+
+        no_order:
+        pop eax
+
+        originalcode:
+        mov ecx,[esi+187]
+        
+        exitt:
+        jmp[CheckOrderStateSpecialCases_JmpBack]
+    }
+}
+
+
+static unsigned long CheckNestedOrderToNotDestroyNextStep_Jmp = 0x0045FB4D;
+static unsigned long CheckNestedOrderToNotDestroyNextStep_JmpBack = CheckNestedOrderToNotDestroyNextStep_Jmp+ 5;
+__declspec(naked) void inline CheckNestedOrderToNotDestroyNextStep()
+{
+    __asm {        
+        push eax
+        mov eax,[esi+0x9F]
+        test eax,eax
+        jz no_order
+        cmp dword ptr [eax+8], 0xFFFFFFFF
+        pop eax
+        
+        je originalcode
+        //cmp [esi+64],0
+        //je originalcode
+        jmp exitt
+
+        no_order:
+        pop eax
+
+        originalcode:
+        mov eax,0x00405952
+        call eax
+        
+        exitt:
+        jmp[CheckNestedOrderToNotDestroyNextStep_JmpBack]
+    }
+}
+
+
+static unsigned long DontCalculateNextStep_Jmp = 0x0045FFBB;
+static unsigned long DontCalculateNextStep_JmpBack = DontCalculateNextStep_Jmp + 5;
+__declspec(naked) void inline DontCalculateNextStep()
+{
+    __asm {        
+        //// X
+        //xor eax,eax
+        //mov ax, word ptr [esi+65]
+        //sub eax,100
+
+        //push edx
+        //xor edx,edx
+        //mov edi,201
+        //div edi
+        //test edx,edx
+
+        //jnz dont_calculate
+
+        //// Y
+        //mov ax, word ptr [esi+67]
+        //sub eax,100
+
+        //xor edx,edx
+        //mov edi,201
+        //div edi
+        //test edx,edx
+        //jnz dont_calculate
+
+        //// Z
+        //mov ax, word ptr [esi+69]
+        //sub eax,100
+
+        //xor edx,edx
+        //mov edi,200
+        //div edi
+        //test edx,edx
+        //jnz dont_calculate
+        //pop edx
+        //jmp originalcode
+
+        push eax
+        mov eax,[esi+0x9F]
+        cmp [eax+0xC],1
+        pop eax
+        jne originalcode
+
+        cmp[esi+64],0
+        //jne dont_calculate
+        jne exitt
+
+        originalcode:
+        mov eax,0x00403927
+        call eax
+        jmp exitt
+        
+        //dont_calculate:
+        //pop edx
+
+        exitt:
+        jmp[DontCalculateNextStep_JmpBack]
+    }
+}
+
+
+static unsigned long FakeNoShiftForQueue_Jmp = 0x0071C057;
+static unsigned long FakeNoShiftForQueue_JmpBack = FakeNoShiftForQueue_Jmp + 6;
+__declspec(naked) void inline FakeNoShiftForQueue()
+{
+    __asm {
+
+        //originalcode:
+        lea edx,[ebp-0x1B8]
+
+        push eax
+        mov eax,0x00802A30
+        mov eax,[eax]
+        cmp [eax+1186],14 // ghost building cursor state
+        pop eax
+        jne exitt
+        mov [edx+42],0
+
+        exitt:
+        jmp[FakeNoShiftForQueue_JmpBack]
+    }
+}
+
+
+static unsigned long DontOverwriteBuildState_Jmp = 0x0046B244;
+static unsigned long DontOverwriteBuildState_JmpBack = DontOverwriteBuildState_Jmp + 6;
+__declspec(naked) void inline DontOverwriteBuildState()
+{
+    __asm {        
+        //eax free
+        mov eax,[esi+0x9F]
+        test eax,eax
+        jz originalcode
+        cmp byte ptr [eax+34],1
+        jne originalcode
+        cmp byte ptr [eax+0xC],1
+        je originalcode
+        jmp exitt
+
+
+        originalcode:
+        mov [esi+1288],ebx
+        mov [esi+1292],ebx
+
+        exitt:
+        jmp[DontOverwriteBuildState_JmpBack]
+    }
+}
+
+
+static unsigned long DontCheckCellOccupation_Jmp = 0x0046B19B;
+static unsigned long DontCheckCellOccupation_JmpBack = DontCheckCellOccupation_Jmp + 6;
+__declspec(naked) void inline DontCheckCellOccupation()
+{
+    __asm {        
+        push eax
+        mov eax,[esi+0x9F]
+        test eax,eax
+        jz originalcode
+        cmp byte ptr [eax+34],1
+        jne originalcode
+        cmp byte ptr [eax+0xC],1
+        je originalcode
+        test ebx,ebx //
+        pop eax
+        jmp exitt
+
+
+        originalcode:
+        pop eax
+        movsx ecx, word ptr [ecx+edi*2]
+        cmp ecx,ebx
+
+        exitt:
+        jmp[DontCheckCellOccupation_JmpBack]
+    }
+}
+
+
+static unsigned long error_jmp = 0x0046C46B;
+static unsigned long ExitAfterWriteOrder_Jmp = 0x0046B260;
+static unsigned long ExitAfterWriteOrder_JmpBack = ExitAfterWriteOrder_Jmp + 6;
+__declspec(naked) void inline ExitAfterWriteOrder()
+{
+    __asm {       
+        push eax
+        mov eax,[esi+0x9F]
+        test eax,eax
+        jz originalcode
+        cmp byte ptr [eax+34],1
+        jne originalcode
+        cmp byte ptr [eax+0xC],1
+        je originalcode
+        pop eax
+        mov eax,2
+
+        pop edi
+        pop esi
+        pop ebx
+        mov esp,ebp
+        pop ebp
+        retn 4
+        //jmp exitt
+
+
+        originalcode:
+        pop eax
+        cmp eax,-1
+        jz error_
+        jmp exitt
+
+        error_:
+        jmp[error_jmp]
+
+        exitt:
+        jmp[ExitAfterWriteOrder_JmpBack]
+    }
+}
+
+
+static unsigned long DontCheckCellCenterFlag_Jmp = 0x0041640B;
+static unsigned long DontCheckCellCenterFlag_JmpBack = DontCheckCellCenterFlag_Jmp + 6;
+__declspec(naked) void inline DontCheckCellCenterFlag()
+{
+    __asm {       
+        push eax
+        mov eax,[esi+0x9F]
+        test eax,eax
+        jz originalcode
+        cmp byte ptr [eax+34],1
+        jne originalcode
+        cmp [esi+1288],6
+        je special_case
+        cmp [esi+1288],2
+        je special_case
+        jmp originalcode
+
+        special_case:
+        pop eax
+        mov al,1
+        jmp exitt
+
+
+        originalcode:
+        pop eax
+        mov al, [esi+227]
+
+        exitt:
+        jmp[DontCheckCellCenterFlag_JmpBack]
+    }
+}
+
+
+static unsigned long DontOverwriteTargetGPS_Jmp = 0x0046B225;
+static unsigned long DontOverwriteTargetGPS_JmpBack = DontOverwriteTargetGPS_Jmp + 5;
+__declspec(naked) void inline DontOverwriteTargetGPS()
+{
+    __asm {        
+        mov eax,[esi+0x9F]
+        test eax,eax
+        jz originalcode
+        cmp byte ptr [eax+34],1
+        jne originalcode
+        cmp byte ptr [eax+0xC],1
+        je originalcode
+        jmp exitt
+
+
+        originalcode:
+        mov eax, 0x00403EB3
+        call eax
+
+        exitt:
+        jmp[DontOverwriteTargetGPS_JmpBack]
+    }
+}
+
+static unsigned long DontOverwriteTargetCell_Jmp = 0x0048DDED;
+static unsigned long DontOverwriteTargetCell_JmpBack = DontOverwriteTargetCell_Jmp + 5;
+__declspec(naked) void inline DontOverwriteTargetCell()
+{
+    __asm {        
+        push eax
+
+        mov eax,[esi+0x9F]
+        test eax,eax
+        jz outt
+        cmp byte ptr [eax+34],1
+        jne outt
+        pop eax
+        ////cmp byte ptr [eax+0xC],0
+        //pop eax
+        //cmp eax,1
+        //jbe back
+        //jmp originalcode
+
+        back:
+        mov eax, 0x0048DE27
+        jmp eax
+
+        outt:
+        pop eax
+
+        //originalcode:
+        cmp eax,[ebp-8]
+        jge back
+
+        //exitt:
+        jmp[DontOverwriteTargetCell_JmpBack]
+    }
+}
+
+
+
+static unsigned long DefineInitiateBuildingMoment_Jmp = 0x00452E3E;
+static unsigned long DefineInitiateBuildingMoment_JmpBack = DefineInitiateBuildingMoment_Jmp + 5;
+__declspec(naked) void inline DefineInitiateBuildingMoment()
+{
+    __asm {
+        //if (1 and build_state = 7 || 0): func_build_movement else out
+        push eax
+        //mov eax,[ebx+897]
+        mov eax,[ebx+0x9F]
+        test eax,eax
+        jz normal_order
+        cmp [eax+34],1
+        jne normal_order
+        mov eax,[ebx+1288]
+        cmp eax, 7
+        pop eax
+        
+        je originalcode
+        jmp dont_initiate
+
+        normal_order:
+        pop eax
+
+        originalcode:
+        mov eax,0x00404543
+        call eax
+        jmp exitt
+
+        dont_initiate:
+        pop esi
+        mov eax,2
+        mov [ebx+780],0
+        //mov dword ptr [ebx+1117], 0
+        
+        exitt:
+        jmp[DefineInitiateBuildingMoment_JmpBack]
     }
 }
 
@@ -1743,25 +2319,17 @@ static unsigned long ReplaceSubGpsToOrderWithShift_JmpBack = ReplaceSubGpsToOrde
 __declspec(naked) void inline ReplaceSubGpsToOrderWithShift()
 {
     __asm {
-        push eax
-        push ecx
-        push edx
-        push 0x10
-        mov eax, 0x0085BDF0
-        call dword ptr [eax]
-        and eax,0x8000
-        test eax,eax
-        pop edx
-        pop ecx
-        pop eax
-        jnz shift_pressed
-        jmp originalcode
-
-        shift_pressed:
         push edi
         mov edi,[ebx+0x9F]
         test edi,edi
         jz outt
+
+        cmp [edi+34],1
+        je shift_pressed
+        jmp outt
+        
+                
+        shift_pressed:
         push esi
         push edx
         xor edx,edx //установить счётчик глубины на 0
@@ -1812,7 +2380,7 @@ __declspec(naked) void inline ReplaceSubGpsToOrderWithShift()
 
         outt:
         pop edi
-        originalcode:
+        //originalcode:
         movsx edx,word ptr [ebx+0x49]
         movsx eax,word ptr [ebx+0x47]
         jmp exitt
@@ -1831,26 +2399,17 @@ __declspec(naked) void inline ReplaceOrderGpsToOrderWithShift()
 {
     __asm {
         pop ecx
-        push eax
-        push ecx
-        push edx
-        push 0x10
-        mov eax, 0x0085BDF0
-        call dword ptr [eax]
-        and eax,0x8000
-        test eax,eax
-        pop edx
-        pop ecx
-        pop eax
-        jnz shift_pressed
-        jmp originalcode
-
-        shift_pressed:
         push edi
         mov edi,[ebx+0x9F]
         test edi,edi
         jz no_order
 
+        cmp [edi+34],1
+        je shift_pressed
+        jmp no_order
+
+        
+        shift_pressed:
         push edx
         go_deeper:
         mov edx,edi
@@ -1885,12 +2444,211 @@ __declspec(naked) void inline ReplaceOrderGpsToOrderWithShift()
     }
 }
 
+
+static unsigned long ReplaceOrderGpsToOrderWithShiftRmk_Jmp = 0x0040B901;
+static unsigned long ReplaceOrderGpsToOrderWithShiftRmk_JmpBack = ReplaceOrderGpsToOrderWithShiftRmk_Jmp + 8;
+__declspec(naked) void inline ReplaceOrderGpsToOrderWithShiftRmk()
+{
+    __asm {
+        pop edx // Y order revert push to replace
+        pop ecx // Z order
+
+
+        push edi
+        mov edi,[ebx+0x9F]
+        test edi,edi
+        jz no_order
+
+        cmp [edi+34],1
+        je shift_pressed
+        jmp no_order
+
+        shift_pressed:
+        // Взять самый глубокий приказ
+        push esi
+        go_deeper1:
+        mov esi,edi
+        mov edi,[edi+8]
+        cmp edi,0xFFFFFFFF
+        jne go_deeper1
+        mov edi,esi //вернуть глубочайший приказ
+        pop esi
+
+        // Переписать координаты приказа
+        movsx ecx,word ptr [edi+0x18] // Z order
+        inc ecx
+           //проверка 6 высоты
+        cmp ecx,5
+        jbe next
+        dec ecx
+        next:
+           //        
+        movsx edx,word ptr [edi+0x16] // Y order
+        pop esi
+        pop edi
+        push ecx // Z order push again changed
+        push edx // Y order push again changed
+
+        movsx eax,word ptr [edi+0x14] // X order
+        push eax // X order
+
+
+            // Проход с счётчиком
+        push edi
+        mov edi,[ebx+0x9F]
+
+        push esi
+        push edx
+        xor edx,edx
+        go_deeper2:
+        inc edx
+        mov esi,edi
+        mov edi,[edi+8]
+        cmp edi,0xFFFFFFFF
+        jne go_deeper2
+        mov edi,esi          //вернуть глубочайший приказ
+        cmp edx, 1
+        ja deep
+        pop edx
+
+            // НЕТ ВЛОЖЕННОГО ПРИКАЗА
+        // Переписать координаты начала пути с подлодки на текущую точку назначения
+        pop esi
+        pop edi
+        movsx ecx,word ptr [ebx+0xC3]
+        movsx edx,word ptr [ebx+0xBF]
+        movsx eax,word ptr [ebx+0xBB]
+        push ecx
+        jmp exitt
+
+            // ЕСТЬ ВЛОЖЕННЫЙ ПРИКАЗ
+        deep:
+
+            //ДОСТАТЬ ПРЕДПОСЛЕДНИЙ ВЛОЖЕННЫЙ ПРИКАЗ
+        mov esi,[ebx+0x9F] //Взять первый приказ
+        dec edx
+        cmp edx,1
+        je get_gps
+        unwrap:
+        mov esi,[esi+8]
+        dec edx
+        cmp edx,1
+        ja unwrap
+
+        get_gps:
+        movsx ecx,word ptr [esi+0x18]
+        inc ecx // высота +1
+        pop edx
+        xor edx,edx
+        movsx edx,word ptr [esi+0x16]
+        movsx eax,word ptr [esi+0x14]
+        pop esi
+        pop edi
+        push ecx
+        jmp exitt
+
+        no_order:
+        pop edi
+        push ecx
+        push edx
+
+        //originalcode:
+        movsx ecx, word ptr [ebx+75] // Z current
+        movsx edx, word ptr [ebx+73] // Y current
+        push eax
+        push ecx
+        movsx eax, word ptr [ebx+71] // X current
+
+        exitt:
+        jmp[ReplaceOrderGpsToOrderWithShiftRmk_JmpBack]
+    }
+}
+
 static unsigned long AlwaysJumpToRightOrderCreation_Jmp = 0x0040AFA0;
 __declspec(naked) void inline AlwaysJumpToRightOrderCreation()
 {
     __asm {
         mov ecx, 0x0040B56A
         jmp ecx
+    }
+}
+
+
+static unsigned long PrepareMailNewCommandType_Jmp = 0x00549655;
+static unsigned long PrepareMailNewCommandType_JmpBack = PrepareMailNewCommandType_Jmp + 5;
+__declspec(naked) void inline PrepareMailNewCommandType()
+{
+    __asm {
+        push eax
+
+        // shift check
+        push eax
+        push ecx
+        push edx
+        push 0x10
+        mov eax, 0x0085BDF0
+        call dword ptr [eax]
+        and eax,0x8000
+        test eax,eax
+        pop edx
+        pop ecx
+        pop eax
+        jnz newtype
+
+        //originalcode:
+        push 35
+        jmp outt
+
+        newtype:
+        push 36
+
+        outt:
+        mov ecx,esi        
+        jmp[PrepareMailNewCommandType_JmpBack]
+    }
+}
+
+static unsigned long AddInfoMailNewCommandType_Jmp = 0x00438216;
+static unsigned long AddInfoMailNewCommandType_JmpBack = AddInfoMailNewCommandType_Jmp + 7;
+__declspec(naked) void inline AddInfoMailNewCommandType()
+{
+    __asm {
+        // edx free
+        cmp [esi+14],36
+        jne originalcode
+        mov byte ptr [ebp-0x162],1
+        jmp exitt
+
+        originalcode:
+        mov byte ptr [ebp-0x162],0
+
+        exitt:
+        jmp[AddInfoMailNewCommandType_JmpBack]
+    }
+}
+
+
+static unsigned long SendMailNewCommandType_Jmp = 0x00438234;
+static unsigned long SendMailNewCommandType_JmpBack = SendMailNewCommandType_Jmp + 5;
+__declspec(naked) void inline SendMailNewCommandType()
+{
+    __asm {
+        push eax
+        
+        cmp [esi+14],36
+        jne originalcode
+        jmp newtype
+
+        originalcode:
+        push 9
+        jmp outt
+
+        newtype:
+        push 25
+
+        outt:
+        mov ecx,ebx        
+        jmp[SendMailNewCommandType_JmpBack]
     }
 }
 
@@ -4291,13 +5049,13 @@ static unsigned long ResearchBuildingsLimitCreateCommon_JmpBack =
 __declspec(naked) void inline ResearchBuildingsLimitCreateCommon()
 {
     __asm {
-        cmp dword ptr [ebx+0x00000259],92
+        cmp dword ptr [ebx+0x00000259],92 // TOBJ_PROTOPLASM_GENERATOR           
         je exitt
-        cmp dword ptr [ebx+0x00000259],53
+        cmp dword ptr [ebx+0x00000259],53 // TOBJ_RESEARCH_LABORATORY            
         je start
-        cmp dword ptr [ebx+0x00000259],84
+        cmp dword ptr [ebx+0x00000259],84 // TOBJ_MOBILITY_HUB_MODULE            
         jb exitt
-        cmp dword ptr [ebx+0x00000259],90
+        cmp dword ptr [ebx+0x00000259],90 // TOBJ_SUPER_TECH_HUB_MODULE          
         ja exitt
 
         start:
@@ -4319,6 +5077,40 @@ __declspec(naked) void inline ResearchBuildingsLimitCreateCommon()
         jmp[ResearchBuildingsLimitCreateCommon_JmpBack]
     }
 }
+
+//{
+//    __asm {
+//        cmp dword ptr [ebx+0x00000259],92 // TOBJ_PROTOPLASM_GENERATOR           
+//        je exitt
+//        cmp dword ptr [ebx+0x00000259],53 // TOBJ_RESEARCH_LABORATORY            
+//        je start
+//        cmp dword ptr [ebx+0x00000259],84 // TOBJ_MOBILITY_HUB_MODULE            
+//        jb exitt
+//        cmp dword ptr [ebx+0x00000259],90 // TOBJ_SUPER_TECH_HUB_MODULE          
+//        ja exitt
+//
+//        start:
+//        
+//        push eax
+//        push ecx
+//        mov ecx, [ebx+0x24]
+//        mov eax, 0x0080874D
+//        mov eax, [eax]
+//        and eax, 0xFF
+//        cmp cl, al // здание текущего игрока?
+//        pop ecx
+//        pop eax
+//        jne exitt
+//
+//        push edx // Костыль
+//        xor edx,edx //
+//        add [edx*2+0x007F5866], 1
+//        pop edx //
+//
+//        exitt:
+//        jmp[ResearchBuildingsLimitCreateCommon_JmpBack]
+//    }
+//}
 
 static unsigned long CheckHumanResearchCenters_Jmp = 0x0048898D;
 static unsigned long CheckHumanResearchCenters_JmpBack = CheckHumanResearchCenters_Jmp + 5;
@@ -4342,7 +5134,7 @@ __declspec(naked) void inline CheckHumanResearchCenters()
         shl ecx,4
         add ecx,eax
         mov eax,[ecx*2+0x007F5866]
-        cmp eax,3 //max centers
+        cmp eax,3 // max centers
 
         pop edx
         pop ecx
@@ -4355,6 +5147,43 @@ __declspec(naked) void inline CheckHumanResearchCenters()
     }
 }
 
+//__declspec(naked) void inline CheckHumanResearchCenters()
+//{
+//    __asm {
+//        mov eax, 0x0040571D
+//        call eax
+//
+//        cmp edi,53
+//        jne exitt
+//
+//        push eax
+//        push ecx
+//        mov ecx, [esi+36]
+//        mov eax, 0x0080874D
+//        mov eax, [eax]
+//        and eax, 0xFF
+//        cmp cl, al // здание текущего игрока?
+//        pop ecx
+//        pop eax
+//        jne exitt
+//
+//        push eax
+//
+//        mov eax,[0x007F5866]
+//        mov eax,[eax]
+//        cmp eax,3 // max centers
+//
+//        pop eax
+//
+//        jb exitt
+//        mov eax,0
+//
+//        exitt:
+//        jmp[CheckHumanResearchCenters_JmpBack]
+//    }
+//}
+
+
 static unsigned long CheckSIModules_Jmp = 0x004CE147;
 static unsigned long CheckSIModules_JmpBack = CheckSIModules_Jmp + 5;
 __declspec(naked) void inline CheckSIModules()
@@ -4364,8 +5193,18 @@ __declspec(naked) void inline CheckSIModules()
         call eax
 
         mov edi,[ebp-4]
-        cmp edi,87     // Exclude armor module
-        je unavailable //
+        cmp edi,85     // Exclude TOBJ_SUBMARINE_HUB_MODULE from available
+        je unavailable 
+        cmp edi,86     // Exclude TOBJ_ENERGY_HUB_MODULE from available
+        je unavailable 
+        cmp edi,87     // Exclude TOBJ_REGENERATION_HUB_MODULE from available
+        je unavailable 
+        cmp edi,89     // Exclude TOBJ_INTELLIGENCE_HUB_MODULE from available
+        je unavailable 
+        cmp edi,88     // Exclude structure from available
+        je unavailable 
+        cmp edi,90     // Exclude super-tech from available
+        je unavailable 
         cmp edi,84
         jb exitt
         cmp edi,90
@@ -4385,7 +5224,7 @@ __declspec(naked) void inline CheckSIModules()
         add ecx,ebx
         lea ebx,[ecx*2+edi]
         mov ecx,[ebx]
-        cmp ecx, 5 //max modules
+        cmp ecx, 3 //max modules
 
         pop edx
         pop ecx
@@ -4399,6 +5238,59 @@ __declspec(naked) void inline CheckSIModules()
         jmp[CheckSIModules_JmpBack]
     }
 }
+
+//__declspec(naked) void inline CheckSIModules()
+//{
+//    __asm {
+//        mov eax, 0x0040571D
+//        call eax
+//
+//        mov edi,[ebp-4]
+//        cmp edi,85 // Exclude TOBJ_SUBMARINE_HUB_MODULE from available
+//        je unavailable 
+//        cmp edi,86 // Exclude TOBJ_ENERGY_HUB_MODULE from available
+//        je unavailable 
+//        cmp edi,87 // Exclude TOBJ_REGENERATION_HUB_MODULE from available
+//        je unavailable 
+//        cmp edi,89 // Exclude TOBJ_INTELLIGENCE_HUB_MODULE from available
+//        je unavailable 
+//        cmp edi,88 // Exclude structure from available
+//        je unavailable 
+//        cmp edi,90 // Exclude super-tech from available
+//        je unavailable 
+//        cmp edi,84
+//        jb exitt
+//        cmp edi,90
+//        ja exitt
+//
+//        push eax
+//        push ecx
+//        mov ecx, [ebx+36]
+//        mov eax, 0x0080874D
+//        mov eax, [eax]
+//        and eax, 0xFF
+//        cmp cl, al // здание текущего игрока?
+//        pop ecx
+//        pop eax
+//        jne exitt
+//
+//
+//        push eax
+//
+//        mov eax,[0x007F5866]
+//        mov eax,[eax]
+//        cmp eax,3 // max modules
+//
+//        pop eax
+//        jb exitt
+//
+//        unavailable:
+//        mov eax,0
+//
+//        exitt:
+//        jmp[CheckSIModules_JmpBack]
+//    }
+//}
 
 static unsigned long DestroyedModulesAndHumanCentersFinished_Jmp = 0x004B9C49;
 static unsigned long DestroyedModulesAndHumanCentersFinished_JmpBack =
@@ -4461,6 +5353,43 @@ __declspec(naked) void inline DestroyedModulesAndHumanCentersFinished()
     }
 }
 
+//__declspec(naked) void inline DestroyedModulesAndHumanCentersFinished()
+//{
+//    __asm {
+//        mov eax,[esi+0x5AC] // ID
+//        cmp eax,53
+//        je start
+//        cmp eax,84
+//        jb originalcode
+//        cmp eax,90
+//        ja originalcode
+//
+//        start:
+//        push eax
+//        push ecx
+//        mov ecx, [esi+36]
+//        mov eax, 0x0080874D
+//        mov eax, [eax]
+//        and eax, 0xFF
+//        cmp cl, al // здание текущего игрока?
+//        pop ecx
+//        pop eax
+//        jne originalcode
+//
+//
+//        push eax
+//        mov eax,[0x007F5866]
+//        sub [eax],1
+//        pop eax
+//        
+//        originalcode:
+//        mov eax, 0x004010AA
+//        call eax
+//
+//        jmp[DestroyedModulesAndHumanCentersFinished_JmpBack]
+//    }
+//}
+
 static unsigned long DestroyedModulesAndHumanCentersBuilding_Jmp = 0x004D5B9B;
 static unsigned long DestroyedModulesAndHumanCentersBuilding_JmpBack =
     DestroyedModulesAndHumanCentersBuilding_Jmp + 5;
@@ -4522,6 +5451,39 @@ __declspec(naked) void inline DestroyedModulesAndHumanCentersBuilding()
         jmp[DestroyedModulesAndHumanCentersBuilding_JmpBack]
     }
 }
+
+//__declspec(naked) void inline DestroyedModulesAndHumanCentersBuilding()
+//{
+//    __asm {
+//        mov eax,[esi+0x259]
+//        cmp eax,53
+//        je start
+//        cmp eax,84
+//        jb originalcode
+//        cmp eax,90
+//        ja originalcode
+//
+//        start:
+//        push ecx
+//        mov ecx, [esi+36]
+//        mov eax, 0x0080874D
+//        mov eax, [eax]
+//        and eax, 0xFF
+//        cmp cl, al // здание текущего игрока?
+//        pop ecx
+//        jne originalcode
+//
+//
+//        mov eax,[0x007F5866]
+//        sub [eax],1
+//
+//        originalcode:
+//        mov eax, 0x00404264
+//        call eax
+//
+//        jmp[DestroyedModulesAndHumanCentersBuilding_JmpBack]
+//    }
+//}
 
 static unsigned long DismantledModulesAndHumanCenters_Jmp = 0x004B8DDA;
 static unsigned long DismantledModulesAndHumanCenters_JmpBack =
@@ -4586,6 +5548,45 @@ __declspec(naked) void inline DismantledModulesAndHumanCenters()
     }
 }
 
+//__declspec(naked) void inline DismantledModulesAndHumanCenters()
+//{
+//    __asm {
+//        mov ecx,[esi+0x00000239]
+//
+//        push eax
+//
+//        mov eax,[esi+0x5AC] // ID
+//        cmp eax,53
+//        je start
+//        cmp eax,84
+//        jb exitt
+//        cmp eax,90
+//        ja exitt
+//
+//        start:
+//        push eax
+//        push ecx
+//        mov ecx, [esi+36]
+//        mov eax, 0x0080874D
+//        mov eax, [eax]
+//        and eax, 0xFF
+//        cmp cl, al // здание текущего игрока?
+//        pop ecx
+//        pop eax
+//        jne exitt
+//
+//
+//        push eax
+//        mov eax,[0x007F5866]
+//        sub [eax],1
+//        pop eax
+//
+//        exitt:
+//        pop eax
+//        jmp[DismantledModulesAndHumanCenters_JmpBack]
+//    }
+//}
+
 static unsigned long CancelledModulesAndHumanCenters_Jmp = 0x004D3765;
 static unsigned long CancelledModulesAndHumanCenters_JmpBack = CancelledModulesAndHumanCenters_Jmp + 6;
 __declspec(naked) void inline CancelledModulesAndHumanCenters()
@@ -4637,6 +5638,81 @@ __declspec(naked) void inline CancelledModulesAndHumanCenters()
         lea edi,[esi+0x000001D5]
 
         jmp[CancelledModulesAndHumanCenters_JmpBack]
+    }
+}
+
+//__declspec(naked) void inline CancelledModulesAndHumanCenters()
+//{
+//    __asm {
+//        mov eax,[esi+0x259]
+//        cmp eax,53
+//        je start
+//        cmp eax,84
+//        jb originalcode
+//        cmp eax,90
+//        ja originalcode
+//
+//        start:
+//        push eax
+//        push ecx
+//        mov ecx, [esi+36]
+//        mov eax, 0x0080874D
+//        mov eax, [eax]
+//        and eax, 0xFF
+//        cmp cl, al // здание текущего игрока?
+//        pop ecx
+//        pop eax
+//        jne originalcode
+//
+//
+//        push eax
+//        mov eax,[0x007F5866]
+//        sub [eax],1
+//        pop eax
+//
+//        originalcode:
+//        lea edi,[esi+0x000001D5]
+//
+//        jmp[CancelledModulesAndHumanCenters_JmpBack]
+//    }
+//}
+
+//static unsigned long func_draw_signal = 0x004CD55E;
+static unsigned long CapturedTechBuildings_Jmp = 0x004CD55E;
+static unsigned long CapturedTechBuildings_JmpBack = CapturedTechBuildings_Jmp + 6;
+__declspec(naked) void inline CapturedTechBuildings()
+{
+    __asm {
+        mov cl, [esi+36]
+        add esp, 12
+        
+        cmp dword ptr [esi+1452],53
+        je next
+        cmp dword ptr [esi+1452],84
+        jb exitt
+        cmp dword ptr [esi+1452],90
+        ja exitt
+
+        next:
+        push eax
+        mov eax,0x0080874D
+        mov eax,[eax]
+        and eax, 0xFF
+        cmp cl, al // здание текущего игрока?
+        pop eax
+        jne exitt
+
+        // Decrease current amount
+        push eax
+
+        mov eax,[0x007F5866]
+        mov eax,[eax]
+        sub [eax],1
+
+        pop eax
+
+        exitt:
+        jmp[CapturedTechBuildings_JmpBack]
     }
 }
 
@@ -5617,7 +6693,1092 @@ __declspec(naked) void inline Regen20Percent()
     }
 }
 
+static unsigned long EnergyForSoliton_Jmp = 0x0060D0CB;
+static unsigned long EnergyForSoliton_JmpBack = EnergyForSoliton_Jmp + 9;
+__declspec(naked) void inline EnergyForSoliton()
+{
+    __asm {
+        push edx
+        push ecx
+        push eax
 
+        cmp edi, 1 // When = 1, pulse animation start
+        jne checkstate
+        test eax, eax // N of branch (0...5)
+        jnz checkstate
+                
+
+        mov eax,[ebx+36] // field owner
+        push eax
+        mov eax, 0x004036A7 // j_func_current_energy
+        call eax
+
+        cmp eax, 8 // pulse cost
+        jb stall
+        mov [ebx+556], 1
+        push 8     // pulse cost
+        mov eax,[ebx+36] // field owner
+        push eax
+        mov eax, 0x004043F9 // j_func_take_energy_1
+        call eax
+
+        mov eax,[ebx+36] // field owner
+        push eax
+        mov eax, 0x00404B8D // j_func_update_resources_panel
+        call eax
+
+        pop eax
+        pop ecx
+        pop edx
+        jmp active
+
+        stall:
+        mov [ebx+556], 0
+        
+        checkstate:
+        pop eax
+        pop ecx
+        pop edx
+        push eax
+        mov al, [ebx+556]
+        test eax, eax
+        pop eax
+        jnz active          // field is ON 
+        mov eax, 0x0060D18D // field is OFF
+        jmp eax
+
+        active:
+        mov edx, [esi+ecx+4] 
+        imul edi, [esi+ecx+56]
+
+        jmp[EnergyForSoliton_JmpBack]
+    }
+}
+
+
+static unsigned long MinesDetectionAllies_Jmp = 0x00494E8D;
+static unsigned long MinesDetectionAllies_JmpBack = MinesDetectionAllies_Jmp + 9;
+__declspec(naked) void inline MinesDetectionAllies()
+{
+    __asm {
+        push ecx
+
+        mov eax,[esi+0x18]
+        mov edx,[esi+257]
+        push -1
+        push eax
+        mov eax,[esi+0x24]
+        push edx
+        movsx edx,word ptr [esi+0x5F]
+        push eax
+        push edx
+        movsx eax,word ptr [esi+0x5D]
+        movsx edx,word ptr [esi+0x5B]
+        push eax
+        push edx
+        mov eax, 0x00401848
+        call eax
+        
+        pop ecx
+
+        push edx  
+        push eax
+        push ebx
+        mov ebx,[esi+0x24]
+        push ebx
+
+        //start:              
+        mov edx,-1
+        jmp loopy
+
+        loopy_pre:
+        pop ecx
+
+        loopy:
+        inc edx
+        cmp dl,8
+        jnb outt
+        xor eax,eax
+
+        mov al,bl
+        cmp al,dl // не сравнивать с собой
+        je loopy
+        
+        lea eax,[eax+eax*8]
+        mov al,[eax+eax*8+0x008087EA] // взять команду игрока
+        push ecx
+        lea ecx,[edx+edx*8]
+        lea ecx,[ecx+ecx*8+0x008087EB]
+        push edx
+        mov edx,[ecx]
+        test edx,edx
+        pop edx
+        jz loopy_pre
+        dec ecx
+        mov cl,[ecx] // взять команду игрока-счетчика
+        //mov cl,[ecx+ecx*8+0x008087EA] // взять команду игрока-счетчика
+        cmp cl,al
+        mov al,cl
+        pop ecx
+        jne loopy  
+        push ecx      
+        mov dword ptr [esi+0x24],edx
+        push edx
+
+        //originalcode:
+        mov eax,[esi+0x18]
+        mov edx,[esi+257]
+        push -1
+        push eax
+        mov eax,[esi+0x24]
+        push edx
+        movsx edx,word ptr [esi+0x5F]
+        push eax
+        push edx
+        movsx eax,word ptr [esi+0x5D]
+        movsx edx,word ptr [esi+0x5B]
+        push eax
+        push edx
+        mov eax, 0x00401848
+        call eax
+
+        pop edx
+        pop ecx
+        jmp loopy
+
+        outt:
+        pop ebx
+        mov dword ptr [esi+0x24],ebx
+        pop ebx
+        pop eax
+        pop edx
+        jmp[MinesDetectionAllies_JmpBack]
+    }
+}
+
+
+static unsigned long LasMinesDetectionAllies_Jmp = 0x00494E3E;
+static unsigned long LasMinesDetectionAllies_JmpBack = LasMinesDetectionAllies_Jmp + 9;
+__declspec(naked) void inline LasMinesDetectionAllies()
+{
+    __asm {
+        push ecx
+
+        mov eax,[esi+0x18]
+        mov edx,[esi+257]
+        push -1
+        push eax
+        mov eax,[esi+0x24]
+        push edx
+        movsx edx,word ptr [esi+0x5F]
+        push eax
+        push edx
+        movsx eax,word ptr [esi+0x5D]
+        movsx edx,word ptr [esi+0x5B]
+        push eax
+        push edx
+        mov eax, 0x0040205E
+        call eax
+        
+        pop ecx
+
+        push edx  
+        push eax
+        push ebx
+        mov ebx,[esi+0x24]
+        push ebx
+
+        //start:              
+        mov edx,-1
+        jmp loopy
+
+        loopy_pre:
+        pop ecx
+
+        loopy:
+        inc edx
+        cmp dl,8
+        jnb outt
+        xor eax,eax
+
+        mov al,bl
+        cmp al,dl // не сравнивать с собой
+        je loopy
+        
+        lea eax,[eax+eax*8]
+        mov al,[eax+eax*8+0x008087EA] // взять команду игрока
+        push ecx
+        lea ecx,[edx+edx*8]
+        lea ecx,[ecx+ecx*8+0x008087EB]
+        push edx
+        mov edx,[ecx]
+        test edx,edx
+        pop edx
+        jz loopy_pre
+        dec ecx
+        mov cl,[ecx] // взять команду игрока-счетчика
+        //mov cl,[ecx+ecx*8+0x008087EA] // взять команду игрока-счетчика
+        cmp cl,al
+        mov al,cl
+        pop ecx
+        jne loopy  
+        push ecx      
+        mov dword ptr [esi+0x24],edx
+        push edx
+
+        //originalcode:
+        mov eax,[esi+0x18]
+        mov edx,[esi+257]
+        push -1
+        push eax
+        mov eax,[esi+0x24]
+        push edx
+        movsx edx,word ptr [esi+0x5F]
+        push eax
+        push edx
+        movsx eax,word ptr [esi+0x5D]
+        movsx edx,word ptr [esi+0x5B]
+        push eax
+        push edx
+        mov eax, 0x0040205E
+        call eax
+
+        pop edx
+        pop ecx
+        jmp loopy
+
+        outt:
+        pop ebx
+        mov dword ptr [esi+0x24],ebx
+        pop ebx
+        pop eax
+        pop edx
+        jmp[LasMinesDetectionAllies_JmpBack]
+    }
+}
+
+static unsigned long InvisDetectionLoopAlliesBoats_Jmp = 0x0041C4C1;
+static unsigned long InvisDetectionLoopAlliesBoats_JmpBack = InvisDetectionLoopAlliesBoats_Jmp + 9;
+__declspec(naked) void inline InvisDetectionLoopAlliesBoats()
+{
+    __asm {
+        push ecx
+
+        mov edx,[esi+0x18]
+        mov eax,[esi+257]
+        movsx ecx,word ptr [esi+0x5F]
+        push -1
+        push edx
+        movsx edx,word ptr [esi+0x5D]
+        mov [esi+269],eax
+        push eax
+        mov eax,[esi+0x24]
+        push eax
+        push ecx
+        movsx eax,word ptr [esi+0x5B]
+        mov ecx, 0x00802A88
+        mov ecx,[ecx]
+        push edx
+        push eax
+        mov eax, 0x0040141F
+        call eax
+
+        pop ecx
+
+        push edx  
+        push eax
+        push ebx
+        mov ebx,[esi+0x24]
+        push ebx
+
+            // start:              
+        mov edx,-1
+        jmp loopy
+
+        loopy_pre:
+        pop ecx
+
+        loopy:
+        inc edx
+        cmp dl,8
+        jnb outt
+        xor eax,eax
+
+        mov al,bl
+        cmp al,dl // не сравнивать с собой
+        je loopy
+        
+        lea eax,[eax+eax*8]
+        mov al,[eax+eax*8+0x008087EA] // взять команду игрока
+        push ecx
+        lea ecx,[edx+edx*8]
+        lea ecx,[ecx+ecx*8+0x008087EB]
+        push edx
+        mov edx,[ecx]
+        test edx,edx
+        pop edx
+        jz loopy_pre
+        dec ecx
+        mov cl,[ecx] // взять команду игрока-счетчика
+        // mov cl,[ecx+ecx*8+0x008087EA] // взять команду игрока-счетчика
+        cmp cl,al
+        mov al,cl
+        pop ecx
+        jne loopy  
+        push ecx      
+        mov dword ptr [esi+0x24],edx
+        push edx
+
+            // originalcode:
+        mov edx,[esi+0x18]
+        mov eax,[esi+257]
+        movsx ecx,word ptr [esi+0x5F]
+        push -1
+        push edx
+        movsx edx,word ptr [esi+0x5D]
+        mov [esi+269],eax
+        push eax
+        mov eax,[esi+0x24]
+        push eax
+        push ecx
+        movsx eax,word ptr [esi+0x5B]
+        mov ecx, 0x00802A88
+        mov ecx,[ecx]
+        push edx
+        push eax
+        mov eax, 0x0040141F
+        call eax
+
+        pop edx
+        pop ecx
+        jmp loopy
+
+        outt:
+        pop ebx
+        mov dword ptr [esi+0x24],ebx
+        pop ebx
+        pop eax
+        pop edx
+
+        jmp[InvisDetectionLoopAlliesBoats_JmpBack]
+    }
+}
+
+static unsigned long MineShow_Jmp = 0x00622722;
+static unsigned long MyMinesObservationForAllies_Jmp = 0x006226E4;
+static unsigned long MyMinesObservationForAllies_JmpBack = MyMinesObservationForAllies_Jmp + 8;
+__declspec(naked) void inline MyMinesObservationForAllies()
+{
+    __asm {
+        push eax
+
+        lea eax,[eax+eax*8]
+        mov al,[eax+eax*8+0x008087EA] // взять команду текущего игрока
+
+        lea ecx,[ecx+ecx*8]
+        lea ecx,[ecx+ecx*8+0x008087EB]  
+
+        push edx
+        mov edx,[ecx]
+        test edx,edx
+        pop edx
+        jz not_my_team
+
+        dec ecx
+        mov cl,[ecx] // взять команду игрока-хозяина мины
+        cmp cl,al
+        pop eax
+        jne not_my_team
+
+        xor ecx,ecx
+        mov cl,[esi+685]
+        jmp[MineShow_Jmp]
+
+        not_my_team:
+        xor ecx,ecx
+        mov cl,[esi+685]
+        jmp[MyMinesObservationForAllies_JmpBack]
+    }
+}
+
+static unsigned long InvisDetectionLoopAllies_Jmp = 0x0041D1B9;
+static unsigned long InvisDetectionLoopAllies_JmpBack = InvisDetectionLoopAllies_Jmp + 5;
+__declspec(naked) void inline InvisDetectionLoopAllies()
+{
+    __asm {
+        push ecx
+        mov edx,[esi+0x18]
+        push -1
+        push edx
+        push eax
+        movsx edx,word ptr [esi+0x5F]
+        mov eax,[esi+0x24]
+        push eax
+        push edx
+        movsx eax,word ptr [esi+0x5D]
+        movsx edx,word ptr [esi+0x5B]
+        push eax
+        push edx
+        mov eax, 0x0040141F
+        call eax
+        pop ecx
+
+        push edx  
+        push eax
+        push ebx
+        mov ebx,[esi+0x24]
+        push ebx
+
+        //start:              
+        mov edx,-1
+        jmp loopy
+
+        loopy_pre:
+        pop ecx
+
+        loopy:
+        inc edx
+        //mov eax,0x00808AAF // кол-во игроков в игре
+        //cmp dl,[eax]
+        cmp dl,8
+        jnb outt
+        xor eax,eax
+
+        mov al,bl
+        cmp al,dl // не сравнивать с собой
+        je loopy
+        
+        lea eax,[eax+eax*8]
+        mov al,[eax+eax*8+0x008087EA] // взять команду игрока
+        push ecx
+        lea ecx,[edx+edx*8]
+        lea ecx,[ecx+ecx*8+0x008087EB]
+        push edx
+        mov edx,[ecx]
+        test edx,edx
+        pop edx
+        jz loopy_pre
+        dec ecx
+        mov cl,[ecx] // взять команду игрока-счетчика
+        //mov cl,[ecx+ecx*8+0x008087EA] // взять команду игрока-счетчика
+        cmp cl,al
+        mov al,cl
+        pop ecx
+        jne loopy  
+        push ecx      
+        mov dword ptr [esi+0x24],edx
+        push edx
+
+        //originalcode:
+        mov edx,[esi+0x18]
+        push -1
+        push edx
+        mov eax,[ebp+8]
+        push eax
+        movsx edx,word ptr [esi+0x5F]
+        //mov eax,[esi+0x24]
+        mov eax,[esi+0x24]
+        push eax
+        push edx
+        movsx eax,word ptr [esi+0x5D]
+        movsx edx,word ptr [esi+0x5B]
+        push eax
+        push edx
+        mov eax, 0x0040141F
+        call eax
+        pop edx
+        pop ecx
+        jmp loopy
+
+        outt:
+        pop ebx
+        mov dword ptr [esi+0x24],ebx
+        pop ebx
+        pop eax
+        pop edx
+
+        jmp[InvisDetectionLoopAllies_JmpBack]
+    }
+}
+
+
+
+static unsigned long ShowAllyMines_Jmp = 0x006226FB;
+static unsigned long ShowAllyMines_JmpBack = ShowAllyMines_Jmp + 9;
+__declspec(naked) void inline ShowAllyMines()
+{
+    __asm {
+        mov eax,0x00402865
+        call eax
+        test eax,eax
+        jnz ok
+        push ebx
+        mov ebx,[esi+0x24]
+        push edx
+        mov edx,-1
+        jmp loopy
+
+        //start
+        loopy_pre:
+        pop ecx
+
+        loopy:
+        inc edx
+        cmp dl,8
+        jnb outt
+        xor eax,eax
+
+        mov al,bl
+        cmp al,dl // не сравнивать с собой
+        je loopy
+        
+        lea eax,[eax+eax*8]
+        mov al,[eax+eax*8+0x008087EA] // взять команду игрока
+        push ecx
+        lea ecx,[edx+edx*8]
+        lea ecx,[ecx+ecx*8+0x008087EB]
+        push edx
+        mov edx,[ecx]
+        test edx,edx
+        pop edx
+        jz loopy_pre
+        dec ecx
+        mov cl,[ecx] // взять команду игрока-счетчика
+        cmp cl,al
+        //mov al,cl
+        pop ecx
+        jne loopy  
+        jmp ok2        
+
+        outt:
+        pop edx
+        pop ebx
+
+        jmp[ShowAllyMines_JmpBack]
+        
+        ok2:
+        //pop edx
+        //pop ebx
+        push edx
+        and ecx, 0xFF
+        push ecx
+        mov ecx, esi
+        mov eax,0x00402865
+        call eax
+        test eax,eax
+        pop edx
+        jnz ok
+        jmp loopy
+
+        ok:
+        mov eax, 0x00622722
+        jmp eax
+    }
+}
+
+
+
+static unsigned long ShowAllyLasMines_Jmp = 0x00622710;
+static unsigned long ShowAllyLasMines_JmpBack = ShowAllyLasMines_Jmp + 9;
+__declspec(naked) void inline ShowAllyLasMines()
+{
+    __asm {
+        mov eax,0x00401811
+        call eax
+        test eax,eax
+        jnz ok
+        push ebx
+        mov ebx,[esi+0x24]
+        push edx
+        mov edx,-1
+        jmp loopy
+
+        //start
+        loopy_pre:
+        pop ecx
+
+        loopy:
+        inc edx
+        cmp dl,8
+        jnb outt
+        xor eax,eax
+
+        mov al,bl
+        cmp al,dl // не сравнивать с собой
+        je loopy
+        
+        lea eax,[eax+eax*8]
+        mov al,[eax+eax*8+0x008087EA] // взять команду игрока
+        push ecx
+        lea ecx,[edx+edx*8]
+        lea ecx,[ecx+ecx*8+0x008087EB]
+        push edx
+        mov edx,[ecx]
+        test edx,edx
+        pop edx
+        jz loopy_pre
+        dec ecx
+        mov cl,[ecx] // взять команду игрока-счетчика
+        cmp cl,al
+        //mov al,cl
+        pop ecx
+        jne loopy  
+        jmp ok2        
+
+        outt:
+        pop edx
+        pop ebx
+
+        jmp[ShowAllyLasMines_JmpBack]
+        
+        ok2:
+        pop edx
+        pop ebx
+        and ecx, 0xFF
+        push ecx
+        mov ecx, esi
+        mov eax,0x00401811
+        call eax
+        test eax,eax
+        jnz ok
+        jmp loopy
+
+        ok:
+        mov eax, 0x00622722
+        jmp eax
+    }
+}
+
+//
+//static unsigned long PingMap_Jmp = 0x00547B44;
+//static unsigned long PingMap_JmpBack = PingMap_Jmp + 5;
+//__declspec(naked) void inline PingMap()
+//{
+//    __asm {
+//        push ecx
+//        push edx
+//
+//            // save stack state
+//        mov ecx,[ebp-4]
+//        push ecx
+//        mov ecx,[ebp-8]
+//        push ecx
+//        mov ecx,[ebp-0xC]
+//        push ecx
+//
+//
+//        mov edx, 0x00807598 // some big struct
+//        mov edx,[edx]
+//        // Get float cursor map gps
+//        mov esi,[ebx+0x4B6]
+//        mov edi,[ebx+0x4B2]
+//        lea ecx,[ebp-4]
+//        lea eax,[ebp-8]
+//        push ecx
+//        lea ecx,[ebp-0xC]
+//        push eax
+//        mov eax,[ebx+0xC9]
+//        push ecx
+//        mov ecx,[ebx+0xC5]
+//        sub eax,esi
+//        sub ecx,edi
+//        push eax
+//        push ecx
+//        mov ecx,edx
+//        mov eax,0x006E1DD0
+//        call eax
+//        test eax,eax
+//        jz outt
+//
+//        // to int gps + Call ping
+//        // Y округлить вниз
+//        fld dword ptr [ebp-8] 
+//        mov eax,0x0079070C
+//        fmul dword ptr [eax]
+//        mov eax,0x0072E288
+//        call eax
+//        // Y преобразовать в координату миникарты
+//        push ebx
+//        mov ebx,[esp]
+//        mov [esp],eax
+//        fild [esp]
+//        mov [esp],ebx
+//        pop ebx
+//        push ecx 
+//        mov eax,0x007904F8
+//        fmul dword ptr [eax]
+//        mov eax,0x007904F4
+//        fadd dword ptr [eax]
+//        fstp dword ptr [esp]
+//
+//        // X округлить вниз
+//        fld dword ptr [ebp-0xC]
+//        mov eax,0x0079070C
+//        fmul dword ptr [eax]
+//        mov eax,0x0072E288
+//        call eax
+//        // X преобразовать в координату миникарты
+//        push ebx
+//        mov ebx,[esp]
+//        mov [esp],eax
+//        fild [esp]
+//        mov [esp],ebx
+//        pop ebx
+//        push ecx
+//        mov eax,0x007904F8
+//        fmul dword ptr [eax]
+//        mov eax,0x007904F4
+//        fadd dword ptr [eax]
+//        fstp dword ptr [esp]
+//        push 1
+//        mov eax,0x00402D5B
+//        call eax
+//        add esp,0xC
+//        //
+//
+//        outt:
+//        // restore stack state
+//        pop ecx
+//        mov [ebp-4],ecx
+//        pop ecx
+//        mov [ebp-8],ecx
+//        pop ecx
+//        mov [ebp-0xC],ecx
+//
+//        pop edx
+//        pop ecx
+//
+//        mov al, 0x0080734C
+//        jmp[PingMap_JmpBack]
+//    }
+//}
+
+static unsigned long PingMap_Jmp = 0x00547B44;
+static unsigned long PingMap_JmpBack = PingMap_Jmp + 5;
+__declspec(naked) void inline PingMap()
+{
+    __asm {
+        push ecx
+        push edx
+
+            // save stack state
+        mov ecx,[ebp-4]
+        push ecx
+        mov ecx,[ebp-8]
+        push ecx
+        mov ecx,[ebp-0xC]
+        push ecx
+
+
+        mov edx, 0x00807598 // some big struct
+        mov edx,[edx]
+        // Get float cursor map gps
+        mov esi,[ebx+0x4B6]
+        mov edi,[ebx+0x4B2]
+        lea ecx,[ebp-4]
+        lea eax,[ebp-8]
+        push ecx
+        lea ecx,[ebp-12]
+        push eax
+        mov eax,[ebx+0xC9]
+        push ecx
+        mov ecx,[ebx+0xC5]
+        sub eax,esi
+        sub ecx,edi
+        push eax
+        push ecx
+        mov ecx,edx
+        mov eax,0x006E1DD0
+        call eax
+        test eax,eax
+        jz outt
+
+        // to int gps + Call ping
+        // Y округлить вниз
+        fld dword ptr [ebp-8] 
+        mov eax,0x0079070C // 0.1
+        fmul dword ptr [eax]
+        mov eax,0x0072E288 // __ftol
+        call eax
+
+        mov [ebp-8],eax
+        mov dword ptr [ebp-4],0 // Z=0, no, use as flag
+
+
+        // X округлить вниз
+        fld dword ptr [ebp-0xC]
+        mov eax,0x0079070C // 0.1
+        fmul dword ptr [eax]
+        mov eax,0x0072E288 // __ftol
+        call eax
+
+        mov [ebp-12],eax
+        
+        mov ecx,0x00802A38
+        mov ecx,[ecx]
+        push -1
+        lea edx,[ebp-12]
+        push 0
+        push edx
+        push 19 // new command type
+        mov eax,0x00403C33
+        call eax
+
+        outt:
+        // restore stack state
+        pop ecx
+        mov [ebp-4],ecx
+        pop ecx
+        mov [ebp-8],ecx
+        pop ecx
+        mov [ebp-0xC],ecx
+
+        pop edx
+        pop ecx
+
+        mov eax, 0x0080734C
+        mov al, [eax]
+        jmp[PingMap_JmpBack]
+    }
+}
+
+static unsigned long PingMapSendMail_Jmp = 0x00437712;
+static unsigned long PingMapSendMail_JmpBack = PingMapSendMail_Jmp + 5;
+__declspec(naked) void inline PingMapSendMail()
+{
+    __asm {
+        push ecx
+        push 1
+        mov ecx,ebx
+        //sub esi,13
+        cmp [esi-13],19
+        //add esi,13
+        je ping
+        jmp exitt
+        
+        ping:
+        mov [ebp-0x44],10
+        jmp exitt
+
+        exitt:
+        jmp[PingMapSendMail_JmpBack]
+    }
+}
+
+static unsigned long PingMapAddInfoMail_Jmp = 0x00438216;
+static unsigned long PingMapAddInfoMail_JmpBack = PingMapAddInfoMail_Jmp + 7;
+__declspec(naked) void inline PingMapAddInfoMail()
+{
+    __asm {
+        // edx free
+        cmp [esi+14],36
+        jne originalcode
+        mov byte ptr [ebp-0x162],1
+        jmp exitt
+
+        originalcode:
+        mov byte ptr [ebp-0x162],0
+
+        exitt:
+        jmp[PingMapAddInfoMail_JmpBack]
+    }
+}
+
+
+static unsigned long PingMapInterceptCommand_Jmp = 0x004984EB;
+static unsigned long PingMapInterceptCommand_JmpBack = PingMapInterceptCommand_Jmp + 5;
+__declspec(naked) void inline PingMapInterceptCommand()
+{
+    __asm {        
+        pop edi
+        cmp edi,1
+        push edi
+        jne outt
+
+        cmp [ebx+227],67 // move
+        jne originalcode
+        cmp [ebx+225],10 // flag
+        jne originalcode
+
+        /////////////////
+        pop esi
+        push ecx
+        push eax
+        xor eax,eax
+
+        mov ecx,[ebp-4]
+        push ecx
+        mov ecx,[ebp-8]
+        push ecx
+            
+            
+        // to int gps + Call ping
+        // Y 
+        mov ax, word ptr [ebx+223]
+        // Y преобразовать в координату миникарты
+        push ebx
+        mov ebx,[esp]
+        mov [esp],eax
+        fild [esp]
+        mov [esp],ebx
+        pop ebx
+        push ecx
+        mov eax,0x007904F8
+        fmul dword ptr [eax]
+        mov eax,0x007904F4
+        fadd dword ptr [eax]
+        fstp dword ptr [esp]
+            
+        // X 
+        mov ax, word ptr [ebx+221]
+        // X преобразовать в координату миникарты
+        push ebx
+        mov ebx,[esp]
+        mov [esp],eax
+        fild [esp]
+        mov [esp],ebx
+        pop ebx
+        push ecx
+        mov eax,0x007904F8
+        fmul dword ptr [eax]
+        mov eax,0x007904F4
+        fadd dword ptr [eax]
+        fstp dword ptr [esp]
+
+        push 1
+        mov eax,0x00402D5B
+        call eax
+        add esp,0xC
+        //
+            
+        //outt:
+        // restore stack state
+        pop ecx
+        mov [ebp-8],ecx
+        pop ecx
+        mov [ebp-4],ecx
+
+        // clear command buffer
+        mov ecx,0x15
+        xor eax,eax
+        push edi
+        push esi
+        mov esi,ebx
+        lea edi,[esi+137]
+        rep stosd
+        mov [esi+101],eax
+
+        pop esi
+        pop edi
+        pop eax
+        pop ecx
+        ///////////////////
+        mov eax,2
+        jmp exitt
+
+        outt:
+        mov eax,2
+        pop esi
+        jmp exitt
+
+        originalcode:
+        mov eax,0x0040304E // func_init_way
+        call eax
+
+        exitt:
+        jmp[PingMapInterceptCommand_JmpBack]
+    }
+}
+
+static unsigned long PatrolMidButtonSI_Jmp = 0x00487998;
+static unsigned long PatrolMidButtonSI_JmpBack = PatrolMidButtonSI_Jmp + 8;
+__declspec(naked) void inline PatrolMidButtonSI()
+{
+    __asm {
+        mov byte ptr [esi+12], 72
+        mov byte ptr [esi+13], 47
+        mov byte ptr [esi+14], 6
+        mov byte ptr [esi+20], 1
+
+        jmp[PatrolMidButtonSI_JmpBack]
+    }
+}
+
+static unsigned long PatrolMidButtonSIBIO_Jmp = 0x00487EF5;
+static unsigned long PatrolMidButtonSIBIO_JmpBack = PatrolMidButtonSIBIO_Jmp + 8;
+__declspec(naked) void inline PatrolMidButtonSIBIO()
+{
+    __asm {
+        mov byte ptr [esi+9], 8
+        mov byte ptr [esi+13], 47
+        mov byte ptr [esi+14], 6
+
+        jmp[PatrolMidButtonSIBIO_JmpBack]
+    }
+}
+
+static unsigned long PatrolMidButtonSIPara_Jmp = 0x00488002;
+static unsigned long PatrolMidButtonSIPara_JmpBack = PatrolMidButtonSIPara_Jmp + 8;
+__declspec(naked) void inline PatrolMidButtonSIPara()
+{
+    __asm {
+        mov byte ptr [esi+13], 47
+        mov byte ptr [esi+14], 6
+        mov byte ptr [esi+20], 1
+
+        jmp[PatrolMidButtonSIPara_JmpBack]
+    }
+}
+
+static unsigned long PatrolMidButtonSIGroup_Jmp = 0x0044D6E3;
+static unsigned long PatrolMidButtonSIGroup_JmpBack = PatrolMidButtonSIGroup_Jmp + 10;
+__declspec(naked) void inline PatrolMidButtonSIGroup()
+{
+    __asm {
+        mov word ptr [edi+8], 0x2F01
+        mov word ptr [edi+10], 0x0601
+
+
+        jmp[PatrolMidButtonSIGroup_JmpBack]
+    }
+}
+
+static unsigned long SIModulesAllInOne_Jmp = 0x004E7FF1;
+static unsigned long SIModulesAllInOne_JmpBack = SIModulesAllInOne_Jmp + 7;
+__declspec(naked) void inline SIModulesAllInOne()
+{
+    __asm {
+        add esi, 300
+        inc eax
+        add edi, 300
+
+        jmp[SIModulesAllInOne_JmpBack]
+    }
+}
+
+static unsigned long SIModulesAllInOne2_Jmp = 0x004E3270;
+static unsigned long SIModulesAllInOne2_JmpBack = SIModulesAllInOne2_Jmp + 7;
+__declspec(naked) void inline SIModulesAllInOne2()
+{
+    __asm {
+        lea eax, [eax+eax*2]
+        lea ecx, [eax+eax*4-1260]
+
+        jmp[SIModulesAllInOne2_JmpBack]
+    }
+}
+
+static unsigned long SIModulesAllInOne3_Jmp = 0x004C03CC;
+static unsigned long SIModulesAllInOne3_JmpBack = SIModulesAllInOne3_Jmp + 7;
+__declspec(naked) void inline SIModulesAllInOne3()
+{
+    __asm {
+        lea eax, [eax+eax*2]
+        lea ecx, [eax+eax*4-1260]
+
+        jmp[SIModulesAllInOne3_JmpBack]
+    }
+}
 
 static unsigned long ChangeGameVersion_Jmp = 0x005B324F;
 static unsigned long ChangeGameVersion_JmpBack = ChangeGameVersion_Jmp + 5;
@@ -5626,7 +7787,7 @@ __declspec(naked) void inline ChangeGameVersion()
     __asm {
         mov eax, 0x00807DD5
         //mov dword ptr [eax], 0x01030000 // 0x0102002A - standart, 0x0102001A - V2, 0x01030000 - V3
-        mov dword ptr [eax], 0x0102001F
+        mov dword ptr [eax], 0x01020031
         mov eax, [eax]
         jmp[ChangeGameVersion_JmpBack]
     }

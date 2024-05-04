@@ -4,13 +4,36 @@
 #include "Shared/Patcher.h"
 #include <windows.h>
 #include "winhttp.h"
-//#include <string>
+//#include <iostream>
+//#define YAML_CPP_STATIC_DEFINE
+//#include "yaml-cpp/yaml.h"
 
+//using namespace YAML;
 using namespace Common;
 using namespace Patcher;
 
 #pragma comment(lib, "winhttp.lib")
+
+//
+//static bool Yaml(Patcher::SPatch &patch)
+//{
+//    //Node config = LoadFile("config.yaml");
+//
+//
+//    return true;
+//}
+
 // Implement your patches here
+static bool AutosaveIPXNetGame(Patcher::SPatch &patch)
+{
+    patch.WriteJumpSized(AutosaveCheckTick_Jmp, 5, (unsigned long)AutosaveCheckTick);
+    patch.WriteJumpSized(AutosaveCheckMarker_Jmp, 8, (unsigned long)AutosaveCheckMarker);
+    patch.WriteJumpSized(AutosaveMakeFileName_Jmp, 5, (unsigned long)AutosaveMakeFileName);
+    patch.WriteJumpSized(AutosaveDontCheckIfFileExists_Jmp, 5, (unsigned long)AutosaveDontCheckIfFileExists);
+    patch.WriteJumpSized(AutosaveSkipToggleMenu_Jmp, 7, (unsigned long)AutosaveSkipToggleMenu);
+    patch.WriteJumpSized(DontResetHostFlag_Jmp, 8, (unsigned long)DontResetHostFlag);
+    return true;
+}
 
 static bool FixesQoL(Patcher::SPatch &patch) {
     // 1. config check
@@ -93,6 +116,12 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     patch.WriteJumpSized(AltRMBForLineFormation_Jmp, 5, (unsigned long)AltRMBForLineFormation);
     patch.WriteJumpSized(AltRMBNoDoubleOrder_Jmp, 7, (unsigned long)AltRMBNoDoubleOrder);
 
+    //patch.WriteJumpSized(PingMap_Jmp, 5, (unsigned long)PingMap);
+    //patch.WriteJumpSized(PingMapSendMail_Jmp, 5, (unsigned long)PingMapSendMail);
+    //patch.WriteJumpSized(PingMapInterceptCommand_Jmp, 5, (unsigned long)PingMapInterceptCommand);
+    //patch.WriteByte((void *) 0x0054F116, 0); // New command (27(22 slot)) jumptable for command size = 12
+    //patch.WriteByte((void *)0x00438715, 1);
+
     patch.WriteJumpSized(BoxCursorLoadCheck1_Jmp, 5, (unsigned long)BoxCursorLoadCheck1);
     patch.WriteJumpSized(BoxCursorLoadCheck2_Jmp, 10, (unsigned long)BoxCursorLoadCheck2);
 
@@ -100,41 +129,7 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     patch.WriteJumpSized(DecreaseShowHPState_Jmp, 8, (unsigned long)DecreaseShowHPState);
 
     patch.WriteNops((void *)0x00489C36, 6); // No extra 200 priority to building targets in range
-    
-    //Shift for order queue (desync issue)
-    //Wait for movement complete
-    //patch.WriteNops((void *)0x0040B570, 8); // 8 Null bytes 
-    //patch.WriteJumpSized(SkipStopResetOrderMove_Move_Jmp, 5, (unsigned long)SkipStopResetOrderMove_Move);
-    //patch.WriteJumpSized(SkipStopResetOrderIdle_Build_Jmp, 5, (unsigned long)SkipStopResetOrderIdle_Build);
-    //patch.WriteJumpSized(SkipStopResetOrderBuild_Build_Jmp, 5, (unsigned long)SkipStopResetOrderBuild_Build);
-    //patch.WriteJumpSized(EnableShiftAltInput_Jmp, 5, (unsigned long)EnableShiftAltInput);
-    //patch.WriteJumpSized(DontEraseOldOrder_jmp, 6, (unsigned long)DontEraseOldOrder);
-    //patch.WriteJumpSized(AppendOrderInsteadOfReplace_Jmp, 8, (unsigned long)AppendOrderInsteadOfReplace);
-    //patch.WriteJumpSized(OrderEndProcedure_Jmp, 7, (unsigned long)OrderEndProcedure);
-    //patch.WriteNops((void *)0x0045FC0D, 32); // Nop for prev script
-    //patch.WriteNops((void *)0x0045EFEB, 19); // Nop for new build order with shift
-    //patch.WriteJumpSized(NewBuildOrderWithShift_Jmp, 6, (unsigned long)NewBuildOrderWithShift);
-    //patch.WriteJumpSized(PtrDistanceToTargetWithShift_Jmp, 6, (unsigned long)PtrDistanceToTargetWithShift);
-    //patch.WriteJumpSized(DontResetOrderWhenChanged_Jmp, 8, (unsigned long)DontResetOrderWhenChanged);
-    //patch.WriteJumpSized(DontResetOrderWhenChanged2x2_Jmp, 9, (unsigned long)DontResetOrderWhenChanged2x2);
-    //patch.WriteJumpSized(CheckMyFlagToNotMakeNewOrder_Jmp, 5, (unsigned long)CheckMyFlagToNotMakeNewOrder);
-    //patch.WriteJumpSized(ReplaceSubGpsToOrderWithShift_Jmp, 8, (unsigned long)ReplaceSubGpsToOrderWithShift);
-    //patch.WriteJumpSized(ReplaceOrderGpsToOrderWithShift_Jmp, 5, (unsigned long)ReplaceOrderGpsToOrderWithShift);
-    //patch.WriteJumpSized(AlwaysJumpToRightOrderCreation_Jmp, 6, (unsigned long)AlwaysJumpToRightOrderCreation);
-    //patch.WriteJumpSized(DontDestroyOrderObjects_Jmp, 5, (unsigned long)DontDestroyOrderObjects);
-    //patch.WriteNops((void *)0x0045FE59, 24); // Nop for don't erase
-    //patch.WriteJumpSized(AfterCheckOrderStateReturns2_Jmp, 7, (unsigned long)AfterCheckOrderStateReturns2);
-    //----------
-    
-
-    //Autosave
-    patch.WriteJumpSized(AutosaveCheckTick_Jmp, 5, (unsigned long)AutosaveCheckTick);
-    patch.WriteJumpSized(AutosaveCheckMarker_Jmp, 8, (unsigned long)AutosaveCheckMarker);
-    patch.WriteJumpSized(AutosaveMakeFileName_Jmp, 5, (unsigned long)AutosaveMakeFileName);
-    patch.WriteJumpSized(AutosaveDontCheckIfFileExists_Jmp, 5, (unsigned long)AutosaveDontCheckIfFileExists);
-    patch.WriteJumpSized(AutosaveSkipToggleMenu_Jmp, 7, (unsigned long)AutosaveSkipToggleMenu);
-    //-------
-    
+       
   
     patch.WriteU32((void *)0x005C8253, 0x0079C050); // Random map directory - custom
     patch.WriteU32((void *)0x005C851C, 0x0079C050); // Random map directory - custom 2
@@ -200,6 +195,7 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     patch.WriteJumpSized(UPGNRGACCUM_increase_accum_Jmp, 9, (unsigned long)UPGNRGACCUM_increase_accum);
 
     patch.WriteJumpSized(CoriumMiningUpgrades_Jmp, 5, (unsigned long)CoriumMiningUpgrades);
+    patch.WriteJumpSized(EnergyForSoliton_Jmp, 9, (unsigned long)EnergyForSoliton);
 
 
     // No dodge
@@ -461,6 +457,10 @@ static bool FixesQoL(Patcher::SPatch &patch) {
 
     patch.WriteJumpSized(TradeStep10_Jmp, 5, (unsigned long)TradeStep10);
 
+    
+    patch.WriteByte((void *)0x004F1203, 0x58); // Keep build panel on build
+    patch.WriteNops((void *)0x004F1204, 4);   // Keep build panel on build
+
     //------
     patch.WriteByte((void *)0x0047A9D1, 0xEC); // Teleport charge use personal (-20)
     patch.WriteByte((void *)0x00487ED3, 0x14); // Teleport check charge to unlock button
@@ -468,10 +468,29 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     // patch.WriteJumpSized(CasseteShellExpl3CellsB4Target_Jmp, 6, (unsigned
     // long)CasseteShellExpl3CellsB4Target);
     patch.WriteJumpSized(CasseteShellExplMidWay_Jmp, 6, (unsigned long)CasseteShellExplMidWay);
-
-    patch.WriteJumpSized(IonArmorBlockedDamageHalf_Jmp, 5,
-                         (unsigned long)IonArmorBlockedDamageHalf);
+    
+    patch.WriteJumpSized(IonArmorBlockedDamageHalf_Jmp, 5, (unsigned long)IonArmorBlockedDamageHalf);
     patch.WriteNops((void *)0x00459E37, 2); // Ion armor nops
+
+    patch.WriteJumpSized(InvisDetectionLoopAllies_Jmp, 5, (unsigned long)InvisDetectionLoopAllies);
+    patch.WriteNops((void *)0x0041D1BE, 26); // Nops
+
+    patch.WriteJumpSized(InvisDetectionLoopAlliesBoats_Jmp, 9, (unsigned long)InvisDetectionLoopAlliesBoats);
+    patch.WriteNops((void *)0x0041C4CA, 40); // Nops
+    
+    patch.WriteJumpSized(LasMinesDetectionAllies_Jmp, 9, (unsigned long)LasMinesDetectionAllies);
+    patch.WriteNops((void *)0x00494E47, 28); // Nops
+    
+    patch.WriteJumpSized(MinesDetectionAllies_Jmp, 9, (unsigned long)MinesDetectionAllies);
+    patch.WriteNops((void *)0x00494E96, 28); // Nops
+
+    patch.WriteJumpSized(ShowAllyMines_Jmp, 9, (unsigned long)ShowAllyMines);
+    patch.WriteJumpSized(ShowAllyLasMines_Jmp, 9, (unsigned long)ShowAllyLasMines);
+    patch.WriteJumpSized(MyMinesObservationForAllies_Jmp, 8, (unsigned long)MyMinesObservationForAllies);
+
+    
+    patch.WriteByte((void *)0x00799178, 18); // invis find in top research set
+    patch.WriteByte((void *)0x0079917C, 1);  // invis find in top research set
 
     patch.WriteByte((void *)0x0058F0CB, 15); // Shark speed buff
 
@@ -533,6 +552,27 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     // patch.WriteU32((void *)0x007DFCF8, ); // Psi-zond (Vermin)
     // patch.WriteU32((void *)0x007DFCDC, ); // Paralyzer
 
+     
+    patch.WriteByte((void *)0x004E4197, 5); // Replenish pod capacity (shift, result=4000)
+
+    patch.WriteU16((void *)0x004DEBA6, 10000);       // Power protector charge 1
+    patch.WriteU16((void *)0x004DED31, 10000);      // Power protector charge 2
+    patch.WriteU16((void *)0x004DED21, 10000);       // Power protector charge 3
+    patch.WriteU32((void *)0x004C0309, 0x346DC5D6); // Power protector indicator adjust (2^43/10000)
+
+    //PANEL
+    //patch.WriteByte((void *)0x0048798F, 6); // SI patrol instead of move Skat, Escort, Dreadnaught
+    //patch.WriteByte((void *)0x00487EE8, 6); // SI patrol instead of move Bioassaulter
+    patch.WriteByte((void *)0x004879DA, 6); // SI patrol instead of move Usurper
+    //patch.WriteByte((void *)0x00488009, 6); // SI patrol instead of move Paralyser
+
+    patch.WriteJumpSized(PatrolMidButtonSI_Jmp, 8, (unsigned long)PatrolMidButtonSI);
+    patch.WriteJumpSized(PatrolMidButtonSIBIO_Jmp, 8, (unsigned long)PatrolMidButtonSIBIO);
+    patch.WriteByte((void *)0x004881B1, 15); // Bio change slot for check mines ammo to deactivate button 1
+    patch.WriteByte((void *)0x004881B7, 15); // Bio change slot for check mines ammo to deactivate button 2
+
+    patch.WriteJumpSized(PatrolMidButtonSIPara_Jmp, 8, (unsigned long)PatrolMidButtonSIPara);
+    patch.WriteJumpSized(PatrolMidButtonSIGroup_Jmp, 10, (unsigned long)PatrolMidButtonSIGroup);
 
     return true;
 }
@@ -882,6 +922,7 @@ static bool BalancingNormalTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007E64A0, 270); // Cruiser T5 damage
     // patch.WriteU32((void *)0x007E6520, 70); // Sentinel dmg T2
     patch.WriteU32((void *)0x007E65E4, 600); // DC Bomb damage
+    
 
     patch.WriteU32((void *)0x007E64A4, 10); // Cassete shell
     patch.WriteU32((void *)0x007E66FC, 10); // Ion cassete t1
@@ -987,7 +1028,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007E5608, 6000); // WS NUKE time
     patch.WriteU32((void *)0x007E5618, 7500); // WS CORIUM276 time
     patch.WriteU32((void *)0x007E5528, 7500); // WS UPG HFCANN time
-    patch.WriteU32((void *)0x007E5638, 6000); // WS UPG USG time
+    patch.WriteU32((void *)0x007E5638, 4500); // WS UPG USG time
     patch.WriteU32((void *)0x007E55F8, 9000); // WS TERMINATOR time
     patch.WriteU32((void *)0x007E5668, 7500); // WS PLASMACANN time
     //patch.WriteU32((void *)0x007E5898, 9000); // WS ANTINUKE time (vanilla 6 min)
@@ -1049,8 +1090,8 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteByte((void *)0x007C0673, 0);   // BO UPG MINESPD dep
     patch.WriteByte((void *)0x007C033A, 51);  // BO LIGHTLASSPD dep
     patch.WriteByte((void *)0x007C02EF, 51);  // BO RUBY dep
-    patch.WriteByte((void *)0x007C036C, 38);  // BO HEAVYLASRATE dep
-    patch.WriteByte((void *)0x007C0353, 55);  // BO LASRATE dep
+    patch.WriteByte((void *)0x007C036C, 55);  // BO HEAVYLASRATE dep
+    patch.WriteByte((void *)0x007C0353, 57);  // BO LASRATE dep
     //patch.WriteByte((void *)0x007C0357, 1);   // BO LASRATE dep lvl
     //patch.WriteByte((void *)0x007C0358, 57);  // BO LASRATE dep2
     //patch.WriteByte((void *)0x007C035C, 1);   // BO LASRATE dep2 lvl
@@ -1082,7 +1123,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007E5C88, 6000); // BO ARMOR T2 time
     patch.WriteU32((void *)0x007E5C8C, 7500); // BO ARMOR T3 time
     patch.WriteU32((void *)0x007E5C90, 9000); // BO ARMOR T4 time
-    patch.WriteU32((void *)0x007E56A8, 7500); // BO HEAVYCRUISER time
+    patch.WriteU32((void *)0x007E56A8, 9000); // BO HEAVYCRUISER time
     // patch.WriteU32((void *)0x007E58A8, 9000); // BO ANTISMP time
     patch.WriteU32((void *)0x007E5748, 6000); // BO USGDEF time
     patch.WriteU32((void *)0x007E5D18, 7500); // BO UPGMINE time
@@ -1091,9 +1132,9 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007E5D48, 3000); // BO UPGHACK time
     patch.WriteU32((void *)0x007E5D58, 6000); // BO DEFHACK time
     patch.WriteU32((void *)0x007E5D98, 7500); // BO PHANTOMUPG time
-    patch.WriteU32((void *)0x007E56D8, 6000); // BO HEAVYLAS time
+    patch.WriteU32((void *)0x007E56D8, 4500); // BO HEAVYLAS time
     patch.WriteU32((void *)0x007E57E8, 6000); // BO HEAVYLASRANGE time
-    patch.WriteU32((void *)0x007E5818, 7500); // BO LASRATE time
+    patch.WriteU32((void *)0x007E5818, 6000); // BO LASRATE time
     patch.WriteU32((void *)0x007E57B8, 3000); // BO RAIDER time
     patch.WriteU32((void *)0x007E5798, 6000); // BO FORCEFIELD time
     patch.WriteU32((void *)0x007E5888, 7500); // BO MINEFIND time
@@ -1108,8 +1149,11 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007E56F8, 6000); // BO CASSETTE time
     patch.WriteU32((void *)0x007E5DA8, 6000); // BO UPG EMTORP time
     patch.WriteU32((void *)0x007E5788, 9000); // BO LASBOMB time
-    patch.WriteU32((void *)0x007E57D8, 3000); // BO LIGHTLASRANGE time
+    patch.WriteU32((void *)0x007E57D8, 4500); // BO LIGHTLASRANGE time
     patch.WriteU32((void *)0x007E5CC8, 3000); // BO TURRETS FLOAT time
+    //patch.WriteU32((void *)0x007E5708, 4500); // BO MML time
+    patch.WriteU32((void *)0x007E5DD8, 4500); // BO TORPSPEED time
+    patch.WriteU32((void *)0x007E57F8, 4500); // BO AVENGER time
     
 
     // patch.WriteByte((void *)0x007C0A2F, ); // SI ARMOR T3 dep
@@ -1156,8 +1200,8 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     // patch.WriteByte((void *)0x007C0AB0, 2);  // SI ANTISMP dep lvl
     // patch.WriteByte((void *)0x007C0B42, ); // SI PSISHIELD dep
     // patch.WriteByte((void *)0x007C0B46, ); // SI PSISHIELD dep lvl
-    patch.WriteByte((void *)0x007C0A48, 0); // SI IONARMR dep
-    patch.WriteByte((void *)0x007C0A4C, 0); // SI IONARMR dep lvl
+    patch.WriteByte((void *)0x007C0A48, 101); // SI IONARMR dep
+    patch.WriteByte((void *)0x007C0A4C, 3); // SI IONARMR dep lvl
     patch.WriteByte((void *)0x007C0B2E, 0); // SI IONARMR T4 dep2
     patch.WriteByte((void *)0x007C0B32, 0); // SI IONARMR T4 dep2 lvl
     // patch.WriteByte((void *)0x007C0C0A, 0);   // SI DMG T2 dep
@@ -1185,7 +1229,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     // patch.WriteByte((void *)0x007C07E0, );  // SI RESIDENT dep2 lvl
     // patch.WriteByte((void *)0x007C07BE, ); // SI BIOLOCSCREEN dep
     patch.WriteByte((void *)0x007C07A5, 68);  // SI BIOLOCSCAN dep
-    patch.WriteByte((void *)0x007C0809, 72);  // SI INVISFIND dep
+    patch.WriteByte((void *)0x007C0809, 70);  // SI INVISFIND dep
     patch.WriteByte((void *)0x007C06DD, 96);  // SI TELELOC dep
     patch.WriteByte((void *)0x007C06E1, 1);   // SI TELELOC dep lvl
     patch.WriteByte((void *)0x007C06F6, 0);   // SI TELEPORTAL dep
@@ -1225,12 +1269,14 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007E5C28, 6000);  // SI UPGIONREFLECTOR time
     patch.WriteU32((void *)0x007E59E8, 6000);  // SI SOLITON time
     patch.WriteU32((void *)0x007E5C08, 3750);  // SI UPGDPT time
+    patch.WriteU32((void *)0x007E5A78, 6000);  // SI PORTAL time
     patch.WriteU32((void *)0x007E5A98, 6000);  // SI PORTALCODE time
+    patch.WriteU32((void *)0x007E5AB8, 6000);  // SI QUANTUMPAR time
     //patch.WriteU32((void *)0x007E5BE8, 3000);  // SI RESIDENT time
     patch.WriteU32((void *)0x007E59B8, 7500);  // SI CORMINESPEED time
     patch.WriteU32((void *)0x007E5BB8, 4500);  // SI ACOUSTICMINES time
     patch.WriteU32((void *)0x007E5BA8, 6000);  // SI BIOASSAULTER time
-    // patch.WriteU32((void *)0x007E5BD8, );  // SI UPGBIO time
+    patch.WriteU32((void *)0x007E5BD8, 7500);  // SI UPGBIO time
     // patch.WriteU32((void *)0x007E5C18, 6000); // SI DMG T2 time
     patch.WriteU32((void *)0x007E5C1C, 6000); // SI DMG T3 time
     patch.WriteU32((void *)0x007E5C18, 6000); // SI RECYCLE time
@@ -1248,14 +1294,16 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007E5A18, 6000); // SI PULSARUPG time
     patch.WriteU32((void *)0x007E5A48, 7500); // SI PARCHER time
     patch.WriteU32((void *)0x007E5C38, 6000); // SI UPG DREDNAUGHT time
+    patch.WriteU32((void *)0x007E58D8, 3000); // SI BIOLOCSCAN time
+    patch.WriteU32((void *)0x007E5AE8, 6000); // SI IONARMOR time
     
 
 
     // SUBMARINES
     // SPEED Upgrade
-    // patch.WriteByte((void *)0x0045F737, 4); // Plus total at T2
-    patch.WriteByte((void *)0x0045F733, 4); // Plus total at T3
-    patch.WriteByte((void *)0x0045F72F, 6); // Plus total at T4
+    patch.WriteByte((void *)0x0045F737, 3); // Plus total at T2
+    patch.WriteByte((void *)0x0045F733, 6); // Plus total at T3
+    patch.WriteByte((void *)0x0045F72F, 9); // Plus total at T4
 
     // BUILDINGS
 
@@ -1478,6 +1526,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     // METAL/SILICON
     patch.WriteU32((void *)0x007E07D0, 300); // Fighter metal
     patch.WriteU32((void *)0x007E07D4, 600); // Destroyer metal
+    patch.WriteU32((void *)0x007E07D8, 1400); // Heavy Cruiser metal
 
     patch.WriteU32((void *)0x007E07A4, 450);  // Hunter metal
     patch.WriteU32((void *)0x007E07A8, 1100); // Cruiser metal
@@ -1523,9 +1572,10 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007E04E4, 1500); // Raider buildtime
     patch.WriteU32((void *)0x007E0528, 1250); // Usurper buildtime
     // patch.WriteU32((void *)0x007E04D4, ); // Destroyer buildtime
+    patch.WriteU32((void *)0x007E04D8, 1875); // Heavy cruiser buildtime
 
     // HP
-    patch.WriteU32((void *)0x007DFBB0, 200);  // Sentinel hp
+    patch.WriteU32((void *)0x007DFBB0, 220);  // Sentinel hp
     // patch.WriteU32((void *)0x007DFBC4, 1400); // Marauder hp
     // patch.WriteU32((void *)0x007DFBC0, 1000); // Minelayer hp
     patch.WriteU32((void *)0x007DFBB4, 520);  // Hunter hp
@@ -1540,7 +1590,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007DFBF4, 1100); // Raider hp
     patch.WriteU32((void *)0x007DFC00, 600);  // Cyberdolphin hp
 
-    patch.WriteU32((void *)0x007DFC24, 190);  // Skat hp
+    patch.WriteU32((void *)0x007DFC24, 220);  // Skat hp
     // patch.WriteU32((void *)0x007DFC2C, ); // Escort hp
     patch.WriteU32((void *)0x007DFC38, 600);  // Psi-zond hp
     patch.WriteU32((void *)0x007DFC28, 1400); // Dreadnaught hp
@@ -1552,7 +1602,8 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     // ATTACK COOLDOWN
     patch.WriteU32((void *)0x007A8CB4, 40); // Aveger cd
     
-    // WEAPONS
+    // SPECIAL
+    patch.WriteByte((void *)0x0045094E, 19); // Phantom discharge
 
     // DAMAGE
     patch.WriteU32((void *)0x007E6490, 120); // Cruiser T1 damage
@@ -1568,7 +1619,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     
     
     patch.WriteU32((void *)0x007E6520, 70); // Sentinel dmg T2
-    patch.WriteU32((void *)0x007E65E4, 600); // DC Bomb damage
+    patch.WriteU32((void *)0x007E65E4, 800); // DC Bomb damage
 
     patch.WriteU32((void *)0x007DFF20, 60); // Plasma canon cooldown (vanilla 100 (4 sec))
     
@@ -1577,6 +1628,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007E6624, 100); // Destroyer T2 (vanilla 150)
 
     patch.WriteU32((void *)0x007E6508, 160); // Heavy laser (vanilla 200)
+    patch.WriteU32((void *)0x00464814, 1000); // Cyberdolphin damage
 
     patch.WriteU32((void *)0x007E64A4, 10); // Cassete shell
     patch.WriteU32((void *)0x007E66FC, 10); // Ion cassete t1
@@ -1592,7 +1644,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     // patch.WriteU32((void *)0x007E6648, );  // Gas Shell Launcher damage
 
     patch.WriteU32((void *)0x007E6580, 800); // Plasma damage
-    patch.WriteByte((void *)0x00642ABA, 3);   // Laser reflection % (25 -> 12.5)
+    //patch.WriteByte((void *)0x00642ABA, 3);   // Laser reflection % (25 -> 12.5)
         
     //Submarines armor
     patch.WriteByte((void *)0x00459E86, 0x11); // Half armor T2 jump
@@ -1626,6 +1678,9 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     //patch.WriteByte((void *)0x00469347, 0x7F); // Metal in 1/40 of Transport capacity unload
     patch.WriteU32((void *)0x00469348, 0x51490C8D);  // Metal in 1/40 of Transport capacity unload
     //patch.WriteNops((void *)0x00469348, 3);    // No additional shl 2
+
+    
+    patch.WriteU32((void *)0x004E0156, 7); // energy mine tick timer
     
     // OTHER
     //patch.WriteU32((void *)0x0044F745, 7); // Submarines standard view range BO
@@ -1660,20 +1715,22 @@ static bool Flagships(Patcher::SPatch &patch)
     patch.WriteI16((void *)0x0048C333, -40);  // Side shift 2
     patch.WriteU32((void *)0x007DFC44, 3000); // HP
 
-    //BO
-    patch.WriteByte((void *)0x007C0E47, 38); // Research ID
+
+    // BO
+    patch.WriteByte((void *)0x007C0E47, 35); // Research ID
     // Belongs race
     patch.WriteByte((void *)0x004E8364, 12);  // al or
     patch.WriteByte((void *)0x004E8365, 36);  // 36 (0x24 + 0x140) = 356
     patch.WriteByte((void *)0x004E8366, 144); // nop
 
-    patch.WriteU32((void *)0x007E0538, 4500); // Time
-    patch.WriteU32((void *)0x007E0838, 4600); // Metal
-    patch.WriteU32((void *)0x007E05F8, 1300); // Corium
-    patch.WriteU32((void *)0x007A8BB4, 158);  // Weapon type
-    patch.WriteU32((void *)0x007A8CF4, 25);   // Reload
+    patch.WriteU32((void *)0x007E0538, 3750); // Time
+    patch.WriteU32((void *)0x007E0838, 3800); // Metal
+    patch.WriteU32((void *)0x007E05F8, 1100); // Corium
+    patch.WriteU32((void *)0x007A8BB4, 157);  // Weapon type
+    patch.WriteU32((void *)0x007A8CF4, 20);   // Reload
     patch.WriteU32((void *)0x007A8C54, 20);   // Ammo
-    patch.WriteU32((void *)0x007DFC48, 2400); // HP
+    patch.WriteU32((void *)0x007DFC48, 1900); // HP
+
     patch.WriteJumpSized(BOFlagshipRange6_Jmp, 5, (unsigned long)BOFlagshipRange6);
 
     //SI
@@ -1723,15 +1780,10 @@ static bool EconomicsAndOther(Patcher::SPatch &patch)
     // patch.WriteU32((void *)0x007BF57C, 5000); // Starting metal t1
     // patch.WriteU32((void *)0x007BF588, 5000); // Starting silicon t1
 
-    patch.WriteByte((void *)0x004E4197, 5); // Replenish pod capacity (shift, result=4000)
-
-    
 
     patch.WriteJumpSized(RangeAllSubs6_Jmp, 6, (unsigned long)RangeAllSubs6);
 
-
     
-
     patch.WriteU16((void *)0x0044F773, 0xD233); // Radio stutter make zero before period
     patch.WriteByte((void *)0x0044F77B, 75);    // Radio stutter new period
 
@@ -1739,13 +1791,7 @@ static bool EconomicsAndOther(Patcher::SPatch &patch)
     // patch.WriteU32((void *)0x0057B6D6, );      // Cassete conus 1/radius
 
     // UNITS
-    patch.WriteByte((void *)0x0045094E, 25); // Phantom discharge
 
-    // BUILDINGS
-    patch.WriteU16((void *)0x004DEBA6, 6000);       // Power protector charge 1
-    patch.WriteU16((void *)0x004DED31, 6000);       // Power protector charge 2
-    patch.WriteU16((void *)0x004DED21, 6000);       // Power protector charge 3
-    patch.WriteU32((void *)0x004C0309, 0x57619F10); // Power protector indicator adjust (2^43/6000)
         
     return true;
 }
@@ -1760,6 +1806,7 @@ static bool ResearchBuildingsLimit(Patcher::SPatch &patch)
     patch.WriteJumpSized(DestroyedModulesAndHumanCentersBuilding_Jmp, 5, (unsigned long)DestroyedModulesAndHumanCentersBuilding);
     patch.WriteJumpSized(DismantledModulesAndHumanCenters_Jmp, 6, (unsigned long)DismantledModulesAndHumanCenters);
     patch.WriteJumpSized(CancelledModulesAndHumanCenters_Jmp, 6, (unsigned long)CancelledModulesAndHumanCenters);
+    patch.WriteJumpSized(CapturedTechBuildings_Jmp, 6, (unsigned long)CapturedTechBuildings);
     patch.WriteJumpSized(AntiAbuseHumanCenters_Jmp, 13, (unsigned long)AntiAbuseHumanCenters);
     //patch.WriteNops((void *)AntiAbuseHumanCenters_Jmp, 10); // Disable use of techcenters limit area
 
@@ -1769,8 +1816,8 @@ static bool ResearchBuildingsLimit(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x0079A404, 101);
     patch.WriteU32((void *)0x0079A408, 106);
     patch.WriteU32((void *)0x0079A40C, 105);
-    patch.WriteU32((void *)0x0079A410, 102);
-    patch.WriteU32((void *)0x0079A414, 104);
+    //patch.WriteU32((void *)0x0079A410, 102);
+    //patch.WriteU32((void *)0x0079A414, 104);
     patch.WriteU32((void *)0x0079A418, 103);
     patch.WriteU32((void *)0x0079A41C, 0);
     patch.WriteU32((void *)0x0079A420, 0);
@@ -1839,6 +1886,179 @@ static bool ResearchBuildingsLimit(Patcher::SPatch &patch)
     return true;
 }
 
+static bool SiResearchModulesReduce(Patcher::SPatch &patch)
+{
+    patch.WriteByte((void *)0x004E7FE1, 25); // find module for research
+
+    patch.WriteByte((void *)0x004C03F9, 25);        // find module for research
+    patch.WriteByte((void *)0x004E7FF3, 100);       //
+    patch.WriteByte((void *)0x004E7FF7, 100);       //
+    patch.WriteU32((void *)0x004E7FFA, 0x0079A654); // upper adress limit check
+
+    patch.WriteU32((void *)0x004E3272, 0xFFFE5C80); // module_id diff from base *3 -> *5
+    patch.WriteU32((void *)0x004E328C, 0xFFFE5C80); // module_id diff from base *3 -> *5
+
+    patch.WriteU32((void *)0x004C03CE, 0xFFFE5C80); // module_id diff from base *3 -> *5
+    patch.WriteU32((void *)0x004C03E5, 0xFFFE5C80); // module_id diff from base *3 -> *5
+    patch.WriteByte((void *)0x004E329E, 25);        //
+
+    // MODULES RESEARCH LISTS BIG
+    patch.WriteU32((void *)0x0079A3FC, 109); // SI speed module
+    patch.WriteU32((void *)0x0079A400, 110);
+    patch.WriteU32((void *)0x0079A404, 101);
+    patch.WriteU32((void *)0x0079A408, 106);
+    patch.WriteU32((void *)0x0079A40C, 105);
+    patch.WriteU32((void *)0x0079A410, 102);
+    patch.WriteU32((void *)0x0079A414, 104);
+    patch.WriteU32((void *)0x0079A418, 103);
+    patch.WriteU32((void *)0x0079A41C, 78);
+    patch.WriteU32((void *)0x0079A420, 79);
+    patch.WriteU32((void *)0x0079A424, 80);
+    patch.WriteU32((void *)0x0079A428, 81);
+    patch.WriteU32((void *)0x0079A42C, 82);
+    patch.WriteU32((void *)0x0079A430, 83);
+    patch.WriteU32((void *)0x0079A434, 84);
+    patch.WriteU32((void *)0x0079A438, 108);
+    patch.WriteU32((void *)0x0079A43C, 120);
+    patch.WriteU32((void *)0x0079A440, 0);
+    patch.WriteU32((void *)0x0079A448, 0);
+
+    patch.WriteU32((void *)0x0079A58C, 85); // SI structure module
+    patch.WriteU32((void *)0x0079A590, 86);
+    patch.WriteU32((void *)0x0079A594, 87);
+    patch.WriteU32((void *)0x0079A598, 88);
+    patch.WriteU32((void *)0x0079A59C, 89);
+    patch.WriteU32((void *)0x0079A5A0, 90);
+    patch.WriteU32((void *)0x0079A5A4, 91);
+    patch.WriteU32((void *)0x0079A5A8, 92);
+    patch.WriteU32((void *)0x0079A5AC, 93);
+    patch.WriteU32((void *)0x0079A5B0, 94);
+    patch.WriteU32((void *)0x0079A5B4, 107);
+    patch.WriteU32((void *)0x0079A5B8, 123);
+    patch.WriteU32((void *)0x0079A5BC, 111);
+    patch.WriteU32((void *)0x0079A5C0, 112);
+    patch.WriteU32((void *)0x0079A5C4, 115);
+    patch.WriteU32((void *)0x0079A5C8, 124);
+    patch.WriteU32((void *)0x0079A5CC, 116);
+    patch.WriteU32((void *)0x0079A5D0, 113);
+    patch.WriteU32((void *)0x0079A5D4, 118);
+    patch.WriteU32((void *)0x0079A5D8, 122);
+    patch.WriteU32((void *)0x0079A5DC, 125);
+    patch.WriteU32((void *)0x0079A5E0, 126);
+    patch.WriteU32((void *)0x0079A5E4, 0);
+
+    patch.WriteU32((void *)0x0079A654, 95); // SI supertech module
+    patch.WriteU32((void *)0x0079A658, 96);
+    patch.WriteU32((void *)0x0079A65C, 98);
+    patch.WriteU32((void *)0x0079A660, 100);
+    patch.WriteU32((void *)0x0079A664, 75);
+    patch.WriteU32((void *)0x0079A668, 76);
+    patch.WriteU32((void *)0x0079A66C, 77);
+    patch.WriteU32((void *)0x0079A670, 68);
+    patch.WriteU32((void *)0x0079A674, 69);
+    patch.WriteU32((void *)0x0079A678, 70);
+    patch.WriteU32((void *)0x0079A67C, 71);
+    patch.WriteU32((void *)0x0079A680, 72);
+    patch.WriteU32((void *)0x0079A684, 73);
+    patch.WriteU32((void *)0x0079A688, 74);
+    patch.WriteU32((void *)0x0079A68C, 114);
+    patch.WriteU32((void *)0x0079A690, 119);
+    patch.WriteU32((void *)0x0079A694, 97);
+    patch.WriteU32((void *)0x0079A698, 99);
+    patch.WriteU32((void *)0x0079A69C, 117);
+
+    return true;
+}
+
+static bool SiResearchModulesReduce2(Patcher::SPatch &patch)
+{
+    patch.WriteByte((void *)0x004E7FE1, 75); // find module for research
+
+    patch.WriteByte((void *)0x004C03F9, 75);        // find module for research
+
+    //patch.WriteByte((void *)0x004E7FF3, 100);       //
+    //patch.WriteByte((void *)0x004E7FF7, 100);       //
+    patch.WriteJumpSized(SIModulesAllInOne_Jmp, 7, (unsigned long)SIModulesAllInOne);
+
+    //patch.WriteU32((void *)0x004E7FFA, 0x0079A654);         // upper adress limit check
+    patch.WriteU32((void *)0x004E7FFA, 0x0079A528); // upper adress limit check
+    
+    //patch.WriteU32((void *)0x004E3272, 0xFFFE5C80); // module_id diff from base *3 -> *5
+    patch.WriteU32((void *)0x004E328B, 0xFB148084); // module_id diff from base *3 -> *5
+    patch.WriteJumpSized(SIModulesAllInOne2_Jmp, 7, (unsigned long)SIModulesAllInOne2);
+
+    //patch.WriteU32((void *)0x004C03CE, 0xFFFE5C80); // module_id diff from base *3 -> *5
+    patch.WriteU32((void *)0x004C03E4, 0xFB148084); // module_id diff from base *3 -> *5
+    patch.WriteJumpSized(SIModulesAllInOne3_Jmp, 7, (unsigned long)SIModulesAllInOne3);
+
+    patch.WriteByte((void *)0x004E329E, 75);        //
+
+    // MODULES RESEARCH LISTS BIG
+    patch.WriteU32((void *)0x0079A3FC, 109); // SI speed module
+    patch.WriteU32((void *)0x0079A400, 110);
+    patch.WriteU32((void *)0x0079A404, 101);
+    patch.WriteU32((void *)0x0079A408, 106);
+    patch.WriteU32((void *)0x0079A40C, 105);
+    patch.WriteU32((void *)0x0079A410, 102);
+    patch.WriteU32((void *)0x0079A414, 104);
+    patch.WriteU32((void *)0x0079A418, 103);
+    patch.WriteU32((void *)0x0079A41C, 78);
+    patch.WriteU32((void *)0x0079A420, 79);
+    patch.WriteU32((void *)0x0079A424, 80);
+    patch.WriteU32((void *)0x0079A428, 81);
+    patch.WriteU32((void *)0x0079A42C, 82);
+    patch.WriteU32((void *)0x0079A430, 83);
+    patch.WriteU32((void *)0x0079A434, 84);
+    patch.WriteU32((void *)0x0079A438, 108);
+    patch.WriteU32((void *)0x0079A43C, 120);
+
+    patch.WriteU32((void *)0x0079A440, 85); // SI structure module
+    patch.WriteU32((void *)0x0079A444, 86);
+    patch.WriteU32((void *)0x0079A448, 87);
+    patch.WriteU32((void *)0x0079A44C, 88);
+    patch.WriteU32((void *)0x0079A450, 89);
+    patch.WriteU32((void *)0x0079A454, 90);
+    patch.WriteU32((void *)0x0079A458, 91);
+    patch.WriteU32((void *)0x0079A45C, 92);
+    patch.WriteU32((void *)0x0079A460, 93);
+    patch.WriteU32((void *)0x0079A464, 94);
+    patch.WriteU32((void *)0x0079A468, 107);
+    patch.WriteU32((void *)0x0079A46C, 123);
+    patch.WriteU32((void *)0x0079A470, 111);
+    patch.WriteU32((void *)0x0079A474, 112);
+    patch.WriteU32((void *)0x0079A478, 115);
+    patch.WriteU32((void *)0x0079A47C, 124);
+    patch.WriteU32((void *)0x0079A480, 116);
+    patch.WriteU32((void *)0x0079A484, 113);
+    patch.WriteU32((void *)0x0079A488, 118);
+    patch.WriteU32((void *)0x0079A48C, 122);
+    patch.WriteU32((void *)0x0079A490, 125);
+    patch.WriteU32((void *)0x0079A494, 126);
+    patch.WriteU32((void *)0x0079A498, 117);
+
+    patch.WriteU32((void *)0x0079A49C, 95); // SI supertech module
+    patch.WriteU32((void *)0x0079A4A0, 96);
+    patch.WriteU32((void *)0x0079A4A4, 98);
+    patch.WriteU32((void *)0x0079A4A8, 100);
+    patch.WriteU32((void *)0x0079A4AC, 75);
+    patch.WriteU32((void *)0x0079A4B0, 76);
+    patch.WriteU32((void *)0x0079A4B4, 77);
+    patch.WriteU32((void *)0x0079A4B8, 68);
+    patch.WriteU32((void *)0x0079A4BC, 69);
+    patch.WriteU32((void *)0x0079A4C0, 70);
+    patch.WriteU32((void *)0x0079A4C4, 71);
+    patch.WriteU32((void *)0x0079A4C8, 72);
+    patch.WriteU32((void *)0x0079A4CC, 73);
+    patch.WriteU32((void *)0x0079A4D0, 74);
+    patch.WriteU32((void *)0x0079A4D4, 114);
+    patch.WriteU32((void *)0x0079A4D8, 119);
+    patch.WriteU32((void *)0x0079A4DC, 97);
+    patch.WriteU32((void *)0x0079A4E0, 99);
+
+    // + script 
+
+    return true;
+}
 
 static bool AI2021Ñompatible(Patcher::SPatch &patch)
 {
@@ -1855,6 +2075,8 @@ patch.WriteByte((void *)0x0079906C, 1); // BO Capture upg
 patch.WriteByte((void *)0x007BFBF8, 1); // SI Capture upg
 patch.WriteByte((void *)0x007BFBD6, 1); // SI TRPEVADE unavailable
 patch.WriteByte((void *)0x007BFBCF, 1); // SI IONARMOR unavailable
+patch.WriteByte((void *)0x007BFBB8, 1); // SI UPG NRG MINE unavailable
+patch.WriteByte((void *)0x007BFBE1, 1); // SI DPTRANGE unavailable
 
     return true;
 }
@@ -1944,39 +2166,191 @@ static bool Experimental2(Patcher::SPatch &patch)
     // patch.WriteU32((void *)0x007E43E4, 600);  // Soliton oscilator HP
     // patch.WriteU32((void *)0x007E43E8, 600);  // Soliton oscilator HP
    
-    // Flagship
-    // BO
-    patch.WriteByte((void *)0x007C0E47, 35); // Research ID
 
-    patch.WriteU32((void *)0x007E0538, 3750); // Time
-    patch.WriteU32((void *)0x007E0838, 3800); // Metal
-    patch.WriteU32((void *)0x007E05F8, 1100); // Corium
-    patch.WriteU32((void *)0x007A8BB4, 157);  // Weapon type
-    patch.WriteU32((void *)0x007A8CF4, 20);   // Reload
-    patch.WriteU32((void *)0x007A8C54, 20);   // Ammo
-    patch.WriteU32((void *)0x007DFC48, 1900); // HP
 
     patch.WriteJumpSized(ChangeSubsRange_Jmp, 7, (unsigned long)ChangeSubsRange);
 
     return true;
 }
 
+
+static bool ShiftQueue(Patcher::SPatch &patch)
+{   
+    // Shift for order queue (desync issue)
+ patch.WriteNops((void *)0x0040B570, 8); // 8 Null bytes
+ //patch.WriteJumpSized(SkipStopResetOrderMove_Move_Jmp, 5, (unsigned long)SkipStopResetOrderMove_Move); 
+ patch.WriteJumpSized(SkipStopResetOrderIdle_Build_Jmp, 5, (unsigned long)SkipStopResetOrderIdle_Build);
+ patch.WriteJumpSized(SkipStopResetOrderBuild_Build_Jmp, 5, (unsigned long)SkipStopResetOrderBuild_Build);
+ //patch.WriteJumpSized(EnableShiftAltInput_Jmp, 5, (unsigned long)EnableShiftAltInput); 
+ patch.WriteJumpSized(FakeNoShiftForQueue_Jmp, 6, (unsigned long)FakeNoShiftForQueue); 
+ patch.WriteJumpSized(DontEraseOldOrder_jmp, 6, (unsigned long)DontEraseOldOrder);
+ patch.WriteJumpSized(AppendOrderInsteadOfReplace_Jmp, 8, (unsigned long)AppendOrderInsteadOfReplace); 
+ patch.WriteJumpSized(OrderEndProcedure_Jmp, 7, (unsigned long)OrderEndProcedure); 
+ patch.WriteNops((void *)0x0045FC0D, 32); // Don't destroy order after completion
+ patch.WriteNops((void *)0x0045EFEB, 19); // Nop for new build order with shift
+ patch.WriteJumpSized(NewBuildOrderWithShift_Jmp, 6, (unsigned long)NewBuildOrderWithShift);
+ patch.WriteJumpSized(PtrDistanceToTargetWithShift_Jmp, 6, (unsigned long)PtrDistanceToTargetWithShift);
+ patch.WriteJumpSized(DontResetOrderWhenChanged_Jmp, 8, (unsigned long)DontResetOrderWhenChanged);
+ patch.WriteJumpSized(DontResetOrderWhenChanged2x2_Jmp, 9, (unsigned long)DontResetOrderWhenChanged2x2);
+ patch.WriteJumpSized(CheckMyFlagToNotMakeNewOrder_Jmp, 5, (unsigned long)CheckMyFlagToNotMakeNewOrder);
+ patch.WriteJumpSized(CheckNestedOrderToNotCheckDistance_Jmp, 7, (unsigned long)CheckNestedOrderToNotCheckDistance);
+ patch.WriteJumpSized(CheckNestedOrderToNotDestroyNextStep_Jmp, 5, (unsigned long)CheckNestedOrderToNotDestroyNextStep);
+ patch.WriteJumpSized(DontCalculateNextStep_Jmp, 5, (unsigned long)DontCalculateNextStep);
+ patch.WriteJumpSized(DontOverwriteBuildState_Jmp, 6, (unsigned long)DontOverwriteBuildState);
+ patch.WriteJumpSized(DontCheckCellOccupation_Jmp, 6, (unsigned long)DontCheckCellOccupation);
+ patch.WriteJumpSized(ExitAfterWriteOrder_Jmp, 6, (unsigned long)ExitAfterWriteOrder);
+ //patch.WriteJumpSized(DontCheckCellCenterFlag_Jmp, 6, (unsigned long)DontCheckCellCenterFlag);
+ patch.WriteJumpSized(DontOverwriteTargetGPS_Jmp, 5, (unsigned long)DontOverwriteTargetGPS);
+ patch.WriteJumpSized(DontOverwriteTargetCell_Jmp, 5, (unsigned long)DontOverwriteTargetCell);
+ //patch.WriteJumpSized(DefineInitiateBuildingMoment_Jmp, 5, (unsigned long)DefineInitiateBuildingMoment);
+ patch.WriteJumpSized(ReplaceSubGpsToOrderWithShift_Jmp, 8, (unsigned long)ReplaceSubGpsToOrderWithShift);
+ patch.WriteJumpSized(ReplaceOrderGpsToOrderWithShift_Jmp, 5, (unsigned long)ReplaceOrderGpsToOrderWithShift);
+ patch.WriteJumpSized(ReplaceOrderGpsToOrderWithShiftRmk_Jmp, 8, (unsigned long)ReplaceOrderGpsToOrderWithShiftRmk);
+ patch.WriteNops((void *)0x0040B909, 6); // Nops
+ patch.WriteJumpSized(AlwaysJumpToRightOrderCreation_Jmp, 6, (unsigned long)AlwaysJumpToRightOrderCreation); 
+ 
+
+ patch.WriteJumpSized(PrepareMailNewCommandType_Jmp, 5, (unsigned long)PrepareMailNewCommandType);
+ patch.WriteByte((void *)0x0054F127, 10); // New command (36) jumptable for command size = 16
+ patch.WriteByte((void *)0x00438726, 10);
+ patch.WriteByte((void *)0x00499498, 8);
+ 
+ patch.WriteJumpSized(SendMailNewCommandType_Jmp, 5, (unsigned long)SendMailNewCommandType);
+ patch.WriteJumpSized(AddInfoMailNewCommandType_Jmp, 7, (unsigned long)AddInfoMailNewCommandType);
+
+    return true;
+}
+
+
+static bool BigBuildingHP(Patcher::SPatch &patch)
+{
+    patch.WriteU32((void *)0x007E41D0, 1000); // WS Metal
+    patch.WriteU32((void *)0x007E417C, 4000); // WS Dockyard HP
+    patch.WriteU32((void *)0x007E4188, 3000); // WS Docks HP
+    patch.WriteU32((void *)0x007E4194, 2400); // WS Arsenal HP
+    patch.WriteU32((void *)0x007E41A0, 2000); // WS Research Center HP
+    patch.WriteU32((void *)0x007E41E8, 1600); // WS Depot
+    patch.WriteU32((void *)0x007E41D0, 1000); // WS Corium extractor
+    patch.WriteU32((void *)0x007E41DC, 1000); // WS Gold extractor
+    patch.WriteU32((void *)0x007E41AC, 1600); // WS Sonar
+    patch.WriteU32((void *)0x007E41B8, 3000); // WS Teleport
+    patch.WriteU32((void *)0x007E41F4, 1400); // WS Infocenter
+    patch.WriteU32((void *)0x007E4224, 1200); // WS Cybercenter
+    patch.WriteU32((void *)0x007E4248, 1600); // WS Psychotron
+    patch.WriteU32((void *)0x007E424C, 1600); // BO Psychotron
+    patch.WriteU32((void *)0x007E4200, 1600); // WS Disperser
+    patch.WriteU32((void *)0x007E4204, 1600); // BO Disperser
+    patch.WriteU32((void *)0x007E4254, 1400); // WS Plasmatron
+    patch.WriteU32((void *)0x007E4258, 1400); // BO Plasmatron
+    patch.WriteU32((void *)0x007E425C, 1400); // SI Plasmatron
+    patch.WriteU32((void *)0x007E4260, 1200); // WS Nuke
+    patch.WriteU32((void *)0x007E4264, 1200); // BO Nuke
+    patch.WriteU32((void *)0x007E4268, 1200); // SI Nuke
+    patch.WriteU32((void *)0x007E42D8, 1000); // WS Metal extractor
+    patch.WriteU32((void *)0x007E42DC, 1000); // BO Metal extractor
+    patch.WriteU32((void *)0x007E42E4, 1000); // WS Oxygen generator
+    patch.WriteU32((void *)0x007E42E8, 1000); // BO Oxygen generator
+    patch.WriteU32((void *)0x007E42FC, 2000); // WS Market
+    patch.WriteU32((void *)0x007E4300, 2000); // BO Market
+    patch.WriteU32((void *)0x007E4230, 1000); // WS Shark control
+    patch.WriteU32((void *)0x007E4234, 1000); // BO Shark control
+    patch.WriteU32((void *)0x007E4458, 1400); // WS Teleshield
+    patch.WriteU32((void *)0x007E445C, 1400); // BO Teleshield
+    
+    //patch.WriteU32((void *)0x007E423C, 1000); // WS USG
+
+    
+    patch.WriteU32((void *)0x007E41D4, 1000); // BO Metal
+    patch.WriteU32((void *)0x007E4180, 4000); // BO Dockyard HP
+    patch.WriteU32((void *)0x007E418C, 3000); // BO Docks HP
+    patch.WriteU32((void *)0x007E4198, 2400); // BO Arsenal HP
+    patch.WriteU32((void *)0x007E41A4, 2000); // BO Research Center HP
+    patch.WriteU32((void *)0x007E41EC, 1600); // BO Depot
+    patch.WriteU32((void *)0x007E41D4, 1000); // BO Corium extractor
+    patch.WriteU32((void *)0x007E41E0, 1000); // BO Gold extractor
+    patch.WriteU32((void *)0x007E41B0, 1600); // BO Sonar
+    patch.WriteU32((void *)0x007E41BC, 3000); // BO Teleport
+    patch.WriteU32((void *)0x007E41F8, 1400); // BO Infocenter
+    patch.WriteU32((void *)0x007E42B4, 1000); // WS Protective field gen
+    patch.WriteU32((void *)0x007E42B8, 1000); // BO Protective field gen
+    patch.WriteU32((void *)0x007E42C0, 1600); // WS Force field
+    patch.WriteU32((void *)0x007E42C4, 1600); // BO Force field
+    patch.WriteU32((void *)0x007E4284, 1000); // WS Power station
+    patch.WriteU32((void *)0x007E4288, 1000); // BO Power station
+    patch.WriteU32((void *)0x007E4290, 1000); // WS Cyber laboratory dolphins
+    patch.WriteU32((void *)0x007E4294, 1000); // BO Cyber laboratory dolphins
+    patch.WriteU32((void *)0x007E42CC, 1000); // WS lasbomb launcher
+    patch.WriteU32((void *)0x007E42D0, 1000); // BO lasbomb launcher
+    patch.WriteU32((void *)0x007E42D4, 1000); // SI lasbomb launcher
+
+
+    patch.WriteU32((void *)0x007E43DC, 1200); // Silicon extractor HP
+    patch.WriteU32((void *)0x007E4310, 4000); // SI Command Hub HP
+    patch.WriteU32((void *)0x007E4370, 2400); // SI Arsenal HP
+    patch.WriteU32((void *)0x007E437C, 3600); // SI Protoplasm generator HP
+    patch.WriteU32((void *)0x007E41D8, 1000); // SI Corium extractor
+    patch.WriteU32((void *)0x007E41C0, 3000); // SI Teleport
+
+    patch.WriteU32((void *)0x007E431C, 1000); // SI Module
+    patch.WriteU32((void *)0x007E4328, 1000); // SI Module
+    patch.WriteU32((void *)0x007E4334, 1000); // SI Module
+    patch.WriteU32((void *)0x007E4340, 1000); // SI Module
+    patch.WriteU32((void *)0x007E434C, 1000); // SI Module
+    patch.WriteU32((void *)0x007E4358, 1000); // SI Module
+    patch.WriteU32((void *)0x007E4364, 1000); // SI Module
+
+    patch.WriteU32((void *)0x007E4388, 1400); // SI Biolocator
+    patch.WriteU32((void *)0x007E438C, 1000); // SI Corium extractor
+    patch.WriteU32((void *)0x007E4390, 1000); // SI Corium extractor
+    patch.WriteU32((void *)0x007E4394, 1000); // SI Corium extractor
+    patch.WriteU32((void *)0x007E43A0, 2400); // SI Energy converter
+    patch.WriteU32((void *)0x007E43AC, 1000); // SI Corium silo
+    patch.WriteU32((void *)0x007E43B8, 1600); // SI Energy accumulator
+    patch.WriteU32((void *)0x007E43C4, 1400); // SI Replenish pod
+    patch.WriteU32((void *)0x007E43D0, 2200); // SI Recyclotron
+    patch.WriteU32((void *)0x007E443C, 2600); // SI Gate
+    patch.WriteU32((void *)0x007E4448, 2000); // SI Ion field generator
+    patch.WriteU32((void *)0x007E4454, 1800); // SI Molecular
+    patch.WriteU32((void *)0x007E446C, 2400); // SI Orbital laser
+    patch.WriteU32((void *)0x007E4484, 1400); // SI Vacuum bomb launcher
+    patch.WriteU32((void *)0x007E4490, 1600); // SI Quantum Paralyzer
+    
+    //patch.WriteU32((void *)0x007E4478, 1400); // SI Parcher
+    //patch.WriteU32((void *)0x007E43E0, 1400); // SI soliton oscillator
+    
+    
+    
+    
+    return true;
+}
+
 typedef bool (*PatchFunction)(Patcher::SPatch &patch);
 static const PatchFunction Patches[] = {
-    //Put your patch functions here:
+    //Yaml,
+    //Put your patch functions here:     
     FixesQoL, 
     OneDepotFor2Mines,
-    LobbyAnnouncements,
     AimPrediction,
-
     BalancingTacticsTree,
     ResearchBuildingsLimit,
     Flagships,
-    //Experimental2
 
+    LobbyAnnouncements,
+    
+    AutosaveIPXNetGame,
+
+    BigBuildingHP,
+    SiResearchModulesReduce2,
+    // ShiftQueue
+
+    // Experimental2
+    
     // EnableFog
+    
     // EconomicsAndOther,
+    
     // BalancingNormalTree,
+   
     // AI2021Ñompatible
 };
 
