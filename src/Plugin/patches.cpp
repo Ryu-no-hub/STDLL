@@ -1633,7 +1633,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
 
     patch.WriteU32((void *)0x007E6508, GetPrivateProfileInt(L"Weap_HeavyLaser", L"Damage", 200, ini_file)); // Heavy laser (vanilla 200)
 
-    patch.WriteU32((void *)0x00464814, 1000); // Cyberdolphin damage
+    patch.WriteU32((void *)0x00464814, GetPrivateProfileInt(L"Dolphin", L"Damage", 600, ini_file)); // Cyberdolphin damage
 
     patch.WriteU32((void *)0x007E64A4, 10); // Cassete shell
     patch.WriteU32((void *)0x007E66FC, 10); // Ion cassete t1
