@@ -1577,8 +1577,8 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
 
     // HP
     patch.WriteU32((void *)0x007DFBB0, 220);  // Sentinel hp
-    // patch.WriteU32((void *)0x007DFBC4, 1400); // Marauder hp éöó
-    // patch.WriteU32((void *)0x007DFBC0, 1000); // Minelayer hp éöó
+    // patch.WriteU32((void *)0x007DFBC4, 1400); // Marauder hp Ã©Ã¶Ã³
+    // patch.WriteU32((void *)0x007DFBC0, 1000); // Minelayer hp Ã©Ã¶Ã³
     patch.WriteU32((void *)0x007DFBB4, 520);  // Hunter hp
     patch.WriteU32((void *)0x007DFBBC, 1600); // DC Bomber hp
     patch.WriteU32((void *)0x007DFBD8, 1200); // Liberator hp
@@ -1587,12 +1587,12 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007DFBE0, 300);  // Fighter hp
     patch.WriteU32((void *)0x007DFBE4, GetPrivateProfileInt(L"Destroyer", L"HP", 600, ini_file));  // Destroyer hp
     patch.WriteU32((void *)0x007DFBEC, 700);  // Invader hp
-    // patch.WriteU32((void *)0x007DFBBF0, ); // Defender hp éöó
+    // patch.WriteU32((void *)0x007DFBBF0, ); // Defender hp Ã©Ã¶Ã³
     patch.WriteU32((void *)0x007DFBF4, 1100); // Raider hp
     patch.WriteU32((void *)0x007DFC00, 600);  // Cyberdolphin hp
 
     patch.WriteU32((void *)0x007DFC24, 220);  // Skat hp
-    // patch.WriteU32((void *)0x007DFC2C, ); // Escort hp éöó
+    // patch.WriteU32((void *)0x007DFC2C, ); // Escort hp Ã©Ã¶Ã³
     patch.WriteU32((void *)0x007DFC38, GetPrivateProfileInt(L"Psi-zond", L"HP", 123, ini_file));  // Psi-zond hp
     patch.WriteU32((void *)0x007DFC28, GetPrivateProfileInt(L"Dreadnaught", L"HP", 123, ini_file)); // Dreadnaught hp
     patch.WriteU32((void *)0x007DFC30, GetPrivateProfileInt(L"Bio-assaulter", L"HP", 123, ini_file));  // Bio-assaulter hp
@@ -1607,7 +1607,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007A8CB4, 40); // Aveger reload
     
     // SPECIAL
-    patch.WriteByte((void *)0x0045094E, GetPrivateProfileInt(L"Phantom", L"Âischarge", 123, ini_file)); // Phantom discharge
+    patch.WriteByte((void *)0x0045094E, GetPrivateProfileInt(L"Phantom", L"Ã‚ischarge", 123, ini_file)); // Phantom discharge
 
     // DAMAGE     
     patch.WriteU32((void *)0x007E6490, GetPrivateProfileInt(L"Weap_HeavyTorpedo", L"Damage_1", 90, ini_file)); // Cruiser T1 damage
@@ -2070,7 +2070,7 @@ static bool SiResearchModulesReduce2(Patcher::SPatch &patch)
     return true;
 }
 
-static bool AI2021Ñompatible(Patcher::SPatch &patch)
+static bool AI2021Ã‘ompatible(Patcher::SPatch &patch)
 {
     // AI-2021 - compatible
 patch.WriteU32((void *)0x007E59A8, 10); // Mining upgrade silicon si time
@@ -2361,7 +2361,7 @@ static const PatchFunction Patches[] = {
     
     // BalancingNormalTree,
    
-    // AI2021Ñompatible
+    // AI2021Ã‘ompatible
 };
 
 // Below is a code to apply patches
