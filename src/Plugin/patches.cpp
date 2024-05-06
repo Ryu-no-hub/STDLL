@@ -1604,7 +1604,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     //patch.WriteU32((void *)0x007A8C5C, GetPrivateProfileInt(L"Sentinel", L"reload", 30, ini_file)); // Sentinel reload
     patch.WriteU32((void *)0x007A8C80, GetPrivateProfileInt(L"Terminator", L"Reload", 100, ini_file)); // Terminator reload
     patch.WriteU32((void *)0x007A8C90, GetPrivateProfileInt(L"Terminator", L"Reload", 50, ini_file));  // Destroyer reload
-    patch.WriteU32((void *)0x007A8CB4, 40); // Aveger reload
+    patch.WriteU32((void *)0x007A8CB4, 40); // Aveger reloa
     
     // SPECIAL
     patch.WriteByte((void *)0x0045094E, 19); // Phantom discharge
@@ -1633,7 +1633,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
 
     patch.WriteU32((void *)0x007E6508, GetPrivateProfileInt(L"Weap_HeavyLaser", L"Damage", 200, ini_file)); // Heavy laser (vanilla 200)
 
-    patch.WriteU32((void *)0x00464814, 1000); // Cyberdolphin damage
+    patch.WriteU32((void *)0x00464814, GetPrivateProfileInt(L"Dolphin", L"Damage", 600, ini_file)); // Cyberdolphin damage
 
     patch.WriteU32((void *)0x007E64A4, 10); // Cassete shell
     patch.WriteU32((void *)0x007E66FC, 10); // Ion cassete t1
