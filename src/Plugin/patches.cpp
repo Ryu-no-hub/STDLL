@@ -4,25 +4,22 @@
 #include "Shared/Patcher.h"
 #include <windows.h>
 #include "winhttp.h"
-//#include <iostream>
-//#define YAML_CPP_STATIC_DEFINE
-//#include "yaml-cpp/yaml.h"
+#include <string>
 
-//using namespace YAML;
 using namespace Common;
 using namespace Patcher;
 
+WCHAR Buffer[MAX_PATH];
+auto result = GetCurrentDirectoryW(MAX_PATH, Buffer);
+
+std::wstring FileDirectory(Buffer);
+std::wstring full_path = FileDirectory + L"\\plugins\\config.ini";
+static LPCWSTR ini_file = full_path.c_str();
+
 #pragma comment(lib, "winhttp.lib")
 
-//
-//static bool Yaml(Patcher::SPatch &patch)
-//{
-//    //Node config = LoadFile("config.yaml");
-//
-//
-//    return true;
-//}
 
+    
 // Implement your patches here
 static bool AutosaveIPXNetGame(Patcher::SPatch &patch)
 {
@@ -43,22 +40,6 @@ static bool FixesQoL(Patcher::SPatch &patch) {
 #ifdef _DEBUG
     //MessageBoxA(NULL, "FlagshipsPatch LOL Debug", "", MB_OK);
 #endif // _DEBUG
-
-    
-    //---------EXPERIMENTAL START-----
-    // Fix max range 1
-    //patch.WriteByte((void *)0x004C3CC2, 0xF6);
-    // Fix max range 2
-    //patch.WriteByte((void *)0x004C3CF0, 0xF6);
-    // Fix max range 3
-    //patch.WriteByte((void *)0x004C3CC2, 0xA);
-    // Fix max range 4
-    //patch.WriteByte((void *)0x004C3CC5, 0xA);
-    // Fix max range 5
-    //patch.WriteByte((void *)0x004C426F, 0xA);
-    // Fix max range 6
-    //patch.WriteByte((void *)0x004C4281, 0xA);
-    //---------EXPERIMENTAL END -----
 
     // GENERAL
     patch.WriteJumpSized(ChangeGameVersion_Jmp, 5, (unsigned long)ChangeGameVersion);
@@ -936,12 +917,28 @@ static bool BalancingNormalTree(Patcher::SPatch &patch)
 
     patch.WriteU32((void *)0x007E6580, 800); // Plasma damage
 
-
     //patch.WriteU32((void *)0x00489C36, 0x9064EB83); // Less priority for buildings
     //patch.WriteNops((void *)0x00489C3A, 2);
     
     return true;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1298,8 +1295,6 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007E5AE8, 6000); // SI IONARMOR time
     
 
-
-    // SUBMARINES
     // SPEED Upgrade
     patch.WriteByte((void *)0x0045F737, 3); // Plus total at T2
     patch.WriteByte((void *)0x0045F733, 6); // Plus total at T3
@@ -1492,7 +1487,8 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007E3468, 2000); // Vacuum bomb launcher silicon
 
     
-    // TURRETS RANGE
+     // TURRETS 
+    // RANGE
     patch.WriteByte((void *)0x00792208, 7); // HF Canon first range
     patch.WriteByte((void *)0x00792218, 8); // STOLp first range
     patch.WriteByte((void *)0x00792338, 9); // Plasma canon first range
@@ -1522,15 +1518,20 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteByte((void *)0x004C4281, 10);
     //
 
+    // ATTACK COOLDOWN
+    patch.WriteU32((void *)0x007DFF20, 60); // Plasma canon reload (vanilla 100 (4 sec))
+
+
     // SUBMARINES
     // METAL/SILICON
     patch.WriteU32((void *)0x007E07D0, 300); // Fighter metal
-    patch.WriteU32((void *)0x007E07D4, 600); // Destroyer metal
+    patch.WriteU32((void *)0x007E07D4, GetPrivateProfileInt(L"Destroyer", L"Metal", 500, ini_file)); // Destroyer metal
     patch.WriteU32((void *)0x007E07D8, 1400); // Heavy Cruiser metal
 
     patch.WriteU32((void *)0x007E07A4, 450);  // Hunter metal
     patch.WriteU32((void *)0x007E07A8, 1100); // Cruiser metal
     patch.WriteU32((void *)0x007E07C8, 900); // Liberator metal
+    patch.WriteU32((void *)0x007E07C4, GetPrivateProfileInt(L"Terminator", L"Metal", 1000, ini_file)); // Terminator metal
     patch.WriteU32((void *)0x007E07BC, 300);  // Transport WS metal
     patch.WriteU32((void *)0x007E07EC, 300);  // Transport BO metal
     // patch.WriteU32((void *)0x007E07E4, 300); // Raider metal
@@ -1554,7 +1555,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007E059C, 180); // Invader corium
     patch.WriteU32((void *)0x007E05D0, 200); // Energizer corium
     //patch.WriteU32((void *)0x007E05B8, 220); // Avenger corium
-    patch.WriteU32((void *)0x007E0594, 90);  // Destroyer corium
+    patch.WriteU32((void *)0x007E0594, GetPrivateProfileInt(L"Destroyer", L"Corium", 80, ini_file));  // Destroyer corium
     patch.WriteU32((void *)0x007E0598, 360); // Heavy Cruiser corium
     patch.WriteU32((void *)0x007E05B4, 280); // Phantom corium
     patch.WriteU32((void *)0x007E05A4, 120); // Raider corium
@@ -1571,7 +1572,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007E04B4, 1500); // Marauder buildtime
     patch.WriteU32((void *)0x007E04E4, 1500); // Raider buildtime
     patch.WriteU32((void *)0x007E0528, 1250); // Usurper buildtime
-    // patch.WriteU32((void *)0x007E04D4, ); // Destroyer buildtime
+    patch.WriteU32((void *)0x007E04D4, GetPrivateProfileInt(L"Destroyer", L"BuildTime", 1000, ini_file)); // Destroyer buildtime
     patch.WriteU32((void *)0x007E04D8, 1875); // Heavy cruiser buildtime
 
     // HP
@@ -1584,7 +1585,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007DFBD0, 600);  // Cyberworm hp
 
     patch.WriteU32((void *)0x007DFBE0, 300);  // Fighter hp
-    //patch.WriteU32((void *)0x007DFBE4, 580);  // Destroyer hp
+    patch.WriteU32((void *)0x007DFBE4, GetPrivateProfileInt(L"Destroyer", L"HP", 600, ini_file));  // Destroyer hp
     patch.WriteU32((void *)0x007DFBEC, 700);  // Invader hp
     // patch.WriteU32((void *)0x007DFBBF0, ); // Defender hp
     patch.WriteU32((void *)0x007DFBF4, 1100); // Raider hp
@@ -1600,34 +1601,38 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007DFC14, 400); // Transport SI hp
 
     // ATTACK COOLDOWN
-    patch.WriteU32((void *)0x007A8CB4, 40); // Aveger cd
+    //patch.WriteU32((void *)0x007A8C5C, GetPrivateProfileInt(L"Sentinel", L"reload", 30, ini_file)); // Sentinel reload
+    patch.WriteU32((void *)0x007A8C80, GetPrivateProfileInt(L"Terminator", L"Reload", 100, ini_file)); // Terminator reload
+    patch.WriteU32((void *)0x007A8C90, GetPrivateProfileInt(L"Terminator", L"Reload", 50, ini_file));  // Destroyer reload
+    patch.WriteU32((void *)0x007A8CB4, 40); // Aveger reload
     
     // SPECIAL
     patch.WriteByte((void *)0x0045094E, 19); // Phantom discharge
 
-    // DAMAGE
-    patch.WriteU32((void *)0x007E6490, 120); // Cruiser T1 damage
-    patch.WriteU32((void *)0x007E6494, 160); // Cruiser T2 damage
-    patch.WriteU32((void *)0x007E6498, 200); // Cruiser T3 damage
-    patch.WriteU32((void *)0x007E649C, 230); // Cruiser T4 damage
-    patch.WriteU32((void *)0x007E64A0, 260); // Cruiser T5 damage
-    //patch.WriteU32((void *)0x007A8C5C, 35); // Sentinel reload
-    patch.WriteU32((void *)0x007A8C80, 90); // Terminator reload
-
-    patch.WriteU32((void *)0x007E6534, 100); // HF heavy T2 damage
-    patch.WriteU32((void *)0x007E679C, 100); // Pulsar T1 damage
+    // DAMAGE     
+    patch.WriteU32((void *)0x007E6490, GetPrivateProfileInt(L"Weap_HeavyTorpedo", L"Damage_1", 90, ini_file)); // Cruiser T1 damage
+    patch.WriteU32((void *)0x007E6494, GetPrivateProfileInt(L"Weap_HeavyTorpedo", L"Damage_2", 120, ini_file)); // Cruiser T2 damage
+    patch.WriteU32((void *)0x007E6498, GetPrivateProfileInt(L"Weap_HeavyTorpedo", L"Damage_3", 150, ini_file)); // Cruiser T3 damage
+    patch.WriteU32((void *)0x007E649C, GetPrivateProfileInt(L"Weap_HeavyTorpedo", L"Damage_4", 170, ini_file)); // Cruiser T4 damage
+    patch.WriteU32((void *)0x007E64A0, GetPrivateProfileInt(L"Weap_HeavyTorpedo", L"Damage_5", 200, ini_file)); // Cruiser T5 damage
     
     
-    patch.WriteU32((void *)0x007E6520, 70); // Sentinel dmg T2
-    patch.WriteU32((void *)0x007E65E4, 800); // DC Bomb damage
-
-    patch.WriteU32((void *)0x007DFF20, 60); // Plasma canon cooldown (vanilla 100 (4 sec))
+    patch.WriteU32((void *)0x007E651C, GetPrivateProfileInt(L"Weap_LHF", L"Damage_1", 30, ini_file));  // Sentinel dmg T1
+    patch.WriteU32((void *)0x007E6520, GetPrivateProfileInt(L"Weap_LHF", L"Damage_2", 80, ini_file));  // Sentinel dmg T2
     
-    //patch.WriteU32((void *)0x007A8C90, 80);  // Destroyer reload (vanilla 50)
-    //patch.WriteU32((void *)0x007E6620, 40);  // Destroyer T1 (vanilla 60)
-    patch.WriteU32((void *)0x007E6624, 100); // Destroyer T2 (vanilla 150)
+    patch.WriteU32((void *)0x007E6530, GetPrivateProfileInt(L"Weap_HHF", L"Damage_1", 70, ini_file)); // HF heavy T1 damage
+    patch.WriteU32((void *)0x007E6534, GetPrivateProfileInt(L"Weap_HHF", L"Damage_2", 120, ini_file)); // HF heavy T2 damage
 
-    patch.WriteU32((void *)0x007E6508, 160); // Heavy laser (vanilla 200)
+    patch.WriteU32((void *)0x007E679C, GetPrivateProfileInt(L"Weap_Pulsar", L"Damage_1", 80, ini_file)); // Pulsar T1 damage
+    
+    patch.WriteU32((void *)0x007E65E4, GetPrivateProfileInt(L"Weap_DCBomb", L"Damage", 500, ini_file)); // DC Bomb damage
+
+    
+    patch.WriteU32((void *)0x007E6620, GetPrivateProfileInt(L"Weap_SplinterTorpedo", L"Damage_1", 60, ini_file)); // Destroyer T1 damage (vanilla 60)
+    patch.WriteU32((void *)0x007E6624, GetPrivateProfileInt(L"Weap_SplinterTorpedo", L"Damage_2", 150, ini_file)); // Destroyer T2 damage (vanilla 150)
+
+    patch.WriteU32((void *)0x007E6508, GetPrivateProfileInt(L"Weap_HeavyLaser", L"Damage", 200, ini_file)); // Heavy laser (vanilla 200)
+
     patch.WriteU32((void *)0x00464814, 1000); // Cyberdolphin damage
 
     patch.WriteU32((void *)0x007E64A4, 10); // Cassete shell
@@ -1646,6 +1651,9 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007E6580, 800); // Plasma damage
     //patch.WriteByte((void *)0x00642ABA, 3);   // Laser reflection % (25 -> 12.5)
         
+
+    //-----------------------------------
+
     //Submarines armor
     patch.WriteByte((void *)0x00459E86, 0x11); // Half armor T2 jump
     patch.WriteByte((void *)0x00459E9C, 0xC9); // Half armor T2 value (90%)
@@ -1668,9 +1676,9 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU16((void *)0x004BB5AE, 0xCA01); // Half armor T4
     patch.WriteU16((void *)0x004BB5B0, 0xCA01); // Half armor T4
 
-    
-    patch.WriteU32((void *)0x004BB5DF, 0x3E8); // max blocked damage check
-    patch.WriteU32((void *)0x004BB5E6, 0x3E8); // max blocked damage replace
+    // Max blocked damage
+    patch.WriteU32((void *)0x004BB5DF, 1000); // max blocked damage check
+    patch.WriteU32((void *)0x004BB5E6, 1000); // max blocked damage replace
 
     //ECONOMICS
     //patch.WriteU32((void *)0x0043092D, 12); // Metal in 1/40 of Transport capacity load

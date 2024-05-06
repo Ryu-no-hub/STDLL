@@ -116,8 +116,7 @@
       <AdditionalLibraryDirectories>C:\src\vcpkg\vcpkg\packages\yaml-cpp_x64-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(OutputPath)STDLL.asi" "C:\GOG Games\Submarine Titans 2\plugins"
-copy "C:\Users\Professional\Desktop\Submarine Titans\STDLL\Release\d3drm.dll" "C:\GOG Games\Submarine Titans 2"</Command>
+      <Command>copy "$(OutputPath)STDLL.asi" "C:\GOG Games\Submarine Titans 2\plugins"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

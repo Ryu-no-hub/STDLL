@@ -18,6 +18,14 @@
 
 namespace Patcher {
 
+//WCHAR Buffer[MAX_PATH];
+//auto result = GetCurrentDirectoryW(MAX_PATH, Buffer);
+//
+//std::wstring FileDirectory(Buffer);
+//std::wstring full_path = FileDirectory + L"\\plugins\\config.ini";
+//static LPCWSTR ini_file = full_path.c_str();
+
+
 static auto  game_mode_ptr = (DWORD *)0x00808783;
 static char *player_name_ptr = (char *)0x00807DDD;
 
@@ -7780,6 +7788,8 @@ __declspec(naked) void inline SIModulesAllInOne3()
     }
 }
 
+//static BYTE author_number = GetPrivateProfileInt(L"GameVersion", L"Level_1", 1, ini_file);
+//static BYTE version_number = GetPrivateProfileInt(L"GameVersion", L"Level_2", 0, ini_file);
 static unsigned long ChangeGameVersion_Jmp = 0x005B324F;
 static unsigned long ChangeGameVersion_JmpBack = ChangeGameVersion_Jmp + 5;
 __declspec(naked) void inline ChangeGameVersion()
@@ -7788,10 +7798,13 @@ __declspec(naked) void inline ChangeGameVersion()
         mov eax, 0x00807DD5
         //mov dword ptr [eax], 0x01030000 // 0x0102002A - standart, 0x0102001A - V2, 0x01030000 - V3
         mov dword ptr [eax], 0x01020031
+        /*mov byte ptr [eax+2], author_number
+        mov byte ptr [eax], version_number*/
         mov eax, [eax]
         jmp[ChangeGameVersion_JmpBack]
     }
 }
+
 
 
 const size_t CallJmpSize = 5;
