@@ -860,7 +860,7 @@ static bool BalancingNormalTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007E05E0, 330); // Bio-acid assaulter corium (vanilla 200)
     patch.WriteU32((void *)0x007E05C8, 100); // Supplier corium (vanilla 0)
     patch.WriteU32((void *)0x007E0A60, 900); // Bio-acid assaulter silicon (vanilla 700)
-	//
+	////
     // BUILDTIME
     patch.WriteU32((void *)0x007E04D0, 600); // Fighter buildtime
     patch.WriteU32((void *)0x007E0514, 500); // Skat buildtime
