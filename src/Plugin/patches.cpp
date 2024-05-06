@@ -117,7 +117,7 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     patch.WriteU32((void *)0x005C7AE8, 0x0079C050); // Random map directory - custom 3
 
     patch.WriteU32((void *)0x0047A44E, 0); // Give ghost state teleport
-    patch.WriteByte((void *)0x004ECC7D, 12); // Increase teleshield range
+    patch.WriteByte((void *)0x004ECC7D, GetPrivateProfileInt(L"Teleshield", L"Range", 8, ini_file));  // Increase teleshield range
     //patch.WriteJumpSized(SetMineInSubLocation_Jmp, 21, (unsigned long)SetMineInSubLocation);
 
     
@@ -137,11 +137,8 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     patch.WriteByte((void *)0x0041C4AF, 32); // Max sub id to not skip in defining view mode
 
     
-    patch.WriteU32((void *)0x007D2220, 1500); // Paralyze ray time (vanilla 375 = 15 sec)
-    patch.WriteU32((void *)0x007D2210, 200); // NeuroParalyze shell time (vanilla 250 = 10 sec)
-    patch.WriteU32((void *)0x007C0D9E, 1);  // SI NEUTRSHIELD dep lvl
-    
-    
+    patch.WriteU32((void *)0x007D2220, GetPrivateProfileInt(L"Weap_ParalyzeRay", L"Time", 375, ini_file)); // Paralyze ray time
+    patch.WriteU32((void *)0x007D2210, GetPrivateProfileInt(L"Weap_NeuroParalyzeShell", L"Time", 250, ini_file)); // NeuroParalyze shell time 
     
 
     patch.WriteJumpSized(MessageResearchComplete_Jmp, 6, (unsigned long)MessageResearchComplete);
@@ -208,17 +205,11 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     patch.WriteU32((void *)0x00792498, 6);   // DPT range 1
     patch.WriteU32((void *)0x0079249C, 10);  // DPT range 2
     patch.WriteU32((void *)0x00792710, 121); // DPT range research id
-
-    patch.WriteByte((void *)0x00792288, 8); // Light laser first range
-    patch.WriteByte((void *)0x007922C8, 8); // Heavy laser first range
     //
 
-
-    patch.WriteU32((void *)0x007E6738, 150); // DPT turret damage T1
-    patch.WriteU32((void *)0x007E673C, 180); // DPT turret damage T2
-    patch.WriteU32((void *)0x007E6740, 240); // DPT turret damage T3
-    patch.WriteU32((void *)0x007E66F0, 90);  // Energy shell dmg t3
-
+    patch.WriteU32((void *)0x007E6738, GetPrivateProfileInt(L"Weap_DoublePlasmaTurret", L"Damage_1", 100, ini_file)); // DPT turret damage T1
+    patch.WriteU32((void *)0x007E673C, GetPrivateProfileInt(L"Weap_DoublePlasmaTurret", L"Damage_2", 120, ini_file)); // DPT turret damage T2
+    patch.WriteU32((void *)0x007E6740, GetPrivateProfileInt(L"Weap_DoublePlasmaTurret", L"Damage_3", 160, ini_file)); // DPT turret damage T3
 
     patch.WriteU32((void *)0x007A8C90, 80); // Destroyer reload (vanilla 50)
     patch.WriteU32((void *)0x007E6620, 40);  // Destroyer T1 (vanilla 60)
@@ -638,6 +629,7 @@ static bool BalancingNormalTree(Patcher::SPatch &patch)
     patch.WriteByte((void *)0x007C06E1, 1);  // SI PERSONALTELE dep lvl
     patch.WriteByte((void *)0x007C070F, 95);  // SI RESIDENT dep
     patch.WriteByte((void *)0x007C0A98, 106);   // SI ORBITLAS dep2
+    patch.WriteU32((void *)0x007C0D9E, 1);    // SI NEUTRSHIELD dep lvl
     
 
     patch.WriteU32((void *)0x007E5B4C, 7500); // SI SPEED T3 time
@@ -1250,6 +1242,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteByte((void *)0x007C0B8D, 90);  // SI DPT dep
     patch.WriteByte((void *)0x007C0BA6, 90);  // SI GASLAUNCHER dep
     patch.WriteByte((void *)0x007C0C55, 89);  // SI PARCHER dep
+    patch.WriteU32((void *)0x007C0D9E, 1);    // SI NEUTRSHIELD dep lvl
     
     
 
@@ -1603,7 +1596,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     // ATTACK COOLDOWN
     //patch.WriteU32((void *)0x007A8C5C, GetPrivateProfileInt(L"Sentinel", L"reload", 30, ini_file)); // Sentinel reload
     patch.WriteU32((void *)0x007A8C80, GetPrivateProfileInt(L"Terminator", L"Reload", 100, ini_file)); // Terminator reload
-    patch.WriteU32((void *)0x007A8C90, GetPrivateProfileInt(L"Terminator", L"Reload", 50, ini_file));  // Destroyer reload
+    patch.WriteU32((void *)0x007A8C90, GetPrivateProfileInt(L"Destroyer", L"Reload", 50, ini_file));  // Destroyer reload
     patch.WriteU32((void *)0x007A8CB4, 40); // Aveger reload
     
     // SPECIAL
