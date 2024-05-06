@@ -1604,7 +1604,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     //patch.WriteU32((void *)0x007A8C5C, GetPrivateProfileInt(L"Sentinel", L"reload", 30, ini_file)); // Sentinel reload
     patch.WriteU32((void *)0x007A8C80, GetPrivateProfileInt(L"Terminator", L"Reload", 100, ini_file)); // Terminator reload
     patch.WriteU32((void *)0x007A8C90, GetPrivateProfileInt(L"Terminator", L"Reload", 50, ini_file));  // Destroyer reload
-    patch.WriteU32((void *)0x007A8CB4, 40); // Aveger reloa
+    patch.WriteU32((void *)0x007A8CB4, 40); // Aveger relo
     
     // SPECIAL
     patch.WriteByte((void *)0x0045094E, 19); // Phantom discharge
