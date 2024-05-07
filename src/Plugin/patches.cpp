@@ -1583,7 +1583,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     // patch.WriteU32((void *)0x007DFBBF0, ); // Defender hp йцу
     patch.WriteU32((void *)0x007DFBF4, 1100); // Raider hp
     patch.WriteU32((void *)0x007DFC00, 600);  // Cyberdolphin hp
-
+//
     patch.WriteU32((void *)0x007DFC24, 220);  // Skat hp
     // patch.WriteU32((void *)0x007DFC2C, ); // Escort hp йцу
     patch.WriteU32((void *)0x007DFC38, GetPrivateProfileInt(L"Psi-zond", L"HP", 700, ini_file));  // Psi-zond hp
