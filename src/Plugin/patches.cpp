@@ -1572,20 +1572,19 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007DFBB0, 220);  // Sentinel hp
     // patch.WriteU32((void *)0x007DFBC4, 1400); // Marauder hp йцу
     // patch.WriteU32((void *)0x007DFBC0, 1000); // Minelayer hp йцу
-    patch.WriteU32((void *)0x007DFBB4, 520);  // Hunter hp
-    patch.WriteU32((void *)0x007DFBBC, 1600); // DC Bomber hp
-    patch.WriteU32((void *)0x007DFBD8, 1200); // Liberator hp
-    patch.WriteU32((void *)0x007DFBD0, 600);  // Cyberworm hp
+    patch.WriteU32((void *)0x007DFBB4, GetPrivateProfileInt(L"Hunter", L"HP", 123, ini_file));  // Hunter hp
+    patch.WriteU32((void *)0x007DFBBC, GetPrivateProfileInt(L"Bomber", L"HP", 123, ini_file)); // DC Bomber hp
+    patch.WriteU32((void *)0x007DFBD8, GetPrivateProfileInt(L"Liberator", L"HP", 123, ini_file)); // Liberator hp
+    patch.WriteU32((void *)0x007DFBD0, GetPrivateProfileInt(L"Cyberworm", L"HP", 123, ini_file));  // Cyberworm hp
 
-    patch.WriteU32((void *)0x007DFBE0, 300);  // Fighter hp
+    patch.WriteU32((void *)0x007DFBE0, GetPrivateProfileInt(L"Fighter", L"HP", 123, ini_file));  // Fighter hp
     patch.WriteU32((void *)0x007DFBE4, GetPrivateProfileInt(L"Destroyer", L"HP", 600, ini_file));  // Destroyer hp
-    patch.WriteU32((void *)0x007DFBEC, 700);  // Invader hp
+    patch.WriteU32((void *)0x007DFBEC, GetPrivateProfileInt(L"Invader", L"HP", 123, ini_file));  // Invader hp
     // patch.WriteU32((void *)0x007DFBBF0, ); // Defender hp йцу
-    patch.WriteU32((void *)0x007DFBF4, 1100); // Raider hp
-    patch.WriteU32((void *)0x007DFC00, 600);  // Cyberdolphin hp
-//
-    patch.WriteU32((void *)0x007DFC24, 220);  // Skat hp
-    // patch.WriteU32((void *)0x007DFC2C, ); // Escort hp йцу
+    patch.WriteU32((void *)0x007DFBF4, GetPrivateProfileInt(L"Raider", L"HP", 123, ini_file)); // Raider hp
+    patch.WriteU32((void *)0x007DFC00, GetPrivateProfileInt(L"Cyberdolphin", L"HP", 123, ini_file));  // Cyberdolphin hp
+    patch.WriteU32((void *)0x007DFC24, GetPrivateProfileInt(L"Skat", L"HP", 123, ini_file));  // Skat hp
+    patch.WriteU32((void *)0x007DFC2C, GetPrivateProfileInt(L"Escort", L"HP", 500, ini_file)); // Escort hp
     patch.WriteU32((void *)0x007DFC38, GetPrivateProfileInt(L"Psi-zond", L"HP", 700, ini_file));  // Psi-zond hp
     patch.WriteU32((void *)0x007DFC28, GetPrivateProfileInt(L"Dreadnaught", L"HP", 1500, ini_file)); // Dreadnaught hp
     patch.WriteU32((void *)0x007DFC30, GetPrivateProfileInt(L"Bio-assaulter", L"HP", 900, ini_file));  // Bio-assaulter hp
