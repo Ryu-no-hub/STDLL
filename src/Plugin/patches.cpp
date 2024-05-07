@@ -117,7 +117,7 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     patch.WriteU32((void *)0x005C7AE8, 0x0079C050); // Random map directory - custom 3
 
     patch.WriteU32((void *)0x0047A44E, 0); // Give ghost state teleport
-    patch.WriteByte((void *)0x004ECC7D, 12); // Increase teleshield range
+    patch.WriteByte((void *)0x004ECC7D, GetPrivateProfileInt(L"Teleshield", L"Range", 8, ini_file));  // Increase teleshield range
     //patch.WriteJumpSized(SetMineInSubLocation_Jmp, 21, (unsigned long)SetMineInSubLocation);
 
     
@@ -137,11 +137,8 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     patch.WriteByte((void *)0x0041C4AF, 32); // Max sub id to not skip in defining view mode
 
     
-    patch.WriteU32((void *)0x007D2220, 1500); // Paralyze ray time (vanilla 375 = 15 sec)
-    patch.WriteU32((void *)0x007D2210, 200); // NeuroParalyze shell time (vanilla 250 = 10 sec)
-    patch.WriteU32((void *)0x007C0D9E, 1);  // SI NEUTRSHIELD dep lvl
-    
-    
+    patch.WriteU32((void *)0x007D2220, GetPrivateProfileInt(L"Weap_ParalyzeRay", L"Time", 375, ini_file)); // Paralyze ray time
+    patch.WriteU32((void *)0x007D2210, GetPrivateProfileInt(L"Weap_NeuroParalyzeShell", L"Time", 250, ini_file)); // NeuroParalyze shell time 
     
 
     patch.WriteJumpSized(MessageResearchComplete_Jmp, 6, (unsigned long)MessageResearchComplete);
@@ -208,17 +205,11 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     patch.WriteU32((void *)0x00792498, 6);   // DPT range 1
     patch.WriteU32((void *)0x0079249C, 10);  // DPT range 2
     patch.WriteU32((void *)0x00792710, 121); // DPT range research id
-
-    patch.WriteByte((void *)0x00792288, 8); // Light laser first range
-    patch.WriteByte((void *)0x007922C8, 8); // Heavy laser first range
     //
 
-
-    patch.WriteU32((void *)0x007E6738, 150); // DPT turret damage T1
-    patch.WriteU32((void *)0x007E673C, 180); // DPT turret damage T2
-    patch.WriteU32((void *)0x007E6740, 240); // DPT turret damage T3
-    patch.WriteU32((void *)0x007E66F0, 90);  // Energy shell dmg t3
-
+    patch.WriteU32((void *)0x007E6738, GetPrivateProfileInt(L"Weap_DoublePlasmaTurret", L"Damage_1", 100, ini_file)); // DPT turret damage T1
+    patch.WriteU32((void *)0x007E673C, GetPrivateProfileInt(L"Weap_DoublePlasmaTurret", L"Damage_2", 120, ini_file)); // DPT turret damage T2
+    patch.WriteU32((void *)0x007E6740, GetPrivateProfileInt(L"Weap_DoublePlasmaTurret", L"Damage_3", 160, ini_file)); // DPT turret damage T3
 
     patch.WriteU32((void *)0x007A8C90, 80); // Destroyer reload (vanilla 50)
     patch.WriteU32((void *)0x007E6620, 40);  // Destroyer T1 (vanilla 60)
@@ -638,6 +629,7 @@ static bool BalancingNormalTree(Patcher::SPatch &patch)
     patch.WriteByte((void *)0x007C06E1, 1);  // SI PERSONALTELE dep lvl
     patch.WriteByte((void *)0x007C070F, 95);  // SI RESIDENT dep
     patch.WriteByte((void *)0x007C0A98, 106);   // SI ORBITLAS dep2
+    patch.WriteU32((void *)0x007C0D9E, 1);    // SI NEUTRSHIELD dep lvl
     
 
     patch.WriteU32((void *)0x007E5B4C, 7500); // SI SPEED T3 time
@@ -1250,6 +1242,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteByte((void *)0x007C0B8D, 90);  // SI DPT dep
     patch.WriteByte((void *)0x007C0BA6, 90);  // SI GASLAUNCHER dep
     patch.WriteByte((void *)0x007C0C55, 89);  // SI PARCHER dep
+    patch.WriteU32((void *)0x007C0D9E, 1);    // SI NEUTRSHIELD dep lvl
     
     
 
@@ -1593,21 +1586,21 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
 
     patch.WriteU32((void *)0x007DFC24, 220);  // Skat hp
     // patch.WriteU32((void *)0x007DFC2C, ); // Escort hp йцу
-    patch.WriteU32((void *)0x007DFC38, GetPrivateProfileInt(L"Psi-zond", L"HP", 123, ini_file));  // Psi-zond hp
-    patch.WriteU32((void *)0x007DFC28, GetPrivateProfileInt(L"Dreadnaught", L"HP", 123, ini_file)); // Dreadnaught hp
-    patch.WriteU32((void *)0x007DFC30, GetPrivateProfileInt(L"Bio-assaulter", L"HP", 123, ini_file));  // Bio-assaulter hp
-    patch.WriteU32((void *)0x007DFC34, GetPrivateProfileInt(L"Usurper", L"HP", 123, ini_file)); // Usurper hp
+    patch.WriteU32((void *)0x007DFC38, GetPrivateProfileInt(L"Psi-zond", L"HP", 700, ini_file));  // Psi-zond hp
+    patch.WriteU32((void *)0x007DFC28, GetPrivateProfileInt(L"Dreadnaught", L"HP", 1500, ini_file)); // Dreadnaught hp
+    patch.WriteU32((void *)0x007DFC30, GetPrivateProfileInt(L"Bio-assaulter", L"HP", 900, ini_file));  // Bio-assaulter hp
+    patch.WriteU32((void *)0x007DFC34, GetPrivateProfileInt(L"Usurper", L"HP", 1200, ini_file)); // Usurper hp
 
-    patch.WriteU32((void *)0x007DFC14, GetPrivateProfileInt(L"Transport_SI", L"HP", 123, ini_file)); // Transport SI hp
+    patch.WriteU32((void *)0x007DFC14, GetPrivateProfileInt(L"Transport_SI", L"HP", 500, ini_file)); // Transport SI hp
 
     // ATTACK COOLDOWN
-    //patch.WriteU32((void *)0x007A8C5C, GetPrivateProfileInt(L"Sentinel", L"reload", 30, ini_file)); // Sentinel reload
+    patch.WriteU32((void *)0x007A8C5C, GetPrivateProfileInt(L"Sentinel", L"Reload", 30, ini_file)); // Sentinel reload
     patch.WriteU32((void *)0x007A8C80, GetPrivateProfileInt(L"Terminator", L"Reload", 100, ini_file)); // Terminator reload
-    patch.WriteU32((void *)0x007A8C90, GetPrivateProfileInt(L"Terminator", L"Reload", 50, ini_file));  // Destroyer reload
-    patch.WriteU32((void *)0x007A8CB4, 40); // Aveger reload
+    patch.WriteU32((void *)0x007A8C90, GetPrivateProfileInt(L"Destroyer", L"Reload", 50, ini_file));  // Destroyer reload
+    patch.WriteU32((void *)0x007A8CB4, GetPrivateProfileInt(L"Avenger", L"Reload", 50, ini_file)); // Aveger reload
     
     // SPECIAL
-    patch.WriteByte((void *)0x0045094E, GetPrivateProfileInt(L"Phantom", L"Вischarge", 123, ini_file)); // Phantom discharge
+    patch.WriteByte((void *)0x0045094E, GetPrivateProfileInt(L"Phantom", L"Вischarge", 30, ini_file)); // Phantom discharge
 
     // DAMAGE     
     patch.WriteU32((void *)0x007E6490, GetPrivateProfileInt(L"Weap_HeavyTorpedo", L"Damage_1", 90, ini_file)); // Cruiser T1 damage
@@ -1622,8 +1615,10 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     
     patch.WriteU32((void *)0x007E6530, GetPrivateProfileInt(L"Weap_HHF", L"Damage_1", 70, ini_file)); // HF heavy T1 damage
     patch.WriteU32((void *)0x007E6534, GetPrivateProfileInt(L"Weap_HHF", L"Damage_2", 120, ini_file)); // HF heavy T2 damage
-
+    
     patch.WriteU32((void *)0x007E679C, GetPrivateProfileInt(L"Weap_Pulsar", L"Damage_1", 80, ini_file)); // Pulsar T1 damage
+    patch.WriteU32((void *)0x007E67A0, GetPrivateProfileInt(L"Weap_Pulsar", L"Damage_2", 120, ini_file)); // Pulsar T2 damage
+    patch.WriteU32((void *)0x007E67A4, GetPrivateProfileInt(L"Weap_Pulsar", L"Damage_3", 150, ini_file)); // Pulsar T3 damage
     
     patch.WriteU32((void *)0x007E65E4, GetPrivateProfileInt(L"Weap_DCBomb", L"Damage", 500, ini_file)); // DC Bomb damage
 
@@ -1635,26 +1630,26 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
 
     patch.WriteU32((void *)0x00464814, GetPrivateProfileInt(L"Cyberdolphin", L"Damage", 600, ini_file)); // Cyberdolphin damage
 
-    patch.WriteU32((void *)0x007E64A4, GetPrivateProfileInt(L"Weap_CasseteShell", L"Damage", 123, ini_file)); // Weap_CasseteShell
-    patch.WriteU32((void *)0x007E66FC, GetPrivateProfileInt(L"Weap_IonCassete", L"Damage", 123, ini_file)); // Ion cassete t1 
-    patch.WriteU32((void *)0x007E6700, GetPrivateProfileInt(L"Weap_IonCassete", L"Damage_1", 123, ini_file)); // Ion cassete t2
-    patch.WriteU32((void *)0x007E6704, GetPrivateProfileInt(L"Weap_IonCassete", L"Damage_2", 123, ini_file)); // Ion cassete t3
-    // patch.WriteU32((void *)0x007E6724, 20); // Ion cassete subshell t1
-    // patch.WriteU32((void *)0x007E6728, 30); // Ion cassete subshell t2
-    // patch.WriteU32((void *)0x007E672C, 40); // Ion cassete subshell t3
-	patch.WriteU32((void *)0x007E66E8, GetPrivateProfileInt(L"Weap_EnergyShell", L"Damage", 123, ini_file)); // Energy shell dmg t3 
-	patch.WriteU32((void *)0x007E66EC, GetPrivateProfileInt(L"Weap_EnergyShell", L"Damage_1", 123, ini_file)); // Energy shell dmg t3 
-    patch.WriteU32((void *)0x007E66F0, GetPrivateProfileInt(L"Weap_EnergyShell", L"Damage_2", 123, ini_file)); // Energy shell dmg t3 
-    patch.WriteU32((void *)0x007E67C4, GetPrivateProfileInt(L"Weap_Soliton", L"Damage", 123, ini_file)); // Soliton dmg 
+    patch.WriteU32((void *)0x007E64A4, GetPrivateProfileInt(L"Weap_CasseteShell", L"Damage", 120, ini_file)); // Weap_CasseteShell
+    patch.WriteU32((void *)0x007E66FC, GetPrivateProfileInt(L"Weap_IonCassete", L"Damage_1", 120, ini_file)); // Ion cassete t1 
+    patch.WriteU32((void *)0x007E6700, GetPrivateProfileInt(L"Weap_IonCassete", L"Damage_2", 140, ini_file)); // Ion cassete t2
+    patch.WriteU32((void *)0x007E6704, GetPrivateProfileInt(L"Weap_IonCassete", L"Damage_3", 160, ini_file)); // Ion cassete t3
+
+    patch.WriteU32((void *)0x007E6724, GetPrivateProfileInt(L"Weap_IonCasseteSubshell", L"Damage_1", 20, ini_file)); // Ion cassete subshell t1
+    patch.WriteU32((void *)0x007E6728, GetPrivateProfileInt(L"Weap_IonCasseteSubshell", L"Damage_2", 30, ini_file)); // Ion cassete subshell t2
+    patch.WriteU32((void *)0x007E672C, GetPrivateProfileInt(L"Weap_IonCasseteSubshell", L"Damage_3", 40, ini_file)); // Ion cassete subshell t3
+
+	patch.WriteU32((void *)0x007E66E8, GetPrivateProfileInt(L"Weap_EnergyShell", L"Damage_1", 40, ini_file)); // Energy shell dmg t1 
+	patch.WriteU32((void *)0x007E66EC, GetPrivateProfileInt(L"Weap_EnergyShell", L"Damage_2", 60, ini_file)); // Energy shell dmg t2 
+    patch.WriteU32((void *)0x007E66F0, GetPrivateProfileInt(L"Weap_EnergyShell", L"Damage_3", 100, ini_file)); // Energy shell dmg t3 
+    patch.WriteU32((void *)0x007E67C4, GetPrivateProfileInt(L"Weap_Soliton", L"Damage", 30, ini_file)); // Soliton dmg 
     
 
-    // patch.WriteU32((void *)0x007E6648, );  // Gas Shell Launcher damage
+    patch.WriteU32((void *)0x007E6648, GetPrivateProfileInt(L"Weap_GasShell", L"Damage", 150, ini_file));  // Gas Shell Launcher damage
 
-    patch.WriteU32((void *)0x007E6580, GetPrivateProfileInt(L"Weap_Plasma", L"Damage", 123, ini_file)); // Plasma damage  
-    //patch.WriteByte((void *)0x00642ABA, 3);   // Laser reflection % (25 -> 12.5)
-        
+    patch.WriteU32((void *)0x007E6580, GetPrivateProfileInt(L"Weap_Plasma", L"Damage", 600, ini_file)); // Plasma damage          
 
-    //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------------
 
     //Submarines armor
     patch.WriteByte((void *)0x00459E86, 0x11); // Half armor T2 jump
@@ -1678,6 +1673,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU16((void *)0x004BB5AE, 0xCA01); // Half armor T4
     patch.WriteU16((void *)0x004BB5B0, 0xCA01); // Half armor T4
 
+    //patch.WriteByte((void *)0x00642ABA, 3);   // Laser reflection % (25 -> 12.5)
     // Max blocked damage
     patch.WriteU32((void *)0x004BB5DF, 1000); // max blocked damage check
     patch.WriteU32((void *)0x004BB5E6, 1000); // max blocked damage replace
