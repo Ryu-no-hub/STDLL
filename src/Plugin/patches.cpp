@@ -202,8 +202,9 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     patch.WriteJumpSized(SiliconDumpWhenDepleted_Jmp, 6, (unsigned long)SiliconDumpWhenDepleted);
 
     // TURRETS RANGE
-    patch.WriteU32((void *)0x00792498, 6);   // DPT range 1
-    patch.WriteU32((void *)0x0079249C, 10);  // DPT range 2
+    patch.WriteU32((void *)0x00792498, GetPrivateProfileInt(L"Double_Plasma_Turret", L"Range_1", 8, ini_file));  // DPT range 1
+    patch.WriteU32((void *)0x0079249C, GetPrivateProfileInt(L"Double_Plasma_Turret", L"Range_2", 10, ini_file)); // DPT range 2
+
     patch.WriteU32((void *)0x00792710, 121); // DPT range research id
     //
 
@@ -1334,9 +1335,9 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007E441C, GetPrivateProfileInt(L"Bio_Mine_Launcher", L"HP", 123, ini_file)); // Bio_Mine_Launcher HP 900
     patch.WriteU32((void *)0x007E4420, GetPrivateProfileInt(L"Bio_Mine_Launcher", L"HP", 123, ini_file)); // Bio_Mine_Launcher HP 
     patch.WriteU32((void *)0x007E4424, GetPrivateProfileInt(L"Bio_Mine_Launcher", L"HP", 123, ini_file)); // Bio_Mine_Launcher HP
-    /patch.WriteU32((void *)0x007E43E0, GetPrivateProfileInt(L"Soliton", L"HP", 123, ini_file));  // Soliton oscilator HP 700
-    /patch.WriteU32((void *)0x007E43E4, GetPrivateProfileInt(L"Soliton", L"HP", 123, ini_file));  // Soliton oscilator HP
-    /patch.WriteU32((void *)0x007E43E8, GetPrivateProfileInt(L"Soliton", L"HP", 123, ini_file));  // Soliton oscilator HP
+    patch.WriteU32((void *)0x007E43E0, GetPrivateProfileInt(L"Soliton", L"HP", 123, ini_file));  // Soliton oscilator HP 700
+    patch.WriteU32((void *)0x007E43E4, GetPrivateProfileInt(L"Soliton", L"HP", 123, ini_file));  // Soliton oscilator HP
+    patch.WriteU32((void *)0x007E43E8, GetPrivateProfileInt(L"Soliton", L"HP", 123, ini_file));  // Soliton oscilator HP
 
     // Corium
     // WS
@@ -1347,9 +1348,9 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007E1CEC, GetPrivateProfileInt(L"STOLp", L"Corium", 123, ini_file)); // STOLp corium 12
     patch.WriteU32((void *)0x007E1CF0, GetPrivateProfileInt(L"STOLp", L"Corium", 123, ini_file)); // STOLp corium
 
-    patch.WriteU32((void *)0x007E1DC4, GetPrivateProfileInt(L"Plasma_Canon", L"Corium", 123, ini_file)); // Plasma_Canon corium 28
-    patch.WriteU32((void *)0x007E1DC8, GetPrivateProfileInt(L"Plasma_Canon", L"Corium", 123, ini_file)); // Plasma_Canon corium
-    patch.WriteU32((void *)0x007E1DCC, GetPrivateProfileInt(L"Plasma_Canon", L"Corium", 123, ini_file)); // Plasma_Canon corium
+    patch.WriteU32((void *)0x007E1DC4, GetPrivateProfileInt(L"Double_Plasma_Turret", L"Corium", 123, ini_file)); // Plasma_Canon corium 28
+    patch.WriteU32((void *)0x007E1DC8, GetPrivateProfileInt(L"Double_Plasma_Turret", L"Corium", 123, ini_file)); // Plasma_Canon corium
+    patch.WriteU32((void *)0x007E1DCC, GetPrivateProfileInt(L"Double_Plasma_Turret", L"Corium", 123, ini_file)); // Plasma_Canon corium
 
     patch.WriteU32((void *)0x007E1D1C, GetPrivateProfileInt(L"Psychotron", L"Corium", 123, ini_file)); // Psychotron corium 10
     patch.WriteU32((void *)0x007E1D20, GetPrivateProfileInt(L"Psychotron", L"Corium", 123, ini_file)); // Psychotron corium
@@ -1416,7 +1417,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     
     patch.WriteU32((void *)0x007E1F58, GetPrivateProfileInt(L"Vacuum_Bomb", L"Corium", 123, ini_file)); // Vacuum_Bomb launcher corium 50
 
-    /patch.WriteU32((void *)0x007E1DE4, GetPrivateProfileInt(L"Core", L"Corium", 123, ini_file)); // Core corium 3
+    patch.WriteU32((void *)0x007E1DE4, GetPrivateProfileInt(L"Core", L"Corium", 123, ini_file)); // Core corium 3
 
 
 
@@ -1496,8 +1497,9 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
 
     patch.WriteByte((void *)0x007924D8, GetPrivateProfileInt(L"Pulsar", L"Range", 123, ini_file)); // Pulsar first range 7
     patch.WriteByte((void *)0x00792488, GetPrivateProfileInt(L"Gas_Canon", L"Range", 123, ini_file));  // Gas_Canon first range 7
-    patch.WriteU32((void *)0x00792498, GetPrivateProfileInt(L"DPT", L"Range_1", 123, ini_file));  // DPT range 1 8
-    patch.WriteU32((void *)0x0079249C, GetPrivateProfileInt(L"DPT", L"Range_2", 123, ini_file)); // DPT range 2 10
+    patch.WriteU32((void *)0x00792498, GetPrivateProfileInt(L"Double_Plasma_Turret", L"Range_1", 8, ini_file));  // DPT range 1 8
+    patch.WriteU32((void *)0x0079249C, GetPrivateProfileInt(L"Double_Plasma_Turret", L"Range_2", 10, ini_file)); // DPT range 2 10
+
     patch.WriteByte((void *)0x007924A8, GetPrivateProfileInt(L"Ion_Reflector", L"Range", 123, ini_file)); // Ion_Reflector first range 8
     patch.WriteByte((void *)0x00792538, GetPrivateProfileInt(L"Parcher", L"Range", 123, ini_file)); // Parcher first range 9
     //
@@ -1553,9 +1555,12 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007E0598, GetPrivateProfileInt(L"Heavy_Сruiser", L"Corium", 123, ini_file)); // Heavy_Сruiser corium 360
     patch.WriteU32((void *)0x007E05B4, GetPrivateProfileInt(L"Phantom", L"Corium", 123, ini_file)); // Phantom corium 280
     patch.WriteU32((void *)0x007E05A4, GetPrivateProfileInt(L"Raider", L"Corium", 123, ini_file)); // Raider corium 120
+    
+    patch.WriteU32((void *)0x007E0570, GetPrivateProfileInt(L"Mine-layer", L"Corium", 90, ini_file)); // Mine-Layer corium
+    patch.WriteU32((void *)0x007E05A0, GetPrivateProfileInt(L"Defender", L"Corium", 120, ini_file)); // Defender corium
+    patch.WriteU32((void *)0x007E05E0, GetPrivateProfileInt(L"Bio-assaulter", L"Corium", 200, ini_file)); // Bio-acid assaulter corium 
 
-    patch.WriteU32((void *)0x007E05E0, GetPrivateProfileInt(L"Bio_Assaulter", L"Corium", 123, ini_file)); // Bio_Assaulter corium (vanilla 200) 330
-    patch.WriteU32((void *)0x007E05C8, GetPrivateProfileInt(L"Supplier", L"Corium", 123, ini_file)); // Supplier corium (vanilla 0) 100
+    patch.WriteU32((void *)0x007E05C8, GetPrivateProfileInt(L"Supplier", L"Corium", 0, ini_file)); // Supplier corium
     
 
     // BUILDTIME
