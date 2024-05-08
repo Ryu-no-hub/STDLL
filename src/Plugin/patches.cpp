@@ -1297,9 +1297,9 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     // BUILDINGS // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
 
     // HP
-    patch.WriteU32((void *)0x007E43DC, GetPrivateProfileInt(L"Silicon_Extractor", L"HP", 123, ini_file));  // Silicon_Extractor HP (+100) 700
-    patch.WriteU32((void *)0x007E417C, GetPrivateProfileInt(L"Dockyard_WS", L"HP", 123, ini_file)); // Dockyard_WS HP3000
-    patch.WriteU32((void *)0x007E4180, GetPrivateProfileInt(L"Dockyard_BO", L"HP", 123, ini_file)); // Dockyard_BO HP 3000
+    patch.WriteU32((void *)0x007E43DC, GetPrivateProfileInt(L"Silicon_Extractor", L"HP", 600, ini_file));  // Silicon_Extractor HP (+100) 700
+    patch.WriteU32((void *)0x007E417C, GetPrivateProfileInt(L"Dockyard_WS", L"HP", 2000, ini_file)); // Dockyard_WS HP3000
+    patch.WriteU32((void *)0x007E4180, GetPrivateProfileInt(L"Dockyard_BO", L"HP", 2000, ini_file)); // Dockyard_BO HP 3000
     patch.WriteU32((void *)0x007E4188, GetPrivateProfileInt(L"Docks_WS", L"HP", 123, ini_file)); // Docks_WS HP 2250
     patch.WriteU32((void *)0x007E418C, GetPrivateProfileInt(L"Docks_BO", L"HP", 123, ini_file)); // Docks_BO HP 2250
     patch.WriteU32((void *)0x007E4194, GetPrivateProfileInt(L"Arsenal_WS", L"HP", 123, ini_file)); // WS Arsenal HP 1800
@@ -1483,25 +1483,25 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     
      // TURRETS 
     // RANGE
-    patch.WriteByte((void *)0x00792208, GetPrivateProfileInt(L"HF_Canon", L"Range", 123, ini_file)); // HF_Canon first range 7
-    patch.WriteByte((void *)0x00792218, GetPrivateProfileInt(L"STOLp", L"Range", 123, ini_file)); // STOLp first range 8
-    patch.WriteByte((void *)0x00792338, GetPrivateProfileInt(L"Plasma_Canon", L"Range", 123, ini_file)); // Plasma_Canon first range 9 
+    patch.WriteByte((void *)0x00792208, GetPrivateProfileInt(L"HF_Canon", L"Range", 8, ini_file)); // HF_Canon first range 7
+    patch.WriteByte((void *)0x00792218, GetPrivateProfileInt(L"STOLp", L"Range", 8, ini_file)); // STOLp first range 8
+    patch.WriteByte((void *)0x00792338, GetPrivateProfileInt(L"Plasma_Canon", L"Range", 8, ini_file)); // Plasma_Canon first range 9 
 
-    patch.WriteByte((void *)0x00792288, GetPrivateProfileInt(L"Light_Laser", L"Range_1", 123, ini_file)); // Light_Laser first range 7
-    patch.WriteByte((void *)0x0079228C, GetPrivateProfileInt(L"Light_Laser", L"Range_2", 123, ini_file)); // Light_Laser second range 8
-    patch.WriteByte((void *)0x007922C8, GetPrivateProfileInt(L"Heavy_Laser", L"Range_1", 123, ini_file)); // Heavy_Laser first range 9 
-    patch.WriteByte((void *)0x007922CC, GetPrivateProfileInt(L"Heavy_Laser", L"Range_2	", 123, ini_file)); // Heavy_Laser second range 8 
-    patch.WriteByte((void *)0x00792298, GetPrivateProfileInt(L"Magnetic_Mine_Launcher", L"Range_1", 123, ini_file)); // Magnetic_Mine_Launcher first range 7 
-    patch.WriteByte((void *)0x007922A0, GetPrivateProfileInt(L"Magnetic_Mine_Launcher", L"Range_2", 123, ini_file));  // Magnetic_Mine_Launcher mines first range 8 
+    patch.WriteByte((void *)0x00792288, GetPrivateProfileInt(L"Light_Laser", L"Range_1", 7, ini_file)); // Light_Laser first range 7
+    patch.WriteByte((void *)0x0079228C, GetPrivateProfileInt(L"Light_Laser", L"Range_2", 9, ini_file)); // Light_Laser second range 8
+    patch.WriteByte((void *)0x007922C8, GetPrivateProfileInt(L"Heavy_Laser", L"Range_1", 8, ini_file)); // Heavy_Laser first range 6
+    patch.WriteByte((void *)0x007922CC, GetPrivateProfileInt(L"Heavy_Laser", L"Range_2	", 10, ini_file)); // Heavy_Laser second range 8 
+    patch.WriteByte((void *)0x00792298, GetPrivateProfileInt(L"Magnetic_Mine_Launcher", L"Range", 8, ini_file)); // Magnetic_Mine_Launcher range 7 
+    patch.WriteByte((void *)0x007922A0, GetPrivateProfileInt(L"Magnetic_Mine_Launcher", L"Range_Mines", 8, ini_file));  // Magnetic_Mine_Launcher mines range 8 
     patch.WriteByte((void *)0x007922D8, GetPrivateProfileInt(L"EM_Launcher", L"Range", 123, ini_file)); // EM_Launcher first range 9
 
-    patch.WriteByte((void *)0x007924D8, GetPrivateProfileInt(L"Pulsar", L"Range", 123, ini_file)); // Pulsar first range 7
-    patch.WriteByte((void *)0x00792488, GetPrivateProfileInt(L"Gas_Canon", L"Range", 123, ini_file));  // Gas_Canon first range 7
+    patch.WriteByte((void *)0x007924D8, GetPrivateProfileInt(L"Pulsar", L"Range", 8, ini_file)); // Pulsar first range 7
+    patch.WriteByte((void *)0x00792488, GetPrivateProfileInt(L"Gas_Canon", L"Range", 8, ini_file));  // Gas_Canon first range 7
     patch.WriteU32((void *)0x00792498, GetPrivateProfileInt(L"Double_Plasma_Turret", L"Range_1", 8, ini_file));  // DPT range 1 8
     patch.WriteU32((void *)0x0079249C, GetPrivateProfileInt(L"Double_Plasma_Turret", L"Range_2", 10, ini_file)); // DPT range 2 10
 
-    patch.WriteByte((void *)0x007924A8, GetPrivateProfileInt(L"Ion_Reflector", L"Range", 123, ini_file)); // Ion_Reflector first range 8
-    patch.WriteByte((void *)0x00792538, GetPrivateProfileInt(L"Parcher", L"Range", 123, ini_file)); // Parcher first range 9
+    patch.WriteByte((void *)0x007924A8, GetPrivateProfileInt(L"Ion_Reflector", L"Range", 8, ini_file)); // Ion_Reflector first range 8
+    patch.WriteByte((void *)0x00792538, GetPrivateProfileInt(L"Parcher", L"Range", 8, ini_file)); // Parcher first range 9
     //
 
     // Unlock Turrets Range 8->10
