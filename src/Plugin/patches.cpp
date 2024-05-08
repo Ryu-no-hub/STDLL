@@ -1297,6 +1297,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     // BUILDINGS // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
 
     // HP
+    patch.WriteU32((void *)0x007E41D0, GetPrivateProfileInt(L"Metal_Mine_Humans", L"HP", 600, ini_file)); // WS Metal
     patch.WriteU32((void *)0x007E43DC, GetPrivateProfileInt(L"Silicon_Extractor", L"HP", 600, ini_file));  // Silicon_Extractor HP (+100) 700
     patch.WriteU32((void *)0x007E417C, GetPrivateProfileInt(L"Dockyard_WS", L"HP", 2000, ini_file)); // Dockyard_WS HP3000
     patch.WriteU32((void *)0x007E4180, GetPrivateProfileInt(L"Dockyard_BO", L"HP", 2000, ini_file)); // Dockyard_BO HP 3000
