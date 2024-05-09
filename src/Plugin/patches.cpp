@@ -117,7 +117,7 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     patch.WriteU32((void *)0x005C7AE8, 0x0079C050); // Random map directory - custom 3
 
     patch.WriteU32((void *)0x0047A44E, 0); // Give ghost state teleport
-    patch.WriteByte((void *)0x004ECC7D, GetPrivateProfileInt(L"Teleshield", L"Range", 8, ini_file));  // Increase teleshield range
+    patch.WriteByte((void *)0x004ECC7D, 12);  // Increase teleshield range
     //patch.WriteJumpSized(SetMineInSubLocation_Jmp, 21, (unsigned long)SetMineInSubLocation);
 
     
@@ -137,8 +137,8 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     patch.WriteByte((void *)0x0041C4AF, 32); // Max sub id to not skip in defining view mode
 
     
-    patch.WriteU32((void *)0x007D2220, GetPrivateProfileInt(L"Weap_ParalyzeRay", L"Time", 375, ini_file)); // Paralyze ray time
-    patch.WriteU32((void *)0x007D2210, GetPrivateProfileInt(L"Weap_NeuroParalyzeShell", L"Time", 250, ini_file)); // NeuroParalyze shell time 
+    patch.WriteU32((void *)0x007D2220, 1500); // Paralyze ray time
+    patch.WriteU32((void *)0x007D2210, 200); // NeuroParalyze shell time 
     
 
     patch.WriteJumpSized(MessageResearchComplete_Jmp, 6, (unsigned long)MessageResearchComplete);
@@ -207,9 +207,9 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     patch.WriteU32((void *)0x00792710, 121); // DPT range research id
     //
 
-    patch.WriteU32((void *)0x007E6738, GetPrivateProfileInt(L"Weap_DoublePlasmaTurret", L"Damage_1", 100, ini_file)); // DPT turret damage T1
-    patch.WriteU32((void *)0x007E673C, GetPrivateProfileInt(L"Weap_DoublePlasmaTurret", L"Damage_2", 120, ini_file)); // DPT turret damage T2
-    patch.WriteU32((void *)0x007E6740, GetPrivateProfileInt(L"Weap_DoublePlasmaTurret", L"Damage_3", 160, ini_file)); // DPT turret damage T3
+    patch.WriteU32((void *)0x007E6738, 150); // DPT turret damage T1
+    patch.WriteU32((void *)0x007E673C, 180); // DPT turret damage T2
+    patch.WriteU32((void *)0x007E6740, 240); // DPT turret damage T3
 
     patch.WriteU32((void *)0x007A8C90, 80); // Destroyer reload (vanilla 50)
     patch.WriteU32((void *)0x007E6620, 40);  // Destroyer T1 (vanilla 60)
@@ -1518,13 +1518,13 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     // SUBMARINES
     // METAL/SILICON
     patch.WriteU32((void *)0x007E07D0, 300); // Fighter metal
-    patch.WriteU32((void *)0x007E07D4, GetPrivateProfileInt(L"Destroyer", L"Metal", 500, ini_file)); // Destroyer metal
+    patch.WriteU32((void *)0x007E07D4, 600); // Destroyer metal
     patch.WriteU32((void *)0x007E07D8, 1400); // Heavy Cruiser metal
 
     patch.WriteU32((void *)0x007E07A4, 450);  // Hunter metal
     patch.WriteU32((void *)0x007E07A8, 1100); // Cruiser metal
     patch.WriteU32((void *)0x007E07C8, 900); // Liberator metal
-    patch.WriteU32((void *)0x007E07C4, GetPrivateProfileInt(L"Terminator", L"Metal", 1000, ini_file)); // Terminator metal
+    patch.WriteU32((void *)0x007E07C4, 1000); // Terminator metal
     patch.WriteU32((void *)0x007E07BC, 300);  // Transport WS metal
     patch.WriteU32((void *)0x007E07EC, 300);  // Transport BO metal
     // patch.WriteU32((void *)0x007E07E4, 300); // Raider metal
@@ -1548,7 +1548,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007E059C, 180); // Invader corium
     patch.WriteU32((void *)0x007E05D0, 200); // Energizer corium
     //patch.WriteU32((void *)0x007E05B8, 220); // Avenger corium 1234
-    patch.WriteU32((void *)0x007E0594, GetPrivateProfileInt(L"Destroyer", L"Corium", 80, ini_file));  // Destroyer corium
+    patch.WriteU32((void *)0x007E0594, 90);  // Destroyer corium
     patch.WriteU32((void *)0x007E0598, 360); // Heavy Cruiser corium
     patch.WriteU32((void *)0x007E05B4, 280); // Phantom corium
     patch.WriteU32((void *)0x007E05A4, 120); // Raider corium
@@ -1565,7 +1565,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007E04B4, 1500); // Marauder buildtime
     patch.WriteU32((void *)0x007E04E4, 1500); // Raider buildtime
     patch.WriteU32((void *)0x007E0528, 1250); // Usurper buildtime
-    patch.WriteU32((void *)0x007E04D4, GetPrivateProfileInt(L"Destroyer", L"BuildTime", 1000, ini_file)); // Destroyer buildtime
+    //patch.WriteU32((void *)0x007E04D4, ); // Destroyer buildtime
     patch.WriteU32((void *)0x007E04D8, 1875); // Heavy cruiser buildtime
 
     // HP
