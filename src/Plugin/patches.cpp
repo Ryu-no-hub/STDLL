@@ -9,16 +9,7 @@
 using namespace Common;
 using namespace Patcher;
 
-WCHAR Buffer[MAX_PATH];
-auto result = GetCurrentDirectoryW(MAX_PATH, Buffer);
-
-std::wstring FileDirectory(Buffer);
-std::wstring full_path = FileDirectory + L"\\plugins\\config.ini";
-static LPCWSTR ini_file = full_path.c_str();
-
 #pragma comment(lib, "winhttp.lib")
-
-
     
 // Implement your patches here
 static bool AutosaveIPXNetGame(Patcher::SPatch &patch)
@@ -27,6 +18,7 @@ static bool AutosaveIPXNetGame(Patcher::SPatch &patch)
     patch.WriteJumpSized(AutosaveCheckMarker_Jmp, 8, (unsigned long)AutosaveCheckMarker);
     patch.WriteJumpSized(AutosaveMakeFileName_Jmp, 5, (unsigned long)AutosaveMakeFileName);
     patch.WriteJumpSized(AutosaveDontCheckIfFileExists_Jmp, 5, (unsigned long)AutosaveDontCheckIfFileExists);
+    //patch.WriteJumpSized(AutosaveCheckGameMode_Jmp, 7, (unsigned long)AutosaveCheckGameMode);
     patch.WriteJumpSized(AutosaveSkipToggleMenu_Jmp, 7, (unsigned long)AutosaveSkipToggleMenu);
     patch.WriteJumpSized(DontResetHostFlag_Jmp, 8, (unsigned long)DontResetHostFlag);
     return true;
@@ -106,7 +98,7 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     patch.WriteJumpSized(BoxCursorLoadCheck1_Jmp, 5, (unsigned long)BoxCursorLoadCheck1);
     patch.WriteJumpSized(BoxCursorLoadCheck2_Jmp, 10, (unsigned long)BoxCursorLoadCheck2);
 
-    patch.WriteJumpSized(AlwaysShowHP_Jmp, 9, (unsigned long)AlwaysShowHP);
+    patch.WriteJumpSized(AlwaysShowHP_Jmp, 6, (unsigned long)AlwaysShowHP);
     patch.WriteJumpSized(DecreaseShowHPState_Jmp, 8, (unsigned long)DecreaseShowHPState);
 
     patch.WriteNops((void *)0x00489C36, 6); // No extra 200 priority to building targets in range
@@ -174,6 +166,7 @@ static bool FixesQoL(Patcher::SPatch &patch) {
 
     patch.WriteJumpSized(CoriumMiningUpgrades_Jmp, 5, (unsigned long)CoriumMiningUpgrades);
     patch.WriteJumpSized(EnergyForSoliton_Jmp, 9, (unsigned long)EnergyForSoliton);
+    //patch.WriteJumpSized(OpenBldMenuOnSelection_Jmp, 5, (unsigned long)OpenBldMenuOnSelection);
 
 
     // No dodge
@@ -200,6 +193,9 @@ static bool FixesQoL(Patcher::SPatch &patch) {
 
 
     patch.WriteJumpSized(SiliconDumpWhenDepleted_Jmp, 6, (unsigned long)SiliconDumpWhenDepleted);
+    patch.WriteJumpSized(AllySiliconMinesCheckPlacing_Jmp1, 6, (unsigned long)AllySiliconMinesCheckPlacing);
+    patch.WriteJumpSized(AllySiliconMinesCheckPlacing_Jmp2, 6, (unsigned long)AllySiliconMinesCheckPlacing);
+    patch.WriteJumpSized(AllySiliconMinesCheckPlacing_Jmp3, 5, (unsigned long)AllySiliconMinesCheckPlacing);
 
     // TURRETS RANGE
     patch.WriteU32((void *)0x00792498, 6);   // DPT range 1
@@ -386,6 +382,9 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     patch.WriteU32((void *)0x007E08B8, 600);  // Repair cost Avenger BO dock
     patch.WriteU32((void *)0x007E08F4, 1500); // Repair cost Flagship BO dock
 
+    
+    patch.WriteByte((void *)0x004C8625, 4); // Repair speed shift - ALL BUILDINGS
+
     // BUILD TIMES
     patch.WriteU32((void *)0x007E04B8, 500); // Repair platform WS
     patch.WriteU32((void *)0x007E04E8, 500); // Repair platform BO
@@ -516,7 +515,7 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     // patch.WriteU32((void *)0x007DFCFC, ); // Explorer
 
     // patch.WriteU32((void *)0x007DFD0C, 12); // Flagship
-     patch.WriteU32((void *)0x007DFCE4, 13); // SHS
+     patch.WriteU32((void *)0x007DFCE4, 12); // SHS
     // patch.WriteU32((void *)0x007DFCEC, ); // Escort
     // patch.WriteU32((void *)0x007DFCE8, ); // Drednaught
     // patch.WriteU32((void *)0x007DFCF4, ); // Usurper
@@ -536,6 +535,8 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     //patch.WriteByte((void *)0x0048798F, 6); // SI patrol instead of move Skat, Escort, Dreadnaught
     //patch.WriteByte((void *)0x00487EE8, 6); // SI patrol instead of move Bioassaulter
     patch.WriteByte((void *)0x004879DA, 6); // SI patrol instead of move Usurper
+    patch.WriteByte((void *)0x0044D59F, 6); // SI patrol instead of move Usurper group
+    patch.WriteByte((void *)0x0044D68C, 6); // SI patrol instead of move Bioassaulter group
     //patch.WriteByte((void *)0x00488009, 6); // SI patrol instead of move Paralyser
 
     patch.WriteJumpSized(PatrolMidButtonSI_Jmp, 8, (unsigned long)PatrolMidButtonSI);
@@ -828,7 +829,7 @@ static bool BalancingNormalTree(Patcher::SPatch &patch)
     //patch.WriteU32((void *)0x007E0A44, 200);  // Trailer silicon
     //patch.WriteU32((void *)0x007E0A50, 600); // Energizer silicon
     patch.WriteU32((void *)0x007E0A68, 900);  // Psi-zond silicon
-    // patch.WriteU32((void *)0x007E0A64, 1000);  // Usurper silicon
+    patch.WriteU32((void *)0x007E0A64, 1000);  // Usurper silicon
     patch.WriteU32((void *)0x007E0A54, 250);  // Skat silicon
     // patch.WriteU32((void *)0x007E0A4C, 0);  // Paralisys probe silicon
     // patch.WriteU32((void *)0x007E0A5C, 0);  // Escort silicon
@@ -1086,7 +1087,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     //patch.WriteByte((void *)0x007C035C, 1);   // BO LASRATE dep2 lvl
     patch.WriteByte((void *)0x007C0385, 35);  // BO RECHARGEST dep
     patch.WriteByte((void *)0x007C0579, 42);  // BO SHIELDGEN dep
-    patch.WriteByte((void *)0x007C05AB, 48);  // BO SHIELDGEN dep
+    patch.WriteByte((void *)0x007C05AB, 48);  // BO FORCEFIELD dep
     // patch.WriteByte((void *)0x007C0498, ); // BO UPGHACK dep
     patch.WriteByte((void *)0x007C052E, 127); // BO LOCSHIELD dep
     patch.WriteByte((void *)0x007C0466, 134); // BO STEALTH dep
@@ -1125,6 +1126,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007E57E8, 6000); // BO HEAVYLASRANGE time
     patch.WriteU32((void *)0x007E5818, 6000); // BO LASRATE time
     patch.WriteU32((void *)0x007E57B8, 3000); // BO RAIDER time
+    patch.WriteU32((void *)0x007E5778, 4500); // BO SHIELDGEN time
     patch.WriteU32((void *)0x007E5798, 6000); // BO FORCEFIELD time
     patch.WriteU32((void *)0x007E5888, 7500); // BO MINEFIND time
     patch.WriteU32((void *)0x007E5D28, 4500); // BO UPGREPAIR time
@@ -1521,29 +1523,31 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007E07D4, 600); // Destroyer metal
     patch.WriteU32((void *)0x007E07D8, 1400); // Heavy Cruiser metal
 
-    patch.WriteU32((void *)0x007E07A4, 450);  // Hunter metal
-    patch.WriteU32((void *)0x007E07A8, 1100); // Cruiser metal
+    patch.WriteU32((void *)0x007E07A4, 480);  // Hunter metal
+    patch.WriteU32((void *)0x007E07A8, 1200); // Cruiser metal
     patch.WriteU32((void *)0x007E07C8, 900); // Liberator metal
     patch.WriteU32((void *)0x007E07C4, 1000); // Terminator metal
     patch.WriteU32((void *)0x007E07BC, 300);  // Transport WS metal
     patch.WriteU32((void *)0x007E07EC, 300);  // Transport BO metal
     // patch.WriteU32((void *)0x007E07E4, 300); // Raider metal
 
-    // patch.WriteU32((void *)0x007E0A44, 200);  // Trailer silicon
-    //patch.WriteU32((void *)0x007E0A50, 600); // Energizer silicon
-    patch.WriteU32((void *)0x007E0A68, 900);  // Psi-zond silicon
-    // patch.WriteU32((void *)0x007E0A64, 1000);  // Usurper silicon
     patch.WriteU32((void *)0x007E0A54, 300);  // Skat silicon
-    // patch.WriteU32((void *)0x007E0A4C, 0);  // Paralisys probe silicon
     // patch.WriteU32((void *)0x007E0A5C, 0);  // Escort silicon
     patch.WriteU32((void *)0x007E0A58, 1200); // Dreadnaught silicon
+    patch.WriteU32((void *)0x007E0A60, 1000);   // Bio-acid assaulter silicon (vanilla 700)
+    patch.WriteU32((void *)0x007E0A64, 1000); // Usurper silicon
+    patch.WriteU32((void *)0x007E0A68, 900);   // Psi-zond silicon
+    // patch.WriteU32((void *)0x007E0A4C, 0);  // Paralisys probe silicon
+    // 
     // patch.WriteU32((void *)0x007E0A40, 0); // Module-prototype silicon 
+    // patch.WriteU32((void *)0x007E0A44, 200);  // Trailer silicon
+    // patch.WriteU32((void *)0x007E0A50, 600); // Energizer silicon
 
     // CORIUM
     patch.WriteU32((void *)0x007E05DC, 150); // Escort corium
     patch.WriteU32((void *)0x007E05D4, 40);  // Skat corium
     // patch.WriteU32((void *)0x007E0590, 40);  // Fighter corium
-    patch.WriteU32((void *)0x007E0564, 70);  // Hunter corium
+    patch.WriteU32((void *)0x007E0564, 80);  // Hunter corium
     patch.WriteU32((void *)0x007E05E8, 400); // Psi-zond corium
     patch.WriteU32((void *)0x007E059C, 180); // Invader corium
     patch.WriteU32((void *)0x007E05D0, 200); // Energizer corium
@@ -1555,7 +1559,6 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
 
     patch.WriteU32((void *)0x007E05E0, 330); // Bio-acid assaulter corium (vanilla 200)
     patch.WriteU32((void *)0x007E05C8, 100); // Supplier corium (vanilla 0)
-    patch.WriteU32((void *)0x007E0A60, 900); // Bio-acid assaulter silicon (vanilla 700)
 
     // BUILDTIME
     patch.WriteU32((void *)0x007E04C8, 600); // Fighter buildtime
@@ -1585,8 +1588,8 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007DFBF4, 1100); // Raider hp
     patch.WriteU32((void *)0x007DFC00, 600);  // Cyberdolphin hp
 
-    patch.WriteU32((void *)0x007DFC24, 210);  // Skat hp
-    // patch.WriteU32((void *)0x007DFC2C, ); // Escort hp éöó
+    patch.WriteU32((void *)0x007DFC24, 200);  // Skat hp
+    patch.WriteU32((void *)0x007DFC2C, 520); // Escort hp
     patch.WriteU32((void *)0x007DFC38, 600);  // Psi-zond hp
     patch.WriteU32((void *)0x007DFC28, 1400); // Dreadnaught hp
     patch.WriteU32((void *)0x007DFC30, 900);  // Bio-assaulter hp
@@ -1636,9 +1639,9 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007E6700, 10); // Ion cassete t2
     patch.WriteU32((void *)0x007E6704, 10); // Ion cassete t3
 
-    //patch.WriteU32((void *)0x007E6724, ); // Ion cassete subshell t1
-    //patch.WriteU32((void *)0x007E6728, ); // Ion cassete subshell t2
-    //patch.WriteU32((void *)0x007E672C, ); // Ion cassete subshell t3
+    patch.WriteU32((void *)0x007E6724, 25); // Ion cassete subshell t1
+    patch.WriteU32((void *)0x007E6728, 35); // Ion cassete subshell t2
+    patch.WriteU32((void *)0x007E672C, 45); // Ion cassete subshell t3
 
 	//patch.WriteU32((void *)0x007E66E8, ); // Energy shell dmg t1 
 	//patch.WriteU32((void *)0x007E66EC, ); // Energy shell dmg t2 
@@ -1685,14 +1688,16 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     //patch.WriteByte((void *)0x00469347, 0x7F); // Metal in 1/40 of Transport capacity unload
     patch.WriteU32((void *)0x00469348, 0x51490C8D);  // Metal in 1/40 of Transport capacity unload
     //patch.WriteNops((void *)0x00469348, 3);    // No additional shl 2
+    //patch.WriteU32((void *)0x007BF598, 12);  // Gold level t2
 
     
-    patch.WriteU32((void *)0x004E0156, 7); // energy mine tick timer
+    patch.WriteU32((void *)0x004E0156, 8); // energy mine tick timer
     
     // OTHER
     //patch.WriteU32((void *)0x0044F745, 7); // Submarines standard view range BO
     //patch.WriteU32((void *)0x0044F427, 7); // Submarines standard view range WS
     patch.WriteJumpSized(ChangeSubsRangeStd_Jmp, 7, (unsigned long)ChangeSubsRangeStd);
+    
     
 
     return true;
@@ -1708,6 +1713,8 @@ static bool Flagships(Patcher::SPatch &patch)
     patch.WriteByte((void *)0x004E87D8, 242);
 
     patch.WriteJumpSized(NoPlatformLoadFlagships_Jmp, 5, (unsigned long)NoPlatformLoadFlagships);
+    patch.WriteJumpSized(FlagshipsSelection_Jmp, 5, (unsigned long)FlagshipsSelection);
+
 
     //WS
     patch.WriteByte((void *)0x007C0E44, 7);   // Research ID
@@ -1748,6 +1755,11 @@ static bool Flagships(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007E05FC, 1000);  // Corium
     patch.WriteU32((void *)0x007A8CF8, 5);    // Reload
     patch.WriteU32((void *)0x007DFC4C, 2000); // HP
+    patch.WriteU32((void *)0x007E077C, 50);   // regen speed
+    patch.WriteU32((void *)0x007E0D10, 22500); // regen amount T1 (/1500)
+    patch.WriteU32((void *)0x007E0D14, 33000); // regen amount T1 (/1500)
+    patch.WriteU32((void *)0x007E0D18, 45000); // regen amount T1 (/1500)
+    patch.WriteU32((void *)0x007E0D1C, 60000); // regen amount T1 (/1500)
     // patch.WriteU32((void *)0x007A8BB8, ); // weapon
     patch.WriteJumpSized(SIFlagshipRange7_Jmp, 5, (unsigned long)SIFlagshipRange7);
     patch.WriteNops((void *)0x004622FF, 9); // No overwrite 5 range
@@ -2067,7 +2079,7 @@ static bool SiResearchModulesReduce2(Patcher::SPatch &patch)
     return true;
 }
 
-static bool AI2021Ñompatible(Patcher::SPatch &patch)
+static bool AI2021Compatible(Patcher::SPatch &patch)
 {
     // AI-2021 - compatible
 patch.WriteU32((void *)0x007E59A8, 10); // Mining upgrade silicon si time
@@ -2358,7 +2370,7 @@ static const PatchFunction Patches[] = {
     
     // BalancingNormalTree,
    
-    // AI2021Ñompatible
+    // AI2021Compatible
 };
 
 // Below is a code to apply patches
