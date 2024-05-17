@@ -1317,18 +1317,18 @@ static unsigned long AlwaysShowHP_JmpBack = AlwaysShowHP_Jmp + 6;
 __declspec(naked) void inline AlwaysShowHP()
 {
     __asm {
-        cmp [esi], 0x7905A0
+        cmp dword ptr [esi], 0x7905A0
         je submarine
         
-        cmp [esi], 0x790AA0
+        cmp dword ptr [esi], 0x790AA0
         jne show
-        cmp [esi+1495], 100
+        cmp dword ptr [esi+1495], 100
         je originalcode
         jmp show
 
         submarine:
         mov eax, [esi+1810]
-        cmp [esi+1814], eax
+        cmp dword ptr [esi+1814], eax
         je originalcode
 
         show:
@@ -1345,12 +1345,12 @@ static unsigned long DecreaseShowHPState_JmpBack = DecreaseShowHPState_Jmp + 8;
 __declspec(naked) void inline DecreaseShowHPState()
 {
     __asm {
-        cmp [esi], 0x7905A0
+        cmp dword ptr [esi], 0x7905A0
         je submarine
         
-        cmp [esi], 0x790AA0
+        cmp dword ptr [esi], 0x790AA0
         jne show
-        cmp [esi+1495], 100
+        cmp dword ptr [esi+1495], 100
         je originalcode
         jmp show
 
@@ -7525,8 +7525,8 @@ __declspec(naked) void inline AllySiliconMinesCheckPlacing()
         xor eax,eax
 
         mov al,bl
-        cmp al,dl // не сравнивать с собой
-        je loopy
+        //cmp al,dl // не сравнивать с собой
+        //je loopy
         
         lea eax,[eax+eax*8]
         mov al,[eax+eax*8+0x008087EA] // взять команду игрока
@@ -7541,11 +7541,11 @@ __declspec(naked) void inline AllySiliconMinesCheckPlacing()
         dec ecx
         mov cl,[ecx] // взять команду игрока-счетчика
         cmp cl,al
-            // mov al,cl
         pop ecx
         jne loopy  
 
         //same_team:
+        push edx
         mov esi, edx
         and esi, 0xFF
         lea eax,[esi+esi*4]
@@ -7555,21 +7555,22 @@ __declspec(naked) void inline AllySiliconMinesCheckPlacing()
         add edx,esi
         mov ecx,[edx*2+0x007F57F6]
         lea edi,[edx*2+0x007F57F6]
+        pop edx
         test ecx,ecx
-        je can_build
+        jz loopy // нет отслеживающего объекта всех шахт у игрока
 
-        mov eax,[ecx+0xC]
+        mov eax,[ecx+0xC] 
         xor esi,esi
         test eax,eax
-        jng can_build
+        jng loopy // кол-во шахт <= 0
 
         some_area_3:
         lea eax,[ebp-0xC]
+        push edx
         mov edx,esi
         push eax
         mov eax,0x006ACC70
         call eax // CopyDataChunk
-
         lea ecx,[ebp-4]
         lea edx,[ebp-2]
         push ecx
@@ -7590,7 +7591,9 @@ __declspec(naked) void inline AllySiliconMinesCheckPlacing()
         jne some_area
         movsx edx,word ptr [ebp-4]
         cmp edx,[ebp+0x10]
-        je some_area_2
+        jne some_area
+        pop edx 
+        jmp some_area_2
 
         some_area:
         sub eax,[ebp+8]
@@ -7598,7 +7601,9 @@ __declspec(naked) void inline AllySiliconMinesCheckPlacing()
         xor eax,edx
         sub eax,edx
         cmp eax,0xF
+        pop edx
         jg some_area_2
+        push edx
         mov edx,[ebp+0xC]
         movsx eax,cx
         sub eax,edx
@@ -7606,14 +7611,16 @@ __declspec(naked) void inline AllySiliconMinesCheckPlacing()
         xor eax,edx
         sub eax,edx
         cmp eax,0xF
+        pop edx
         jng no_build
 
         some_area_2:
         mov ecx,[edi]
         inc esi
         cmp esi,[ecx+0xC]
+        //pop edx
         jl some_area_3 
-        jmp can_build
+        jmp loopy
 
         can_build:
         pop edx
