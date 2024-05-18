@@ -269,6 +269,7 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     patch.WriteU32((void *)0x007E3F2C, 500); // oxygen generator buildtime
     patch.WriteU32((void *)0x007E3F30, 500); // oxygen generator buildtime
 
+
     patch.WriteU32((void *)0x007E3E54, 625); // HF_Canon buildtime
     patch.WriteU32((void *)0x007E3E58, 625); // HF_Canon buildtime
     patch.WriteU32((void *)0x007E3E5C, 625); // HF_Canon buildtime
