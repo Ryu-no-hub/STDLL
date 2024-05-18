@@ -1360,54 +1360,54 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007E418C, GetPrivateProfileInt(L"Docks_BO", L"HP", 1500, ini_file)); // Docks_BO HP 3000
     patch.WriteU32((void *)0x007E4198, GetPrivateProfileInt(L"Arsenal_BO", L"HP", 1200, ini_file)); // BO Arsenal HP 2400
     patch.WriteU32((void *)0x007E41A4, GetPrivateProfileInt(L"Lab_BO", L"HP", 1000, ini_file)); // Lab_BO HP 2000
-    patch.WriteU32((void *)0x007E41EC, 1600); // BO Depot
-    patch.WriteU32((void *)0x007E41D4, 1000); // BO Corium extractor
-    patch.WriteU32((void *)0x007E41E0, 1000); // BO Gold extractor
-    patch.WriteU32((void *)0x007E41B0, 1600); // BO Sonar
-    patch.WriteU32((void *)0x007E41BC, 3000); // BO Teleport
-    patch.WriteU32((void *)0x007E41F8, 1400); // BO Infocenter
-    patch.WriteU32((void *)0x007E42B4, 1000); // WS Protective field gen
-    patch.WriteU32((void *)0x007E42B8, 1000); // BO Protective field gen
-    patch.WriteU32((void *)0x007E42C0, 1600); // WS Force field
-    patch.WriteU32((void *)0x007E42C4, 1600); // BO Force field
-    patch.WriteU32((void *)0x007E4284, 1000); // WS Power station
-    patch.WriteU32((void *)0x007E4288, 1000); // BO Power station
-    patch.WriteU32((void *)0x007E4290, 1000); // WS Cyber laboratory dolphins
-    patch.WriteU32((void *)0x007E4294, 1000); // BO Cyber laboratory dolphins
-    patch.WriteU32((void *)0x007E42CC, 1000); // WS lasbomb launcher
-    patch.WriteU32((void *)0x007E42D0, 1000); // BO lasbomb launcher
-    patch.WriteU32((void *)0x007E42D4, 1000); // SI lasbomb launcher
+    patch.WriteU32((void *)0x007E41EC, GetPrivateProfileInt(L"Depot_BO", L"HP", 123, ini_file)); // Depot_BO 16*100
+    patch.WriteU32((void *)0x007E41D4, GetPrivateProfileInt(L"Corium_Mine_Humans", L"HP", 500, ini_file))); // Corium_extractor_BO
+    patch.WriteU32((void *)0x007E41E0, GetPrivateProfileInt(L"Gold_Extractor", L"HP", 500, ini_file)); // Gold_extractor_BO 10 Gold_Extractor
+    patch.WriteU32((void *)0x007E41B0, GetPrivateProfileInt(L"Sonar_BO", L"HP", 123, ini_file)); // Sonar_BO 16
+    patch.WriteU32((void *)0x007E41BC, GetPrivateProfileInt(L"Teleport_BO", L"HP", 123, ini_file)); // Teleport_BO 30
+    patch.WriteU32((void *)0x007E41F8, GetPrivateProfileInt(L"Infocenter_BO", L"HP", 123, ini_file)); // Infocenter_BO 14
+    patch.WriteU32((void *)0x007E42B4, GetPrivateProfileInt(L"Protective_field_gen_WS", L"HP", 123, ini_file)); // WS Protective field gen 10
+    patch.WriteU32((void *)0x007E42B8, GetPrivateProfileInt(L"Protective_field_gen_BO", L"HP", 123, ini_file)); // Protective_field_gen_BO 10
+    patch.WriteU32((void *)0x007E42C0, GetPrivateProfileInt(L"Force_field_WS", L"HP", 123, ini_file)); // WS Force field 16
+    patch.WriteU32((void *)0x007E42C4, GetPrivateProfileInt(L"Force_field_BO", L"HP", 123, ini_file)); // Force_field_BO 16
+    patch.WriteU32((void *)0x007E4284, GetPrivateProfileInt(L"Power_station_WS", L"HP", 123, ini_file)); // WS Power station 10
+    patch.WriteU32((void *)0x007E4288, GetPrivateProfileInt(L"Power_station_BO", L"HP", 123, ini_file)); // Power_station_BO 10
+    patch.WriteU32((void *)0x007E4290, GetPrivateProfileInt(L"Cyber_laboratory_dolphins_WS", L"HP", 123, ini_file)); // WS Cyber laboratory dolphins 10
+    patch.WriteU32((void *)0x007E4294, GetPrivateProfileInt(L"Cyber_laboratory_dolphins_BO", L"HP", 123, ini_file)); // Cyber_laboratory_dolphins_BO 10
+    patch.WriteU32((void *)0x007E42CC, GetPrivateProfileInt(L"lasbomb_launcher_WS", L"HP", 123, ini_file)); // WS lasbomb launcher 10
+    patch.WriteU32((void *)0x007E42D0, GetPrivateProfileInt(L"lasbomb_launcher_BO", L"HP", 123, ini_file)); // lasbomb_launcher_BO 10
+    patch.WriteU32((void *)0x007E42D4, GetPrivateProfileInt(L"lasbomb_launcher_SI", L"HP", 123, ini_file)); // SI lasbomb launcher 10
 
     patch.WriteU32((void *)0x007E43DC, GetPrivateProfileInt(L"Silicon_Extractor", L"HP", 600, ini_file));  // Silicon_Extractor HP 1000
     patch.WriteU32((void *)0x007E4310, GetPrivateProfileInt(L"Core", L"HP", 2000, ini_file)); // SI Core HP 4000
     patch.WriteU32((void *)0x007E4370, GetPrivateProfileInt(L"Arsenal_SI", L"HP", 1200, ini_file)); // SI Arsenal HP 2400
     patch.WriteU32((void *)0x007E437C, GetPrivateProfileInt(L"Protoplasm_Generator", L"HP", 1800, ini_file)); // SI Protoplasm_Generator HP 3600
-    patch.WriteU32((void *)0x007E41D8, 1000); // SI Corium extractor
-    patch.WriteU32((void *)0x007E41C0, 3000); // SI Teleport
+    patch.WriteU32((void *)0x007E41D8, GetPrivateProfileInt(L"Corium_Mine_SI", L"HP", 123, ini_file)); // SI Corium extractor 10
+    patch.WriteU32((void *)0x007E41C0, GetPrivateProfileInt(L"Teleport_SI", L"HP", 123, ini_file)); // SI Teleport 30
 
-    patch.WriteU32((void *)0x007E431C, 1000); // SI Module
-    patch.WriteU32((void *)0x007E4328, 1000); // SI Module
-    patch.WriteU32((void *)0x007E4334, 1000); // SI Module
-    patch.WriteU32((void *)0x007E4340, 1000); // SI Module
-    patch.WriteU32((void *)0x007E434C, 1000); // SI Module
-    patch.WriteU32((void *)0x007E4358, 1000); // SI Module
-    patch.WriteU32((void *)0x007E4364, 1000); // SI Module
+    patch.WriteU32((void *)0x007E431C, GetPrivateProfileInt(L"Module_SI", L"HP", 123, ini_file)); // SI Module_SI 10
+    patch.WriteU32((void *)0x007E4328, GetPrivateProfileInt(L"Module_SI", L"HP", 123, ini_file)); // SI Module 10
+    patch.WriteU32((void *)0x007E4334, GetPrivateProfileInt(L"Module_SI", L"HP", 123, ini_file)); // SI Module 10
+    patch.WriteU32((void *)0x007E4340, GetPrivateProfileInt(L"Module_SI", L"HP", 123, ini_file)); // SI Module 10
+    patch.WriteU32((void *)0x007E434C, GetPrivateProfileInt(L"Module_SI", L"HP", 123, ini_file)); // SI Module 10
+    patch.WriteU32((void *)0x007E4358, GetPrivateProfileInt(L"Module_SI", L"HP", 123, ini_file)); // SI Module 10
+    patch.WriteU32((void *)0x007E4364, GetPrivateProfileInt(L"Module_SI", L"HP", 123, ini_file)); // SI Module 10
 
-    patch.WriteU32((void *)0x007E4388, 1400); // SI Biolocator
-    patch.WriteU32((void *)0x007E438C, 1000); // SI Corium extractor
-    patch.WriteU32((void *)0x007E4390, 1000); // SI Corium extractor
-    patch.WriteU32((void *)0x007E4394, 1000); // SI Corium extractor
-    patch.WriteU32((void *)0x007E43A0, 2400); // SI Energy converter
-    patch.WriteU32((void *)0x007E43AC, 1000); // SI Corium silo
-    patch.WriteU32((void *)0x007E43B8, 1600); // SI Energy accumulator
-    patch.WriteU32((void *)0x007E43C4, 1400); // SI Replenish pod
-    patch.WriteU32((void *)0x007E43D0, 2200); // SI Recyclotron
-    patch.WriteU32((void *)0x007E443C, 2600); // SI Gate
-    patch.WriteU32((void *)0x007E4448, 2000); // SI Ion field generator
-    patch.WriteU32((void *)0x007E4454, 1800); // SI Molecular
-    patch.WriteU32((void *)0x007E446C, 2400); // SI Orbital laser
-    patch.WriteU32((void *)0x007E4484, 1400); // SI Vacuum bomb launcher
-    patch.WriteU32((void *)0x007E4490, 1600); // SI Quantum Paralyzer
+    patch.WriteU32((void *)0x007E4388, GetPrivateProfileInt(L"Biolocator_SI", L"HP", 123, ini_file)); // SI Biolocator 14
+    patch.WriteU32((void *)0x007E438C, GetPrivateProfileInt(L"Corium_Mine_SI", L"HP", 123, ini_file)); // SI Corium extractor 10
+    patch.WriteU32((void *)0x007E4390, GetPrivateProfileInt(L"Corium_Mine_SI", L"HP", 123, ini_file)); // SI Corium extractor 10
+    patch.WriteU32((void *)0x007E4394, GetPrivateProfileInt(L"Corium_Mine_SI", L"HP", 123, ini_file)); // SI Corium extractor 10 
+    patch.WriteU32((void *)0x007E43A0, GetPrivateProfileInt(L"Energy_converter_SI", L"HP", 123, ini_file)); // SI Energy_converter_SI 24
+    patch.WriteU32((void *)0x007E43AC, GetPrivateProfileInt(L"Depot_SI", L"HP", 123, ini_file)); // SI Corium silo 10 Depot_SI !!! У человеков Depot_ крепче?
+    patch.WriteU32((void *)0x007E43B8, GetPrivateProfileInt(L"Energy_accumulator_SI", L"HP", 123, ini_file)); // SI Energy_accumulator_SI 16
+    patch.WriteU32((void *)0x007E43C4, GetPrivateProfileInt(L"Replenish_pod_SI", L"HP", 123, ini_file)); // SI Replenish_pod_SI 14
+    patch.WriteU32((void *)0x007E43D0, GetPrivateProfileInt(L"Recyclotron_SI", L"HP", 123, ini_file)); // SI Recyclotron_SI 22
+    patch.WriteU32((void *)0x007E443C, GetPrivateProfileInt(L"Gate_SI", L"HP", 123, ini_file)); // SI Gate_SI 26
+    patch.WriteU32((void *)0x007E4448, GetPrivateProfileInt(L"Ion_field_generator_SI", L"HP", 123, ini_file)); // SI Ion_field_generator_SI 20
+    patch.WriteU32((void *)0x007E4454, GetPrivateProfileInt(L"Molecular_SI", L"HP", 123, ini_file)); // SI Molecular_SI 18
+    patch.WriteU32((void *)0x007E446C, GetPrivateProfileInt(L"Orbital_laser", L"HP", 123, ini_file)); // SI Orbital_laser 24
+    patch.WriteU32((void *)0x007E4484, GetPrivateProfileInt(L"Vacuum_Bomb", L"HP", 123, ini_file)); // SI Vacuum_bomb_launcher_SI 14
+    patch.WriteU32((void *)0x007E4490, GetPrivateProfileInt(L"Quantum_Paralyzer_SI", L"HP", 123, ini_file)); // SI Quantum_Paralyzer_SI 16
 
 
     patch.WriteU32((void *)0x007E420C, GetPrivateProfileInt(L"HF_Cannon", L"HP", 1600, ini_file)); // HF_Cannon HP 1200
