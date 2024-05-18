@@ -210,10 +210,10 @@ static bool FixesQoL(Patcher::SPatch &patch) {
 
     patch.WriteU32((void *)0x00792710, 121); // DPT range research id
     //
-
-    patch.WriteU32((void *)0x007E6738, 150); // DPT turret damage T1
-    patch.WriteU32((void *)0x007E673C, 180); // DPT turret damage T2
-    patch.WriteU32((void *)0x007E6740, 240); // DPT turret damage T3
+    
+    patch.WriteU32((void *)0x007E6738, GetPrivateProfileInt(L"Weap_DoublePlasmaTurret", L"Damage_1", 100, ini_file)); // DPT turret damage T1
+    patch.WriteU32((void *)0x007E673C, GetPrivateProfileInt(L"Weap_DoublePlasmaTurret", L"Damage_2", 120, ini_file)); // DPT turret damage T2
+    patch.WriteU32((void *)0x007E6740, GetPrivateProfileInt(L"Weap_DoublePlasmaTurret", L"Damage_3", 160, ini_file)); // DPT turret damage T3
 
     patch.WriteU32((void *)0x007A8C90, 80); // Destroyer reload (vanilla 50)
     patch.WriteU32((void *)0x007E6620, 40);  // Destroyer damage T1 (vanilla 60)
