@@ -9,6 +9,13 @@
 using namespace Common;
 using namespace Patcher;
 
+WCHAR Buffer[MAX_PATH];
+auto result = GetCurrentDirectoryW(MAX_PATH, Buffer);
+
+std::wstring FileDirectory(Buffer);
+std::wstring full_path = FileDirectory + L"\\plugins\\config.ini";
+static LPCWSTR ini_file = full_path.c_str();
+
 #pragma comment(lib, "winhttp.lib")
     
 // Implement your patches here
