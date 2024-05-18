@@ -106,7 +106,7 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     patch.WriteJumpSized(BoxCursorLoadCheck1_Jmp, 5, (unsigned long)BoxCursorLoadCheck1);
     patch.WriteJumpSized(BoxCursorLoadCheck2_Jmp, 10, (unsigned long)BoxCursorLoadCheck2);
 
-    patch.WriteJumpSized(AlwaysShowHP_Jmp, 9, (unsigned long)AlwaysShowHP);
+    patch.WriteJumpSized(AlwaysShowHP_Jmp, 6, (unsigned long)AlwaysShowHP);
     patch.WriteJumpSized(DecreaseShowHPState_Jmp, 8, (unsigned long)DecreaseShowHPState);
 
     patch.WriteNops((void *)0x00489C36, 6); // No extra 200 priority to building targets in range
