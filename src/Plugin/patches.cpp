@@ -216,8 +216,8 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     patch.WriteU32((void *)0x007E6740, 240); // DPT turret damage T3
 
     patch.WriteU32((void *)0x007A8C90, 80); // Destroyer reload (vanilla 50)
-    patch.WriteU32((void *)0x007E6620, 40);  // Destroyer T1 (vanilla 60)
-    patch.WriteU32((void *)0x007E6624, 120); // Destroyer T2 (vanilla 150)
+    patch.WriteU32((void *)0x007E6620, 40);  // Destroyer damage T1 (vanilla 60)
+    patch.WriteU32((void *)0x007E6624, 120); // Destroyer damage T2 (vanilla 150)
 
     patch.WriteU32((void *)0x007E0570, 280); // Mine-Layer corium
     patch.WriteU32((void *)0x007E05E0, 250); // Bio_Assaulter corium (vanilla 200)
