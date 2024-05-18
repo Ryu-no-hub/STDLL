@@ -39,7 +39,7 @@ void inline AnnounceGameHost()
 
     HINTERNET hsession = WinHttpOpen(NULL, WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, WINHTTP_NO_PROXY_NAME,
                                      WINHTTP_NO_PROXY_BYPASS, 0);
-    if (*game_mode_ptr == 3 || (*game_mode_ptr == 1 & *game_submode_ptr == 3))
+    if (*game_mode_ptr == 3 || ((*game_mode_ptr == 1) & (*game_submode_ptr == 3)))
     {
         if (hsession)
         {
@@ -80,7 +80,7 @@ void inline AnnounceGameHost()
 
 void inline AnnounceGameStart()
 {
-    if ((*game_mode_ptr == 3 || (*game_mode_ptr == 1 & *game_submode_ptr == 3)) && *host_flag)
+    if ((*game_mode_ptr == 3 || ((*game_mode_ptr == 1) & (*game_submode_ptr == 3))) && *host_flag)
     {
         std::string player_name(player_name_ptr);
 
@@ -117,7 +117,7 @@ void inline AnnounceGameStart()
 
 void inline AnnounceGameCancel()
 {
-    if ((*game_mode_ptr == 3 || (*game_mode_ptr == 1 & *game_submode_ptr == 3)) && *host_flag)
+    if ((*game_mode_ptr == 3 || ((*game_mode_ptr == 1) & (*game_submode_ptr == 3))) && *host_flag)
     {
         std::string player_name(player_name_ptr);
 
@@ -154,7 +154,7 @@ void inline AnnounceGameCancel()
 
 void inline AnnounceGamePlayerLeft()
 {
-    if (*game_mode_ptr == 3 || (*game_mode_ptr == 1 & *game_submode_ptr == 3))
+    if (*game_mode_ptr == 3 || ((*game_mode_ptr == 1) & (*game_submode_ptr == 3)))
     {
         std::string player_name(player_name_ptr);
 
