@@ -257,6 +257,18 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     // BUILDINGS
     // BUILDTIME
 
+    patch.WriteU32((void *)0x007E3DF4, 500); // sonar buildtime
+    patch.WriteU32((void *)0x007E3DF8, 500); // sonar buildtime
+    patch.WriteU32((void *)0x007E3E18, 500); // metal extractor buildtime
+    patch.WriteU32((void *)0x007E3E1C, 500); // metal extractor buildtime
+    patch.WriteU32((void *)0x007E3E20, 500); // metal extractor buildtime
+    patch.WriteU32((void *)0x007E3E24, 500); // gold mine buildtime
+    patch.WriteU32((void *)0x007E3E28, 500); // gold mine buildtime
+    patch.WriteU32((void *)0x007E3F20, 500); // metal extractor buildtime
+    patch.WriteU32((void *)0x007E3F24, 500); // metal extractor buildtime
+    patch.WriteU32((void *)0x007E3F2C, 500); // oxygen generator buildtime
+    patch.WriteU32((void *)0x007E3F30, 500); // oxygen generator buildtime
+
     patch.WriteU32((void *)0x007E3E54, 625); // HF_Canon buildtime
     patch.WriteU32((void *)0x007E3E58, 625); // HF_Canon buildtime
     patch.WriteU32((void *)0x007E3E5C, 625); // HF_Canon buildtime
