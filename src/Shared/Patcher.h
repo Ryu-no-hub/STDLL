@@ -7972,6 +7972,11 @@ struct SPatch
         Write((uint8_t *)((char *)addr + 4), data, size);
         return Write((uint8_t *)((char *)addr + 8), data, size);
     }
+    size_t WriteDual(void *addr, const void *data, size_t size)
+    {
+        Write((uint8_t *)addr, data, size);
+        return Write((uint8_t *)((char *)addr + 4), data, size);
+    }
 
     size_t Write(const void *data, size_t size) { return Write(GetAddr(), data, size); }
 
@@ -8032,6 +8037,7 @@ struct SPatch
     size_t WriteSByte   (void *addr, int8_t       value) { return Write(addr, &value, sizeof(value)); }
     size_t WriteByte    (void *addr, uint8_t      value) { return Write(addr, &value, sizeof(value)); }
     size_t WriteU32Triple     (void *addr, uint32_t     value) { return WriteTriple(addr, &value, sizeof(value)); }
+    size_t WriteU32Dual     (void *addr, uint32_t     value) { return WriteDual(addr, &value, sizeof(value)); }
 
     size_t WriteCharPtr (const char  *value) { return Write(&value, sizeof(value)); }
     size_t WritePtr     (const void  *value) { return Write(&value, sizeof(value)); }
