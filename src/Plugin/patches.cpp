@@ -136,8 +136,8 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     patch.WriteByte((void *)0x0041C4AF, 32); // Max sub id to not skip in defining view mode
 
     
-    patch.WriteU32((void *)0x007D2220, 1500); // Paralyze ray time
-    patch.WriteU32((void *)0x007D2210, 200); // NeuroParalyze shell time 
+    patch.WriteByte((void *)0x007D2220, GetPrivateProfileInt(L"Paralyze_Ray", L"Time", 375, ini_file)); 
+    patch.WriteByte((void *)0x007D2210, GetPrivateProfileInt(L"Neuro_Paralysis_Shell", L"Time", 250, ini_file));
     
 
     patch.WriteJumpSized(MessageResearchComplete_Jmp, 6, (unsigned long)MessageResearchComplete);
@@ -351,7 +351,7 @@ static bool FixesQoL(Patcher::SPatch &patch) {
 
     // REPAIR
     // WS
-    patch.WriteU32((void *)0x007E29FC, 400);  // Docks repair cost WS
+    patch.WriteU32((void *)0x007E29FC, 400);  // Repair_Docks repair cost WS
     patch.WriteU32((void *)0x007E093C, 125);  // Repair speed Transport dock
     patch.WriteU32((void *)0x007E0944, 500);  // Repair speed Terminator dock
     patch.WriteU32((void *)0x007E0920, 150);  // Repair speed Sentinel dock
@@ -378,7 +378,7 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     patch.WriteU32((void *)0x007E0868, 550); // Repair cost Cruiser dock
 
     // BO
-    patch.WriteU32((void *)0x007E2A00, 400);  // Docks repair cost BO
+    patch.WriteU32((void *)0x007E2A00, 400);  // Repair_Docks repair cost BO
     patch.WriteU32((void *)0x007E096C, 125);  // Repair speed Transport dock
     patch.WriteU32((void *)0x007E0968, 125);  // Repair speed Repair Platf dock
     patch.WriteU32((void *)0x007E0964, 325);  // Repair speed Raider dock
@@ -674,10 +674,10 @@ static bool BalancingNormalTree(Patcher::SPatch &patch)
     
     // HP
     patch.WriteU32((void *)0x007E43DC, 700);  // Silicon extractor HP (+100)
-    patch.WriteU32((void *)0x007E417C, 3000); // WS Dockyard HP
-    patch.WriteU32((void *)0x007E4180, 3000); // BO Dockyard HP
-    patch.WriteU32((void *)0x007E4188, 2250); // WS Docks HP
-    patch.WriteU32((void *)0x007E418C, 2250); // BO Docks HP
+    patch.WriteU32((void *)0x007E417C, 3000); // WS Subcenter HP
+    patch.WriteU32((void *)0x007E4180, 3000); // BO Subcenter HP
+    patch.WriteU32((void *)0x007E4188, 2250); // WS Repair_Docks HP
+    patch.WriteU32((void *)0x007E418C, 2250); // BO Repair_Docks HP
     patch.WriteU32((void *)0x007E4194, 1800); // WS Arsenal HP
     patch.WriteU32((void *)0x007E4198, 1800); // BO Arsenal HP
     patch.WriteU32((void *)0x007E41A0, 1500); // WS Research Center HP
@@ -724,9 +724,9 @@ static bool BalancingNormalTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007E1D20, 1000); // Psychotron corium
     patch.WriteU32((void *)0x007E1D24, 1000); // Psychotron corium
 
-    patch.WriteU32((void *)0x007E1D28, 2000); // Plasmotron corium
-    patch.WriteU32((void *)0x007E1D2C, 2000); // Plasmotron corium
-    patch.WriteU32((void *)0x007E1D30, 2000); // Plasmotron corium
+    patch.WriteU32((void *)0x007E1D28, 2000); // Plasmatron corium
+    patch.WriteU32((void *)0x007E1D2C, 2000); // Plasmatron corium
+    patch.WriteU32((void *)0x007E1D30, 2000); // Plasmatron corium
 
     // patch.WriteU32((void *)0x007E1D34, ); // Nuclear launcher corium
 
@@ -777,13 +777,13 @@ static bool BalancingNormalTree(Patcher::SPatch &patch)
     //patch.WriteU32((void *)0x007E1DE4, 0);   // Core corium
 
     // METAL/SILICON
-    //patch.WriteU32((void *)0x007E2568, 800);  // Depot_WS
-    //patch.WriteU32((void *)0x007E256C, 800);  // Depot_BO
-    //patch.WriteU32((void *)0x007E3390, 600);  // Depot_SI
+    //patch.WriteU32((void *)0x007E2568, 800);  // Depot
+    //patch.WriteU32((void *)0x007E256C, 800);  // Depot
+    //patch.WriteU32((void *)0x007E3390, 600);  // Depot
     patch.WriteU32((void *)0x007E33C0, 600); // Silicon_Extractor silicon
     
-    patch.WriteU32((void *)0x007E2508, 1200); // Docks_WS
-    patch.WriteU32((void *)0x007E250C, 1200); // Docks_BO
+    patch.WriteU32((void *)0x007E2508, 1200); // Repair_Docks_WS
+    patch.WriteU32((void *)0x007E250C, 1200); // Repair_Docks_BO
     // patch.WriteU32((void *)0x007E3414, );    // Pulsar silicon
 
     patch.WriteU32((void *)0x007E33D8, 1200); // Gas_Shell_Launcher silicon
@@ -821,9 +821,9 @@ static bool BalancingNormalTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007E262C, 1200); // EM_Launcher metal
     patch.WriteU32((void *)0x007E2630, 1200); // EM_Launcher metal
 
-    patch.WriteU32((void *)0x007E25D4, 1000); // Plasmotron metal
-    patch.WriteU32((void *)0x007E25D8, 1000); // Plasmotron metal
-    patch.WriteU32((void *)0x007E25DC, 1000); // Plasmotron metal
+    patch.WriteU32((void *)0x007E25D4, 1000); // Plasmatron metal
+    patch.WriteU32((void *)0x007E25D8, 1000); // Plasmatron metal
+    patch.WriteU32((void *)0x007E25DC, 1000); // Plasmatron metal
 
     patch.WriteU32((void *)0x007E25E0, 2000); // Nuclear_Launcher metal
     patch.WriteU32((void *)0x007E25E4, 2000); // Nuclear_Launcher metal
@@ -1317,343 +1317,352 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteByte((void *)0x0045F72F, 7); // Plus total at T4
 
     // BUILDINGS 
-
     // HP
+    // COMMON HUMANS
+    patch.WriteU32Dual((void *)0x007E417C, GetPrivateProfileInt(L"Subcenter", L"HP", 2000, ini_file));
+    patch.WriteU32Dual((void *)0x007E4188, GetPrivateProfileInt(L"Repair_Docks", L"HP", 1500, ini_file));
+    patch.WriteU32Dual((void *)0x007E4194, GetPrivateProfileInt(L"Arsenal", L"HP", 1200, ini_file));
+    patch.WriteU32Dual((void *)0x007E41A0, GetPrivateProfileInt(L"Research_Center", L"HP", 1000, ini_file));
+    patch.WriteU32Dual((void *)0x007E41E8, GetPrivateProfileInt(L"Depot", L"HP", 800, ini_file));
+    patch.WriteU32Dual((void *)0x007E41DC, GetPrivateProfileInt(L"Gold_Extractor", L"HP", 500, ini_file));
+    patch.WriteU32Dual((void *)0x007E41AC, GetPrivateProfileInt(L"Sonar", L"HP", 800, ini_file));
+    patch.WriteU32Triple((void *)0x007E41B8, GetPrivateProfileInt(L"Teleport", L"HP", 1500, ini_file));
+    patch.WriteU32Triple((void *)0x007E41D0, GetPrivateProfileInt(L"Corium_Mine_Humans", L"HP", 500, ini_file));
+    patch.WriteU32Dual((void *)0x007E41F4, GetPrivateProfileInt(L"Infocenter", L"HP", 700, ini_file));
+    patch.WriteU32Dual((void *)0x007E4200, GetPrivateProfileInt(L"Disperser", L"HP", 800, ini_file));
+    patch.WriteU32Dual((void *)0x007E42D8, GetPrivateProfileInt(L"Metal_Mine_Humans", L"HP", 500, ini_file));
+    patch.WriteU32Dual((void *)0x007E42E4, GetPrivateProfileInt(L"Oxygen_Generator_Humans", L"HP", 500, ini_file));
+    patch.WriteU32Dual((void *)0x007E42FC, GetPrivateProfileInt(L"Market_humans", L"HP", 1000, ini_file));
+
+    // WS
+    patch.WriteU32Dual((void *)0x007E4224, GetPrivateProfileInt(L"Cybercenter_WS", L"HP", 600, ini_file));
+    patch.WriteU32Dual((void *)0x007E4230, GetPrivateProfileInt(L"Shark_Control", L"HP", 500, ini_file));
+    patch.WriteU32Dual((void *)0x007E4248, GetPrivateProfileInt(L"Psychotron", L"HP", 800, ini_file));
+    patch.WriteU32Dual((void *)0x007E4458, GetPrivateProfileInt(L"Teleshield", L"HP", 700, ini_file));
     
-    patch.WriteU32((void *)0x007E41D0, GetPrivateProfileInt(L"Corium_Mine_Humans", L"HP", 500, ini_file)); // WS Corium
-    patch.WriteU32((void *)0x007E41D4, GetPrivateProfileInt(L"Corium_Mine_Humans", L"HP", 500, ini_file)); // WS Corium
-    patch.WriteU32((void *)0x007E41D8, GetPrivateProfileInt(L"Corium_Mine_Humans", L"HP", 500, ini_file)); // WS Corium
+    patch.WriteU32Triple((void *)0x007E420C, GetPrivateProfileInt(L"HF_Cannon", L"HP", 1600, ini_file));
+    patch.WriteU32Triple((void *)0x007E4218, GetPrivateProfileInt(L"STOLp", L"HP", 1800, ini_file));    
+    patch.WriteU32Triple((void *)0x007E423C, GetPrivateProfileInt(L"USG", L"HP", 500, ini_file));
+    patch.WriteU32Triple((void *)0x007E42F0, GetPrivateProfileInt(L"Plasma_Cannon", L"HP", 1200, ini_file));
 
-    patch.WriteU32((void *)0x007E417C, GetPrivateProfileInt(L"Dockyard_WS", L"HP", 2000, ini_file)); // Dockyard_WS HP 4000
-    patch.WriteU32((void *)0x007E4188, GetPrivateProfileInt(L"Docks_WS", L"HP", 1500, ini_file)); // Docks_WS HP 3000
-    patch.WriteU32((void *)0x007E4194, GetPrivateProfileInt(L"Arsenal_WS", L"HP", 1200, ini_file)); // WS Arsenal HP 2400
-    patch.WriteU32((void *)0x007E41A0, GetPrivateProfileInt(L"Lab_WS", L"HP", 1000, ini_file)); // Lab_WS HP 2000
-    patch.WriteU32((void *)0x007E41E8, GetPrivateProfileInt(L"Depot_WS", L"HP", 800, ini_file)); // WS Depot 1600
-    patch.WriteU32((void *)0x007E41DC, GetPrivateProfileInt(L"Gold_Extractor", L"HP", 500, ini_file)); // Gold extractor 1000
-    patch.WriteU32((void *)0x007E41AC, GetPrivateProfileInt(L"Sonar_WS", L"HP", 800, ini_file)); // WS Sonar 1600
-    patch.WriteU32((void *)0x007E41B8, GetPrivateProfileInt(L"Teleport_WS", L"HP", 1500, ini_file)); // WS Teleport 3000
-    patch.WriteU32((void *)0x007E41F4, GetPrivateProfileInt(L"Infocenter_WS", L"HP", 700, ini_file)); // WS Infocenter 1400
-    patch.WriteU32((void *)0x007E4224, GetPrivateProfileInt(L"Cybercenter_WS", L"HP", 600, ini_file)); // WS Cybercenter 1200
-    patch.WriteU32((void *)0x007E4248, GetPrivateProfileInt(L"Psychotron", L"HP", 800, ini_file)); // WS Psychotron 1600
-    patch.WriteU32((void *)0x007E424C, GetPrivateProfileInt(L"Psychotron", L"HP", 800, ini_file)); // BO Psychotron
-    patch.WriteU32((void *)0x007E4200, GetPrivateProfileInt(L"Disperser", L"HP", 800, ini_file)); // WS Disperser 1600
-    patch.WriteU32((void *)0x007E4204, GetPrivateProfileInt(L"Disperser", L"HP", 800, ini_file)); // BO Disperser
-    patch.WriteU32((void *)0x007E4254, GetPrivateProfileInt(L"Plasmatron", L"HP", 700, ini_file)); // WS Plasmatron 1400
-    patch.WriteU32((void *)0x007E4258, GetPrivateProfileInt(L"Plasmatron", L"HP", 700, ini_file)); // BO Plasmatron
-    patch.WriteU32((void *)0x007E425C, GetPrivateProfileInt(L"Plasmatron", L"HP", 700, ini_file)); // SI Plasmatron
-    patch.WriteU32((void *)0x007E4260, GetPrivateProfileInt(L"Nuclear_Launcher", L"HP", 600, ini_file)); // WS Nuke 1200
-    patch.WriteU32((void *)0x007E4264, GetPrivateProfileInt(L"Nuclear_Launcher", L"HP", 600, ini_file)); // BO Nuke
-    patch.WriteU32((void *)0x007E4268, GetPrivateProfileInt(L"Nuclear_Launcher", L"HP", 600, ini_file)); // SI Nuke
-    patch.WriteU32((void *)0x007E42D8, GetPrivateProfileInt(L"Metal_Mine_Humans", L"HP", 500, ini_file)); // WS Metal extractor 1000
-    patch.WriteU32((void *)0x007E42DC, GetPrivateProfileInt(L"Metal_Mine_Humans", L"HP", 500, ini_file)); // BO Metal extractor
-    patch.WriteU32((void *)0x007E42E4, GetPrivateProfileInt(L"Oxygen_Generator_Humans", L"HP", 500, ini_file)); // WS Oxygen generator
-    patch.WriteU32((void *)0x007E42E8, GetPrivateProfileInt(L"Oxygen_Generator_Humans", L"HP", 500, ini_file)); // BO Oxygen generator
-    patch.WriteU32((void *)0x007E42FC, GetPrivateProfileInt(L"Market_humans", L"HP", 1000, ini_file)); // WS Market 2000
-    patch.WriteU32((void *)0x007E4300, GetPrivateProfileInt(L"Market_humans", L"HP", 1000, ini_file)); // BO Market
-    patch.WriteU32((void *)0x007E4230, GetPrivateProfileInt(L"Shark_Control", L"HP", 500, ini_file)); // WS Shark control
-    patch.WriteU32((void *)0x007E4234, GetPrivateProfileInt(L"Shark_Control", L"HP", 500, ini_file)); // BO Shark control
-    patch.WriteU32((void *)0x007E4458, GetPrivateProfileInt(L"Teleshield", L"HP", 700, ini_file)); // WS Teleshield 1400
-    patch.WriteU32((void *)0x007E445C, GetPrivateProfileInt(L"Teleshield", L"HP", 700, ini_file)); // BO Teleshield
+    patch.WriteU32Triple((void *)0x007E4254, GetPrivateProfileInt(L"Plasmatron", L"HP", 700, ini_file));
+    patch.WriteU32Triple((void *)0x007E4260, GetPrivateProfileInt(L"Nuclear_Launcher", L"HP", 600, ini_file));
+
+    // BO
+    patch.WriteU32Dual((void *)0x007E42B4, GetPrivateProfileInt(L"Protective_field_gen", L"HP", 500, ini_file));
+    patch.WriteU32Dual((void *)0x007E42C0, GetPrivateProfileInt(L"Force_field", L"HP", 800, ini_file));
+    patch.WriteU32Dual((void *)0x007E4284, GetPrivateProfileInt(L"Power_station", L"HP", 500, ini_file));
+    patch.WriteU32Dual((void *)0x007E4290, GetPrivateProfileInt(L"Cyber_laboratory_dolphins", L"HP", 500, ini_file));
+    
+    patch.WriteU32Triple((void *)0x007E426C, GetPrivateProfileInt(L"Light_Laser", L"HP", 1200, ini_file));
+    patch.WriteU32Triple((void *)0x007E429C, GetPrivateProfileInt(L"Heavy_Laser", L"HP", 1400, ini_file));
+    patch.WriteU32Triple((void *)0x007E4278, GetPrivateProfileInt(L"Magnetic_Mine_Launcher", L"HP", 1600, ini_file));
+    patch.WriteU32Triple((void *)0x007E42A8, GetPrivateProfileInt(L"EM_Launcher", L"HP", 1300, ini_file));
+
+    patch.WriteU32Triple((void *)0x007E42CC, GetPrivateProfileInt(L"Lasbomb_Launcher", L"HP", 500, ini_file));
 
 
-    patch.WriteU32((void *)0x007E4180, GetPrivateProfileInt(L"Dockyard_BO", L"HP", 2000, ini_file)); // Dockyard_BO HP 4000
-    patch.WriteU32((void *)0x007E418C, GetPrivateProfileInt(L"Docks_BO", L"HP", 1500, ini_file)); // Docks_BO HP 3000
-    patch.WriteU32((void *)0x007E4198, GetPrivateProfileInt(L"Arsenal_BO", L"HP", 1200, ini_file)); // BO Arsenal HP 2400
-    patch.WriteU32((void *)0x007E41A4, GetPrivateProfileInt(L"Lab_BO", L"HP", 1000, ini_file)); // Lab_BO HP 2000
-    patch.WriteU32((void *)0x007E41EC, 1600); // BO Depot
-    patch.WriteU32((void *)0x007E41D4, 1000); // BO Corium extractor
-    patch.WriteU32((void *)0x007E41E0, 1000); // BO Gold extractor
-    patch.WriteU32((void *)0x007E41B0, 1600); // BO Sonar
-    patch.WriteU32((void *)0x007E41BC, 3000); // BO Teleport
-    patch.WriteU32((void *)0x007E41F8, 1400); // BO Infocenter
-    patch.WriteU32((void *)0x007E42B4, 1000); // WS Protective field gen
-    patch.WriteU32((void *)0x007E42B8, 1000); // BO Protective field gen
-    patch.WriteU32((void *)0x007E42C0, 1600); // WS Force field
-    patch.WriteU32((void *)0x007E42C4, 1600); // BO Force field
-    patch.WriteU32((void *)0x007E4284, 1000); // WS Power station
-    patch.WriteU32((void *)0x007E4288, 1000); // BO Power station
-    patch.WriteU32((void *)0x007E4290, 1000); // WS Cyber laboratory dolphins
-    patch.WriteU32((void *)0x007E4294, 1000); // BO Cyber laboratory dolphins
-    patch.WriteU32((void *)0x007E42CC, 1000); // WS lasbomb launcher
-    patch.WriteU32((void *)0x007E42D0, 1000); // BO lasbomb launcher
-    patch.WriteU32((void *)0x007E42D4, 1000); // SI lasbomb launcher
-
+    // SI
     patch.WriteU32((void *)0x007E43DC, GetPrivateProfileInt(L"Silicon_Extractor", L"HP", 600, ini_file));  // Silicon_Extractor HP 1000
     patch.WriteU32((void *)0x007E4310, GetPrivateProfileInt(L"Core", L"HP", 2000, ini_file)); // SI Core HP 4000
     patch.WriteU32((void *)0x007E4370, GetPrivateProfileInt(L"Arsenal_SI", L"HP", 1200, ini_file)); // SI Arsenal HP 2400
     patch.WriteU32((void *)0x007E437C, GetPrivateProfileInt(L"Protoplasm_Generator", L"HP", 1800, ini_file)); // SI Protoplasm_Generator HP 3600
-    patch.WriteU32((void *)0x007E41D8, 1000); // SI Corium extractor
-    patch.WriteU32((void *)0x007E41C0, 3000); // SI Teleport
 
-    patch.WriteU32((void *)0x007E431C, 1000); // SI Module
-    patch.WriteU32((void *)0x007E4328, 1000); // SI Module
-    patch.WriteU32((void *)0x007E4334, 1000); // SI Module
-    patch.WriteU32((void *)0x007E4340, 1000); // SI Module
-    patch.WriteU32((void *)0x007E434C, 1000); // SI Module
-    patch.WriteU32((void *)0x007E4358, 1000); // SI Module
-    patch.WriteU32((void *)0x007E4364, 1000); // SI Module
+    patch.WriteU32((void *)0x007E431C, GetPrivateProfileInt(L"Tech_Module", L"HP", 500, ini_file)); // SI Module_SI 10
+    patch.WriteU32((void *)0x007E4328, GetPrivateProfileInt(L"Tech_Module", L"HP", 500, ini_file)); // SI Module 10
+    patch.WriteU32((void *)0x007E4334, GetPrivateProfileInt(L"Tech_Module", L"HP", 500, ini_file)); // SI Module 10
+    patch.WriteU32((void *)0x007E4340, GetPrivateProfileInt(L"Tech_Module", L"HP", 500, ini_file)); // SI Module 10
+    patch.WriteU32((void *)0x007E434C, GetPrivateProfileInt(L"Tech_Module", L"HP", 500, ini_file)); // SI Module 10
+    patch.WriteU32((void *)0x007E4358, GetPrivateProfileInt(L"Tech_Module", L"HP", 500, ini_file)); // SI Module 10
+    patch.WriteU32((void *)0x007E4364, GetPrivateProfileInt(L"Tech_Module", L"HP", 500, ini_file)); // SI Module 10
 
-    patch.WriteU32((void *)0x007E4388, 1400); // SI Biolocator
-    patch.WriteU32((void *)0x007E438C, 1000); // SI Corium extractor
-    patch.WriteU32((void *)0x007E4390, 1000); // SI Corium extractor
-    patch.WriteU32((void *)0x007E4394, 1000); // SI Corium extractor
-    patch.WriteU32((void *)0x007E43A0, 2400); // SI Energy converter
-    patch.WriteU32((void *)0x007E43AC, 1000); // SI Corium silo
-    patch.WriteU32((void *)0x007E43B8, 1600); // SI Energy accumulator
-    patch.WriteU32((void *)0x007E43C4, 1400); // SI Replenish pod
-    patch.WriteU32((void *)0x007E43D0, 2200); // SI Recyclotron
-    patch.WriteU32((void *)0x007E443C, 2600); // SI Gate
-    patch.WriteU32((void *)0x007E4448, 2000); // SI Ion field generator
-    patch.WriteU32((void *)0x007E4454, 1800); // SI Molecular
-    patch.WriteU32((void *)0x007E446C, 2400); // SI Orbital laser
-    patch.WriteU32((void *)0x007E4484, 1400); // SI Vacuum bomb launcher
-    patch.WriteU32((void *)0x007E4490, 1600); // SI Quantum Paralyzer
+    patch.WriteU32((void *)0x007E4388, GetPrivateProfileInt(L"Biolocator", L"HP", 700, ini_file)); // SI Biolocator 14
+    patch.WriteU32((void *)0x007E438C, GetPrivateProfileInt(L"Corium_Mine_SI", L"HP", 500, ini_file)); // SI Corium extractor 10
+    patch.WriteU32((void *)0x007E4390, GetPrivateProfileInt(L"Corium_Mine_SI", L"HP", 500, ini_file)); // SI Corium extractor 10
+    patch.WriteU32((void *)0x007E4394, GetPrivateProfileInt(L"Corium_Mine_SI", L"HP", 500, ini_file)); // SI Corium extractor 10 
+    patch.WriteU32((void *)0x007E43A0, GetPrivateProfileInt(L"Energy_converter", L"HP", 1400, ini_file)); // SI Energy_converter_SI 24
+    patch.WriteU32((void *)0x007E43AC, GetPrivateProfileInt(L"Depot_SI", L"HP", 500, ini_file)); // SI Corium silo 10 Depot_SI
+    patch.WriteU32((void *)0x007E43B8, GetPrivateProfileInt(L"Energy_accumulator", L"HP", 800, ini_file)); // SI Energy_accumulator_SI 16
+    patch.WriteU32((void *)0x007E43C4, GetPrivateProfileInt(L"Replenish_pod", L"HP", 700, ini_file)); // SI Replenish_pod_SI 14
+    patch.WriteU32((void *)0x007E43D0, GetPrivateProfileInt(L"Recyclotron", L"HP", 1100, ini_file)); // SI Recyclotron_SI 22
+    patch.WriteU32((void *)0x007E443C, GetPrivateProfileInt(L"Gate", L"HP", 1300, ini_file)); // SI Gate 26
+    patch.WriteU32((void *)0x007E4448, GetPrivateProfileInt(L"Ion_field_generator", L"HP", 1000, ini_file)); // SI Ion_field_generator 20
+    patch.WriteU32((void *)0x007E4454, GetPrivateProfileInt(L"Molecular_repair_facility", L"HP", 900, ini_file)); // SI Molecular 18
+    patch.WriteU32((void *)0x007E446C, GetPrivateProfileInt(L"Orbital_laser", L"HP", 1200, ini_file)); // SI Orbital_laser 24
+    patch.WriteU32((void *)0x007E4484, GetPrivateProfileInt(L"Vacuum_Bomb", L"HP", 700, ini_file)); // SI Vacuum_bomb_launcher_SI 14
+    patch.WriteU32((void *)0x007E4490, GetPrivateProfileInt(L"Quantum_Paralyzer", L"HP", 800, ini_file)); // SI Quantum_Paralyzer 16
 
 
-    patch.WriteU32((void *)0x007E420C, GetPrivateProfileInt(L"HF_Cannon", L"HP", 1600, ini_file)); // HF_Cannon HP 1200
-    patch.WriteU32((void *)0x007E4210, GetPrivateProfileInt(L"HF_Cannon", L"HP", 1600, ini_file)); // HF_Cannon HP 1200
-    patch.WriteU32((void *)0x007E4214, GetPrivateProfileInt(L"HF_Cannon", L"HP", 1600, ini_file)); // HF_Cannon HP
 
-    patch.WriteU32((void *)0x007E4218, GetPrivateProfileInt(L"STOLp", L"HP", 1800, ini_file)); // STOLp HP 1600
-    patch.WriteU32((void *)0x007E421C, GetPrivateProfileInt(L"STOLp", L"HP", 1800, ini_file)); // STOLp HP
-    patch.WriteU32((void *)0x007E4220, GetPrivateProfileInt(L"STOLp", L"HP", 1800, ini_file)); // STOLp HP
-    
-    patch.WriteU32((void *)0x007E423C, GetPrivateProfileInt(L"USG", L"HP", 500, ini_file)); // USG HP
-    patch.WriteU32((void *)0x007E4240, GetPrivateProfileInt(L"USG", L"HP", 500, ini_file)); // USG HP
-    patch.WriteU32((void *)0x007E4244, GetPrivateProfileInt(L"USG", L"HP", 500, ini_file)); // USG HP
-
-    patch.WriteU32((void *)0x007E42F0, GetPrivateProfileInt(L"Plasma_Cannon", L"HP", 1200, ini_file)); // Plasma_Cannon HP 1500
-    patch.WriteU32((void *)0x007E42F4, GetPrivateProfileInt(L"Plasma_Cannon", L"HP", 1200, ini_file)); // Plasma_Cannon HP 1500
-    patch.WriteU32((void *)0x007E42F8, GetPrivateProfileInt(L"Plasma_Cannon", L"HP", 1200, ini_file)); // Plasma_Cannon HP
-
-    patch.WriteU32((void *)0x007E426C, GetPrivateProfileInt(L"Light_Laser", L"HP", 1200, ini_file)); // Light_Laser HP 1000
-    patch.WriteU32((void *)0x007E4270, GetPrivateProfileInt(L"Light_Laser", L"HP", 1200, ini_file)); // Light_Laser HP
-    patch.WriteU32((void *)0x007E4274, GetPrivateProfileInt(L"Light_Laser", L"HP", 1200, ini_file)); // Light_Laser HP
-
-    patch.WriteU32((void *)0x007E429C, GetPrivateProfileInt(L"Heavy_Laser", L"HP", 1400, ini_file)); // Heavy_Laser HP 1300
-    patch.WriteU32((void *)0x007E42A0, GetPrivateProfileInt(L"Heavy_Laser", L"HP", 1400, ini_file)); // Heavy_Laser HP
-    patch.WriteU32((void *)0x007E42A4, GetPrivateProfileInt(L"Heavy_Laser", L"HP", 1400, ini_file)); // Heavy_Laser HP
-
-    patch.WriteU32((void *)0x007E4428, GetPrivateProfileInt(L"Pulsar", L"HP", 1000, ini_file)); // Pulsar HP 1000
-    patch.WriteU32((void *)0x007E442C, GetPrivateProfileInt(L"Pulsar", L"HP", 1000, ini_file)); // Pulsar HP 
-    patch.WriteU32((void *)0x007E4430, GetPrivateProfileInt(L"Pulsar", L"HP", 1000, ini_file)); // Pulsar HP
-
-    patch.WriteU32((void *)0x007E43E0, GetPrivateProfileInt(L"Soliton", L"HP", 700, ini_file));  // Soliton oscilator HP 700
-    patch.WriteU32((void *)0x007E43E4, GetPrivateProfileInt(L"Soliton", L"HP", 700, ini_file));  // Soliton oscilator HP
-    patch.WriteU32((void *)0x007E43E8, GetPrivateProfileInt(L"Soliton", L"HP", 700, ini_file));  // Soliton oscilator HP
-
-    patch.WriteU32((void *)0x007E43EC, GetPrivateProfileInt(L"Gas_Shell_Launcher", L"HP", 1100, ini_file)); // Gas_Shell_Launcher HP (vanilla 1100) 1200
-    patch.WriteU32((void *)0x007E43F0, GetPrivateProfileInt(L"Gas_Shell_Launcher", L"HP", 1100, ini_file)); // Gas_Shell_Launcher HP (vanilla 1100)
-    patch.WriteU32((void *)0x007E43F4, GetPrivateProfileInt(L"Gas_Shell_Launcher", L"HP", 1100, ini_file)); // Gas_Shell_Launcher HP (vanilla 1100)
-
-    patch.WriteU32((void *)0x007E441C, GetPrivateProfileInt(L"Bio_Mine_Launcher", L"HP", 1200, ini_file)); // Bio_Mine_Launcher HP 900
-    patch.WriteU32((void *)0x007E4420, GetPrivateProfileInt(L"Bio_Mine_Launcher", L"HP", 1200, ini_file)); // Bio_Mine_Launcher HP 
-    patch.WriteU32((void *)0x007E4424, GetPrivateProfileInt(L"Bio_Mine_Launcher", L"HP", 1200, ini_file)); // Bio_Mine_Launcher HP
-
-    patch.WriteU32((void *)0x007E4470, GetPrivateProfileInt(L"Parcher", L"HP", 1400, ini_file)); // Parcher HP 1400
-    patch.WriteU32((void *)0x007E4474, GetPrivateProfileInt(L"Parcher", L"HP", 1400, ini_file)); // Parcher HP 
-    patch.WriteU32((void *)0x007E4478, GetPrivateProfileInt(L"Parcher", L"HP", 1400, ini_file)); // Parcher HP
+    patch.WriteU32Triple((void *)0x007E4428, GetPrivateProfileInt(L"Pulsar", L"HP", 1000, ini_file));
+    patch.WriteU32Triple((void *)0x007E43E0, GetPrivateProfileInt(L"Soliton", L"HP", 700, ini_file));
+    patch.WriteU32Triple((void *)0x007E43EC, GetPrivateProfileInt(L"Gas_Shell_Launcher", L"HP", 1100, ini_file));
+    patch.WriteU32Triple((void *)0x007E43F8, GetPrivateProfileInt(L"Double_Plasma_Turret", L"HP", 1400, ini_file));
+    patch.WriteU32Triple((void *)0x007E441C, GetPrivateProfileInt(L"Bio_Mine_Launcher", L"HP", 1200, ini_file)); 
+    patch.WriteU32Triple((void *)0x007E4410, GetPrivateProfileInt(L"Jump_Mine_Launcher", L"HP", 1000, ini_file));
+    patch.WriteU32((void *)0x007E440C, GetPrivateProfileInt(L"Ion_Reflector", L"HP", 1300, ini_file));
+    patch.WriteU32Triple((void *)0x007E4470, GetPrivateProfileInt(L"Parcher", L"HP", 1400, ini_file));
 
     // Corium
+    // COMMON HUMANS
+    patch.WriteU32Dual((void *)0x007E1C50, GetPrivateProfileInt(L"Subcenter", L"Corium", 0, ini_file));
+    patch.WriteU32Dual((void *)0x007E1C5C, GetPrivateProfileInt(L"Repair_Docks", L"Corium", 0, ini_file));
+    patch.WriteU32Dual((void *)0x007E1C68, GetPrivateProfileInt(L"Arsenal", L"Corium", 400, ini_file));
+    patch.WriteU32Dual((void *)0x007E1C74, GetPrivateProfileInt(L"Research_Center", L"Corium", 300, ini_file));
+    patch.WriteU32Dual((void *)0x007E1C80, GetPrivateProfileInt(L"Sonar", L"Corium", 0, ini_file));
+    patch.WriteU32Dual((void *)0x007E1C8C, GetPrivateProfileInt(L"Teleport", L"Corium", 450, ini_file));
+    patch.WriteU32Dual((void *)0x007E1CA4, GetPrivateProfileInt(L"Corium_Mine_Humans", L"Corium", 0, ini_file));
+    patch.WriteU32Dual((void *)0x007E1CB0, GetPrivateProfileInt(L"Gold_Extractor", L"Corium", 0, ini_file));
+    patch.WriteU32Dual((void *)0x007E1CBC, GetPrivateProfileInt(L"Depot", L"Corium", 0, ini_file));
+    patch.WriteU32Dual((void *)0x007E1CC8, GetPrivateProfileInt(L"Infocenter", L"Corium", 0, ini_file));
+    patch.WriteU32Dual((void *)0x007E1CD4, GetPrivateProfileInt(L"Disperser", L"Corium", 100, ini_file));
+    patch.WriteU32Dual((void *)0x007E1DAC, GetPrivateProfileInt(L"Metal_Mine_Humans", L"Corium", 0, ini_file));
+    patch.WriteU32Dual((void *)0x007E1DB8, GetPrivateProfileInt(L"Oxygen_Generator_Humans", L"Corium", 0, ini_file));
+    patch.WriteU32Dual((void *)0x007E1DD0, GetPrivateProfileInt(L"Market_humans", L"Corium", 0, ini_file));
+
     // WS
-    patch.WriteU32((void *)0x007E1CE0, GetPrivateProfileInt(L"HF_Cannon", L"Corium", 40, ini_file)); // HF_Cannon corium 8
-    patch.WriteU32((void *)0x007E1CE4, GetPrivateProfileInt(L"HF_Cannon", L"Corium", 40, ini_file)); // HF_Cannon corium
-    patch.WriteU32((void *)0x007E1CE8, GetPrivateProfileInt(L"HF_Cannon", L"Corium", 40, ini_file)); // HF_Cannon corium
+    patch.WriteU32Dual((void *)0x007E1CF8, GetPrivateProfileInt(L"Cybercenter_WS", L"Corium", 0, ini_file));
+    patch.WriteU32Dual((void *)0x007E1D04, GetPrivateProfileInt(L"Shark_Control", L"Corium", 0, ini_file));
+    patch.WriteU32Dual((void *)0x007E1D1C, GetPrivateProfileInt(L"Psychotron", L"Corium", 300, ini_file));
+    patch.WriteU32Dual((void *)0x007E1F2C, GetPrivateProfileInt(L"Teleshield", L"Corium", 200, ini_file));
+    
+    patch.WriteU32Triple((void *)0x007E1CE0, GetPrivateProfileInt(L"HF_Cannon", L"Corium", 40, ini_file));
+    patch.WriteU32Triple((void *)0x007E1CEC, GetPrivateProfileInt(L"STOLp", L"Corium", 80, ini_file));
+    patch.WriteU32Triple((void *)0x007E1D10, GetPrivateProfileInt(L"USG", L"Corium", 300, ini_file));
+    patch.WriteU32Triple((void *)0x007E1DC4, GetPrivateProfileInt(L"Plasma_Cannon", L"Corium", 500, ini_file));
 
-    patch.WriteU32((void *)0x007E1CEC, GetPrivateProfileInt(L"STOLp", L"Corium", 80, ini_file)); // STOLp corium 12
-    patch.WriteU32((void *)0x007E1CF0, GetPrivateProfileInt(L"STOLp", L"Corium", 80, ini_file)); // STOLp corium
-
-    patch.WriteU32((void *)0x007E1DC4, GetPrivateProfileInt(L"Plasma_Cannon", L"Corium", 500, ini_file)); // Plasma_Cannon corium 28
-    patch.WriteU32((void *)0x007E1DC8, GetPrivateProfileInt(L"Plasma_Cannon", L"Corium", 500, ini_file)); // Plasma_Cannon corium
-    patch.WriteU32((void *)0x007E1DCC, GetPrivateProfileInt(L"Plasma_Cannon", L"Corium", 500, ini_file)); // Plasma_Cannon corium
-
-    patch.WriteU32((void *)0x007E1D1C, GetPrivateProfileInt(L"Psychotron", L"Corium", 300, ini_file)); // Psychotron corium 10
-    patch.WriteU32((void *)0x007E1D20, GetPrivateProfileInt(L"Psychotron", L"Corium", 300, ini_file)); // Psychotron corium
-
-    patch.WriteU32((void *)0x007E1D28, GetPrivateProfileInt(L"Plasmotron", L"Corium", 1000, ini_file)); // Plasmotron corium 40
-    patch.WriteU32((void *)0x007E1D2C, GetPrivateProfileInt(L"Plasmotron", L"Corium", 1000, ini_file)); // Plasmotron corium
-    patch.WriteU32((void *)0x007E1D30, GetPrivateProfileInt(L"Plasmotron", L"Corium", 1000, ini_file)); // Plasmotron corium
-
-    patch.WriteU32((void *)0x007E1D34, GetPrivateProfileInt(L"Nuclear_Launcher", L"Corium", 2000, ini_file)); // Nuclear_Launcher corium 20
+    patch.WriteU32Triple((void *)0x007E1D28, GetPrivateProfileInt(L"Plasmatron", L"Corium", 1000, ini_file));
+    patch.WriteU32Triple((void *)0x007E1D34, GetPrivateProfileInt(L"Nuclear_Launcher", L"Corium", 2000, ini_file)); 
 
     // BO
-    patch.WriteU32((void *)0x007E1D40, GetPrivateProfileInt(L"Light_Laser", L"Corium", 50, ini_file)); // Light_Laser corium 06
-    patch.WriteU32((void *)0x007E1D44, GetPrivateProfileInt(L"Light_Laser", L"Corium", 50, ini_file)); // Light_Laser corium
-    patch.WriteU32((void *)0x007E1D48, GetPrivateProfileInt(L"Light_Laser", L"Corium", 50, ini_file)); // Light_Laser corium
-    patch.WriteU32((void *)0x007940D8, GetPrivateProfileInt(L"Light_Laser", L"Ammo", 30, ini_file)); // Light_Laser Ammo 05
+    patch.WriteU32Dual((void *)0x007E1D58, GetPrivateProfileInt(L"Power_station", L"Corium", 250, ini_file));
+    patch.WriteU32Dual((void *)0x007E1D64, GetPrivateProfileInt(L"Cyber_laboratory_dolphins", L"Corium", 200, ini_file));
+    patch.WriteU32Dual((void *)0x007E1D88, GetPrivateProfileInt(L"Protective_field_gen", L"Corium", 400, ini_file));
+    patch.WriteU32Dual((void *)0x007E1D94, GetPrivateProfileInt(L"Force_field", L"Corium", 1000, ini_file));
 
-    patch.WriteU32((void *)0x007E1D70, GetPrivateProfileInt(L"Heavy_Laser", L"Corium", 100, ini_file)); // Heavy_Laser corium 2
-    patch.WriteU32((void *)0x007E1D74, GetPrivateProfileInt(L"Heavy_Laser", L"Corium", 100, ini_file)); // Heavy_Laser corium
-    patch.WriteU32((void *)0x007E1D78, GetPrivateProfileInt(L"Heavy_Laser", L"Corium", 100, ini_file)); // Heavy_Laser corium
+    patch.WriteU32Triple((void *)0x007E1D40, GetPrivateProfileInt(L"Light_Laser", L"Corium", 50, ini_file));
+    patch.WriteU32((void *)0x007940D8, GetPrivateProfileInt(L"Light_Laser", L"Ammo", 30, ini_file));
+    patch.WriteU32Triple((void *)0x007E1D70, GetPrivateProfileInt(L"Heavy_Laser", L"Corium", 100, ini_file));
+    patch.WriteU32Triple((void *)0x007E1D4C, GetPrivateProfileInt(L"Magnetic_Mine_Launcher", L"Corium", 120, ini_file));
+    patch.WriteU32Triple((void *)0x007E1D7C, GetPrivateProfileInt(L"EM_Launcher", L"Corium", 80, ini_file));
 
-    patch.WriteU32((void *)0x007E1D4C, GetPrivateProfileInt(L"Magnetic_Mine_Launcher", L"Corium", 120, ini_file)); // Magnetic_Mine_Launcher corium 26
-    patch.WriteU32((void *)0x007E1D50, GetPrivateProfileInt(L"Magnetic_Mine_Launcher", L"Corium", 120, ini_file)); // Magnetic_Mine_Launcher corium
-    patch.WriteU32((void *)0x007E1D54, GetPrivateProfileInt(L"Magnetic_Mine_Launcher", L"Corium", 120, ini_file)); // Magnetic_Mine_Launcher corium
+    patch.WriteU32Triple((void *)0x007E1DA0, GetPrivateProfileInt(L"Lasbomb_Launcher", L"Corium", 3000, ini_file));
 
-    patch.WriteU32((void *)0x007E1D7C, GetPrivateProfileInt(L"EM_Launcher", L"Corium", 80, ini_file)); // EM_Launcher corium 24
-    patch.WriteU32((void *)0x007E1D80, GetPrivateProfileInt(L"EM_Launcher", L"Corium", 80, ini_file)); // EM_Launcher corium
-    patch.WriteU32((void *)0x007E1D84, GetPrivateProfileInt(L"EM_Launcher", L"Corium", 80, ini_file)); // EM_Launcher corium
-
-    patch.WriteU32((void *)0x007E1D88, GetPrivateProfileInt(L"Protective_Shield", L"Corium", 400, ini_file)); // Protective_Shield gen corium 8
-    patch.WriteU32((void *)0x007E1D8C, GetPrivateProfileInt(L"Protective_Shield", L"Corium", 400, ini_file)); // Protective_Shield gen corium
-    patch.WriteU32((void *)0x007E1D90, GetPrivateProfileInt(L"Protective_Shield", L"Corium", 400, ini_file)); // Protective_Shield gen corium
-
-    patch.WriteU32((void *)0x007E1DA0, GetPrivateProfileInt(L"Laser_Bomb_Launcher", L"Corium", 3000, ini_file)); // Laser_Bomb_Launcher corium 50
-    patch.WriteU32((void *)0x007E1DA0, GetPrivateProfileInt(L"Laser_Bomb_Launcher", L"Corium", 3000, ini_file)); // Laser_Bomb_Launcher corium
-    patch.WriteU32((void *)0x007E1DA0, GetPrivateProfileInt(L"Laser_Bomb_Launcher", L"Corium", 3000, ini_file)); // Laser_Bomb_Launcher corium
 
     // SI
-    patch.WriteU32((void *)0x007E1EC0, GetPrivateProfileInt(L"Gas_Shell_Launcher", L"Corium", 300, ini_file)); // Gas_Shell_Launcher corium 300
-    patch.WriteU32((void *)0x007E1EC4, GetPrivateProfileInt(L"Gas_Shell_Launcher", L"Corium", 300, ini_file)); // Gas_Shell_Launcher corium
-    patch.WriteU32((void *)0x007E1EC8, GetPrivateProfileInt(L"Gas_Shell_Launcher", L"Corium", 300, ini_file)); // Gas_Shell_Launcher corium
+    patch.WriteU32((void *)0x007E1EB0, GetPrivateProfileInt(L"Silicon_Extractor", L"Corium", 0, ini_file)); // Silicon_Extractor Corium 06
+    patch.WriteU32((void *)0x007E1F28, GetPrivateProfileInt(L"Molecular_repair_facility", L"Corium", 500, ini_file)); // Molecular_repair_facility Corium 06
+    patch.WriteU32((void *)0x007E1F64, GetPrivateProfileInt(L"Quantum_Paralyzer", L"Corium", 600, ini_file)); // Quantum_Paralyzer Corium 06
+    patch.WriteU32((void *)0x007E1F1C, GetPrivateProfileInt(L"Ion_field_generator", L"Corium", 400, ini_file)); // Ion_field_generator Corium 06
+    patch.WriteU32((void *)0x007E1F10, GetPrivateProfileInt(L"Gate", L"Corium", 150, ini_file)); // Gate Corium 06
+    patch.WriteU32((void *)0x007E1EA4, GetPrivateProfileInt(L"Recyclotron", L"Corium", 200, ini_file)); // Recyclotron Corium 06
+    patch.WriteU32((void *)0x007E1E98, GetPrivateProfileInt(L"Replenish_pod", L"Corium", 50, ini_file)); // Replenish_pod Corium 06
+    patch.WriteU32((void *)0x007E1E5C, GetPrivateProfileInt(L"Biolocator", L"Corium", 50, ini_file)); // Biolocator Corium 06
+    patch.WriteU32((void *)0x007E1E50, GetPrivateProfileInt(L"Protoplasm_Generator", L"Corium", 0, ini_file)); // Protoplasm_Generator Corium 06
+    patch.WriteU32((void *)0x007E1E44, GetPrivateProfileInt(L"Arsenal_SI", L"Corium", 400, ini_file)); // Arsenal_SI Corium 06
+    patch.WriteU32((void *)0x007E1DE4, GetPrivateProfileInt(L"Core", L"Corium", 300, ini_file)); // Core Corium 06
+    patch.WriteU32((void *)0x007E1DF0, GetPrivateProfileInt(L"Tech_Module", L"Corium", 200, ini_file)); // Tech_Module Corium 06
+    patch.WriteU32((void *)0x007E1DFC, GetPrivateProfileInt(L"Tech_Module", L"Corium", 200, ini_file)); // Tech_Module Corium 06
+    patch.WriteU32((void *)0x007E1E08, GetPrivateProfileInt(L"Tech_Module", L"Corium", 200, ini_file)); // Tech_Module Corium 06
+    patch.WriteU32((void *)0x007E1E14, GetPrivateProfileInt(L"Tech_Module", L"Corium", 200, ini_file)); // Tech_Module Corium 06
+    patch.WriteU32((void *)0x007E1E20, GetPrivateProfileInt(L"Tech_Module", L"Corium", 200, ini_file)); // Tech_Module Corium 06
+    patch.WriteU32((void *)0x007E1E2C, GetPrivateProfileInt(L"Tech_Module", L"Corium", 200, ini_file)); // Tech_Module Corium 06
+    patch.WriteU32((void *)0x007E1E38, GetPrivateProfileInt(L"Tech_Module", L"Corium", 200, ini_file)); // Tech_Module Corium 06
+    patch.WriteU32((void *)0x007E1E80, GetPrivateProfileInt(L"Depot_SI", L"Corium", 0, ini_file)); // Depot_SI Corium 06
+    patch.WriteU32Triple((void *)0x007E1E60, GetPrivateProfileInt(L"Corium_Mine_SI", L"Corium", 0, ini_file));
+    patch.WriteU32((void *)0x007E1E8C, GetPrivateProfileInt(L"Energy_accumulator", L"Corium", 0, ini_file)); // Energy_accumulator Corium 06
+    patch.WriteU32((void *)0x007E1E74, GetPrivateProfileInt(L"Energy_converter", L"Corium", 200, ini_file)); // Energy_converter Corium 06
 
-    patch.WriteU32((void *)0x007E1ECC, GetPrivateProfileInt(L"DPT", L"Corium", 200, ini_file)); // DPT corium 15
-    patch.WriteU32((void *)0x007E1ED0, GetPrivateProfileInt(L"DPT", L"Corium", 200, ini_file)); // DPT corium
-    patch.WriteU32((void *)0x007E1ED4, GetPrivateProfileInt(L"DPT", L"Corium", 200, ini_file)); // DPT corium
+    patch.WriteU32Triple((void *)0x007E1EC0, GetPrivateProfileInt(L"Gas_Shell_Launcher", L"Corium", 300, ini_file));
+    patch.WriteU32Triple((void *)0x007E1ECC, GetPrivateProfileInt(L"DPT", L"Corium", 200, ini_file));
+    patch.WriteU32Triple((void *)0x007E1EFC, GetPrivateProfileInt(L"Pulsar", L"Corium", 50, ini_file)); 
+    patch.WriteU32Triple((void *)0x007E1EF0, GetPrivateProfileInt(L"Bio_Mine_Launcher", L"Corium", 350, ini_file));
+    patch.WriteU32Triple((void *)0x007E1EE4, GetPrivateProfileInt(L"Jump_Mine_Launcher", L"Corium", 300, ini_file));
+    patch.WriteU32((void *)0x007E1EE0, GetPrivateProfileInt(L"Ion_Reflector", L"Corium", 200, ini_file));
+    patch.WriteU32Triple((void *)0x007E1EB4, GetPrivateProfileInt(L"Soliton", L"Corium", 500, ini_file));
+    patch.WriteU32Triple((void *)0x007E1F44, GetPrivateProfileInt(L"Parcher", L"Corium", 350, ini_file));
 
-    patch.WriteU32((void *)0x007E1EFC, GetPrivateProfileInt(L"Pulsar", L"Corium", 50, ini_file)); // Pulsar corium 7
-    patch.WriteU32((void *)0x007E1F00, GetPrivateProfileInt(L"Pulsar", L"Corium", 50, ini_file)); // Pulsar corium
-    patch.WriteU32((void *)0x007E1F04, GetPrivateProfileInt(L"Pulsar", L"Corium", 50, ini_file)); // Pulsar corium
-
-    patch.WriteU32((void *)0x007E1EF0, GetPrivateProfileInt(L"Bio_Mine_Launcher", L"Corium", 350, ini_file)); // Bio_Mine_Launcher corium 2
-    patch.WriteU32((void *)0x007E1EF4, GetPrivateProfileInt(L"Bio_Mine_Launcher", L"Corium", 350, ini_file)); // Bio_Mine_Launcher corium
-    patch.WriteU32((void *)0x007E1EF8, GetPrivateProfileInt(L"Bio_Mine_Launcher", L"Corium", 350, ini_file)); // Bio_Mine_Launcher corium
-
-    patch.WriteU32((void *)0x007E1EE4, GetPrivateProfileInt(L"Jump_Mine_Launcher", L"Corium", 300, ini_file)); // Jump_Mine_Launcher corium 23
-    patch.WriteU32((void *)0x007E1EE8, GetPrivateProfileInt(L"Jump_Mine_Launcher", L"Corium", 300, ini_file)); // Jump_Mine_Launcher corium 23
-    patch.WriteU32((void *)0x007E1EEC, GetPrivateProfileInt(L"Jump_Mine_Launcher", L"Corium", 300, ini_file)); // Jump_Mine_Launcher corium 23
-
-    patch.WriteU32((void *)0x007E1EE0, GetPrivateProfileInt(L"Ion_Reflector", L"Corium", 200, ini_file)); // Ion_Reflector corium 2
-
-    patch.WriteU32((void *)0x007E1EBC, GetPrivateProfileInt(L"Soliton", L"Corium", 500, ini_file)); // Soliton corium 7
-
-    patch.WriteU32((void *)0x007E1F4C, GetPrivateProfileInt(L"Parcher", L"Corium", 350, ini_file)); // Parcher corium 25
-    
-    patch.WriteU32((void *)0x007E1F58, GetPrivateProfileInt(L"Vacuum_Bomb", L"Corium", 3000, ini_file)); // Vacuum_Bomb launcher corium 50
-
-    patch.WriteU32((void *)0x007E1DE4, GetPrivateProfileInt(L"Core", L"Corium", 300, ini_file)); // Core corium 3
-
+    patch.WriteU32((void *)0x007E1F40, GetPrivateProfileInt(L"Orbital_laser", L"Corium", 3000, ini_file));
+    patch.WriteU32((void *)0x007E1F58, GetPrivateProfileInt(L"Vacuum_Bomb", L"Corium", 3000, ini_file));
 
 
     // METAL/SILICON
-    patch.WriteU32((void *)0x007E2568, GetPrivateProfileInt(L"Depot_WS", L"Metal", 300, ini_file));  // Depot_WS 08
-    patch.WriteU32((void *)0x007E256C, GetPrivateProfileInt(L"Depot_BO", L"Metal", 300, ini_file));  // Depot_BO 08
-    patch.WriteU32((void *)0x007E3390, GetPrivateProfileInt(L"Depot_SI", L"Metal", 300, ini_file));  // Depot_SI 06
+    // COMMON HUMANS
+    patch.WriteU32Dual((void *)0x007E24FC, GetPrivateProfileInt(L"Subcenter", L"Metal", 1800, ini_file));
+    patch.WriteU32Dual((void *)0x007E2508, GetPrivateProfileInt(L"Repair_Docks", L"Metal", 700, ini_file));
+    patch.WriteU32Dual((void *)0x007E2514, GetPrivateProfileInt(L"Arsenal", L"Metal", 1000, ini_file));
+    patch.WriteU32Dual((void *)0x007E2520, GetPrivateProfileInt(L"Research_Center", L"Metal", 1400, ini_file));
+    patch.WriteU32Dual((void *)0x007E252C, GetPrivateProfileInt(L"Sonar", L"Metal", 700, ini_file));
+    patch.WriteU32Dual((void *)0x007E2538, GetPrivateProfileInt(L"Teleport", L"Metal", 1500, ini_file));
+    patch.WriteU32Dual((void *)0x007E2550, GetPrivateProfileInt(L"Corium_Mine_Humans", L"Metal", 300, ini_file));
+    patch.WriteU32Dual((void *)0x007E255C, GetPrivateProfileInt(L"Gold_Extractor", L"Metal", 600, ini_file));
+    patch.WriteU32Dual((void *)0x007E2568, GetPrivateProfileInt(L"Depot", L"Metal", 300, ini_file));
+    patch.WriteU32Dual((void *)0x007E2574, GetPrivateProfileInt(L"Infocenter", L"Metal", 500, ini_file));
+    patch.WriteU32Dual((void *)0x007E2580, GetPrivateProfileInt(L"Disperser", L"Metal", 800, ini_file));
+    patch.WriteU32Dual((void *)0x007E2658, GetPrivateProfileInt(L"Metal_Mine_Humans", L"Metal", 200, ini_file));
+    patch.WriteU32Dual((void *)0x007E2664, GetPrivateProfileInt(L"Oxygen_Generator_Humans", L"Metal", 500, ini_file));
+    patch.WriteU32Dual((void *)0x007E267C, GetPrivateProfileInt(L"Market_humans", L"Metal", 700, ini_file));
+
+    // WS
+    patch.WriteU32Dual((void *)0x007E25A4, GetPrivateProfileInt(L"Cybercenter_WS", L"Metal", 600, ini_file));
+    patch.WriteU32Dual((void *)0x007E25B0, GetPrivateProfileInt(L"Shark_Control", L"Metal", 500, ini_file));
+    patch.WriteU32Dual((void *)0x007E25C8, GetPrivateProfileInt(L"Psychotron", L"Metal", 900, ini_file));
+    patch.WriteU32Dual((void *)0x007E27D8, GetPrivateProfileInt(L"Teleshield", L"Metal", 600, ini_file));
+
+    patch.WriteU32Triple((void *)0x007E258C, GetPrivateProfileInt(L"HF_Cannon", L"Metal", 500, ini_file));
+    patch.WriteU32Triple((void *)0x007E2598, GetPrivateProfileInt(L"STOLp", L"Metal", 800, ini_file));
+    patch.WriteU32Triple((void *)0x007E25BC, GetPrivateProfileInt(L"USG", L"Metal", 600, ini_file)); 
+    patch.WriteU32Triple((void *)0x007E2670, GetPrivateProfileInt(L"Plasma_Cannon", L"Metal", 900, ini_file)); 
     
-    patch.WriteU32((void *)0x007E2508, GetPrivateProfileInt(L"Docks_WS", L"Metal", 700, ini_file)); // Docks_WS 12
-    patch.WriteU32((void *)0x007E250C, GetPrivateProfileInt(L"Docks_BO", L"Metal", 700, ini_file)); // Docks_BO 12
+    patch.WriteU32Triple((void *)0x007E25D4, GetPrivateProfileInt(L"Plasmatron", L"Metal", 600, ini_file)); // Plasmatron metal 1
+    patch.WriteU32Triple((void *)0x007E25E0, GetPrivateProfileInt(L"Nuclear_Launcher", L"Metal", 1000, ini_file)); // Nuclear_Launcher metal 2
 
-    patch.WriteU32((void *)0x007E2598, GetPrivateProfileInt(L"STOLp", L"Metal", 800, ini_file)); // STOLp metal 1
-    patch.WriteU32((void *)0x007E259C, GetPrivateProfileInt(L"STOLp", L"Metal", 800, ini_file)); // STOLp metal 1
-    patch.WriteU32((void *)0x007E25A0, GetPrivateProfileInt(L"STOLp", L"Metal", 800, ini_file)); // STOLp metal 1
 
-    patch.WriteU32((void *)0x007E2670, GetPrivateProfileInt(L"Plasma_Cannon", L"Metal", 900, ini_file)); // Plasma_Cannon metal 12
-    patch.WriteU32((void *)0x007E2674, GetPrivateProfileInt(L"Plasma_Cannon", L"Metal", 900, ini_file)); // Plasma_Cannon metal 12
-    patch.WriteU32((void *)0x007E2678, GetPrivateProfileInt(L"Plasma_Cannon", L"Metal", 900, ini_file)); // Plasma_Cannon metal 12
+    // BO
+    patch.WriteU32Dual((void *)0x007E2610, GetPrivateProfileInt(L"Cyber_laboratory_dolphins", L"Metal", 600, ini_file));
+    patch.WriteU32Dual((void *)0x007E2604, GetPrivateProfileInt(L"Power_station", L"Metal", 500, ini_file));
+    patch.WriteU32Dual((void *)0x007E2634, GetPrivateProfileInt(L"Protective_field_gen", L"Metal", 1000, ini_file));
+    patch.WriteU32Dual((void *)0x007E2640, GetPrivateProfileInt(L"Force_field", L"Metal", 1800, ini_file));
 
-    patch.WriteU32((void *)0x007E25BC, GetPrivateProfileInt(L"USG", L"Metal", 600, ini_file)); // USG metal 09
-    patch.WriteU32((void *)0x007E25C0, GetPrivateProfileInt(L"USG", L"Metal", 600, ini_file)); // USG metal 09
-    patch.WriteU32((void *)0x007E25C4, GetPrivateProfileInt(L"USG", L"Metal", 600, ini_file)); // USG metal 09
+    patch.WriteU32Triple((void *)0x007E25EC, GetPrivateProfileInt(L"Light_Laser", L"Metal", 400, ini_file)); // Light_Laser metal 04
+    patch.WriteU32Triple((void *)0x007E25F8, GetPrivateProfileInt(L"Magnetic_Mine_Launcher", L"Metal", 600, ini_file)); // Magnetic_Mine_Launcher metal 14
+    patch.WriteU32Triple((void *)0x007E261C, GetPrivateProfileInt(L"Heavy_Laser", L"Metal", 800, ini_file)); // Heavy_Laser metal 1
+    patch.WriteU32Triple((void *)0x007E2628, GetPrivateProfileInt(L"EM_Launcher", L"Metal", 700, ini_file)); // EM_Launcher metal 12
 
-    patch.WriteU32((void *)0x007E25EC, GetPrivateProfileInt(L"Light_Laser", L"Metal", 400, ini_file)); // Light_Laser metal 04
-    patch.WriteU32((void *)0x007E25F0, GetPrivateProfileInt(L"Light_Laser", L"Metal", 400, ini_file)); // Light_Laser metal 04
-    patch.WriteU32((void *)0x007E25F4, GetPrivateProfileInt(L"Light_Laser", L"Metal", 400, ini_file)); // Light_Laser metal 04
-
-    patch.WriteU32((void *)0x007E25F8, GetPrivateProfileInt(L"Magnetic_Mine_Launcher", L"Metal", 600, ini_file)); // Magnetic_Mine_Launcher metal 14
-    patch.WriteU32((void *)0x007E25FC, GetPrivateProfileInt(L"Magnetic_Mine_Launcher", L"Metal", 600, ini_file)); // Magnetic_Mine_Launcher metal 14
-    patch.WriteU32((void *)0x007E2600, GetPrivateProfileInt(L"Magnetic_Mine_Launcher", L"Metal", 600, ini_file)); // Magnetic_Mine_Launcher metal 14
-
-    patch.WriteU32((void *)0x007E261C, GetPrivateProfileInt(L"Heavy_Laser", L"Metal", 800, ini_file)); // Heavy_Laser metal 1
-    patch.WriteU32((void *)0x007E2620, GetPrivateProfileInt(L"Heavy_Laser", L"Metal", 800, ini_file)); // Heavy_Laser metal 1
-    patch.WriteU32((void *)0x007E2624, GetPrivateProfileInt(L"Heavy_Laser", L"Metal", 800, ini_file)); // Heavy_Laser metal 1
-
-    patch.WriteU32((void *)0x007E2628, GetPrivateProfileInt(L"EM_Launcher", L"Metal", 700, ini_file)); // EM_Launcher metal 12
-    patch.WriteU32((void *)0x007E262C, GetPrivateProfileInt(L"EM_Launcher", L"Metal", 700, ini_file)); // EM_Launcher metal 12
-    patch.WriteU32((void *)0x007E2630, GetPrivateProfileInt(L"EM_Launcher", L"Metal", 700, ini_file)); // EM_Launcher metal 12
-
-    patch.WriteU32((void *)0x007E25D4, GetPrivateProfileInt(L"Plasmotron", L"Metal", 600, ini_file)); // Plasmotron metal 1
-    patch.WriteU32((void *)0x007E25D8, GetPrivateProfileInt(L"Plasmotron", L"Metal", 600, ini_file)); // Plasmotron metal 1
-    patch.WriteU32((void *)0x007E25DC, GetPrivateProfileInt(L"Plasmotron", L"Metal", 600, ini_file)); // Plasmotron metal 1
-
-    patch.WriteU32((void *)0x007E25E0, GetPrivateProfileInt(L"Nuclear_Launcher", L"Metal", 1000, ini_file)); // Nuclear_Launcher metal 2
-    patch.WriteU32((void *)0x007E25E4, GetPrivateProfileInt(L"Nuclear_Launcher", L"Metal", 1000, ini_file)); // Nuclear_Launcher metal 2
-    patch.WriteU32((void *)0x007E25E8, GetPrivateProfileInt(L"Nuclear_Launcher", L"Metal", 1000, ini_file)); // Nuclear_Launcher metal 2
-
-    patch.WriteU32((void *)0x007E264C, GetPrivateProfileInt(L"Laser_Bomb_Launcher", L"Metal", 1000, ini_file)); // Laser_Bomb_Launcher metal 2
-    patch.WriteU32((void *)0x007E2650, GetPrivateProfileInt(L"Laser_Bomb_Launcher", L"Metal", 1000, ini_file)); // Laser_Bomb_Launcher metal 2
-    patch.WriteU32((void *)0x007E2654, GetPrivateProfileInt(L"Laser_Bomb_Launcher", L"Metal", 1000, ini_file)); // Laser_Bomb_Launcher metal 2
+    patch.WriteU32Triple((void *)0x007E264C, GetPrivateProfileInt(L"Lasbomb_Launcher", L"Metal", 1000, ini_file)); // Lasbomb_Launcher metal 2
     
 
+    // SI
     patch.WriteU32((void *)0x007E33C0, GetPrivateProfileInt(L"Silicon_Extractor", L"Silicon", 700, ini_file)); // Silicon_Extractor silicon 06
-
-    patch.WriteU32((void *)0x007E3414, GetPrivateProfileInt(L"Pulsar", L"Silicon", 500, ini_file)); // Pulsar silicon 05
-    patch.WriteU32((void *)0x007E33D8, GetPrivateProfileInt(L"Gas_Shell_Launcher", L"Silicon", 900, ini_file)); // Gas_Shell_Launcher silicon 12
-    patch.WriteU32((void *)0x007E33E4, GetPrivateProfileInt(L"DPT", L"Silicon", 800, ini_file));  // DPT silicon 09
+    patch.WriteU32((void *)0x007E3438, GetPrivateProfileInt(L"Molecular_repair_facility", L"Silicon", 1000, ini_file)); // Molecular_repair_facility silicon 06
+    patch.WriteU32((void *)0x007E3474, GetPrivateProfileInt(L"Quantum_Paralyzer", L"Silicon", 1000, ini_file)); // Quantum_Paralyzer silicon 06
+    patch.WriteU32((void *)0x007E342C, GetPrivateProfileInt(L"Ion_field_generator", L"Silicon", 900, ini_file)); // Ion_field_generator silicon 06
+    patch.WriteU32((void *)0x007E3420, GetPrivateProfileInt(L"Gate", L"Silicon", 1000, ini_file)); // Gate silicon 06
+    patch.WriteU32((void *)0x007E33B4, GetPrivateProfileInt(L"Recyclotron", L"Silicon", 1000, ini_file)); // Recyclotron silicon 06
+    patch.WriteU32((void *)0x007E33A8, GetPrivateProfileInt(L"Replenish_pod", L"Silicon", 600, ini_file)); // Replenish_pod silicon 06
+    patch.WriteU32((void *)0x007E336C, GetPrivateProfileInt(L"Biolocator", L"Silicon", 600, ini_file)); // Biolocator silicon 06
+    patch.WriteU32((void *)0x007E3360, GetPrivateProfileInt(L"Protoplasm_Generator", L"Silicon", 1500, ini_file)); // Protoplasm_Generator silicon 06
+    patch.WriteU32((void *)0x007E3354, GetPrivateProfileInt(L"Arsenal_SI", L"Silicon", 900, ini_file)); // Arsenal_SI silicon 06
+    patch.WriteU32((void *)0x007E32F4, GetPrivateProfileInt(L"Core", L"Silicon", 1200, ini_file)); // Core silicon 06
+    patch.WriteU32((void *)0x007E3300, GetPrivateProfileInt(L"Tech_Module", L"Silicon", 600, ini_file)); // Tech_Module silicon 06
+    patch.WriteU32((void *)0x007E330C, GetPrivateProfileInt(L"Tech_Module", L"Silicon", 600, ini_file)); // Tech_Module silicon 06
+    patch.WriteU32((void *)0x007E3318, GetPrivateProfileInt(L"Tech_Module", L"Silicon", 600, ini_file)); // Tech_Module silicon 06
+    patch.WriteU32((void *)0x007E3324, GetPrivateProfileInt(L"Tech_Module", L"Silicon", 600, ini_file)); // Tech_Module silicon 06
+    patch.WriteU32((void *)0x007E3330, GetPrivateProfileInt(L"Tech_Module", L"Silicon", 600, ini_file)); // Tech_Module silicon 06
+    patch.WriteU32((void *)0x007E333C, GetPrivateProfileInt(L"Tech_Module", L"Silicon", 600, ini_file)); // Tech_Module silicon 06
+    patch.WriteU32((void *)0x007E3348, GetPrivateProfileInt(L"Tech_Module", L"Silicon", 600, ini_file)); // Tech_Module silicon 06
+    patch.WriteU32((void *)0x007E3390, GetPrivateProfileInt(L"Depot_SI", L"Silicon", 300, ini_file)); // Depot_SI silicon 06
+    patch.WriteU32((void *)0x007E3370, GetPrivateProfileInt(L"Corium_Mine_SI", L"Silicon", 300, ini_file)); // Corium_Mine_SI silicon 06
+    patch.WriteU32((void *)0x007E3374, GetPrivateProfileInt(L"Corium_Mine_SI", L"Silicon", 300, ini_file)); // Corium_Mine_SI silicon 06
+    patch.WriteU32((void *)0x007E3378, GetPrivateProfileInt(L"Corium_Mine_SI", L"Silicon", 300, ini_file)); // Corium_Mine_SI silicon 06
+    patch.WriteU32((void *)0x007E339C, GetPrivateProfileInt(L"Energy_accumulator", L"Silicon", 800, ini_file)); // Energy_accumulator silicon 06
+    patch.WriteU32((void *)0x007E3384, GetPrivateProfileInt(L"Energy_converter", L"Silicon", 800, ini_file)); // Energy_converter silicon 06
+    
+    patch.WriteU32Triple((void *)0x007E340C, GetPrivateProfileInt(L"Pulsar", L"Silicon", 500, ini_file)); // Pulsar silicon 05
+    patch.WriteU32Triple((void *)0x007E33C4, GetPrivateProfileInt(L"Soliton", L"Silicon", 800, ini_file)); // Soliton silicon 05
+    patch.WriteU32Triple((void *)0x007E33D0, GetPrivateProfileInt(L"Gas_Shell_Launcher", L"Silicon", 900, ini_file)); // Gas_Shell_Launcher silicon 12
+    patch.WriteU32Triple((void *)0x007E33DC, GetPrivateProfileInt(L"Double_Plasma_Turret", L"Silicon", 800, ini_file));  // DPT silicon 09
     patch.WriteU32((void *)0x007E33F0, GetPrivateProfileInt(L"Ion_Reflector", L"Silicon", 700, ini_file));  // Ion_Reflector silicon 06
-    patch.WriteU32((void *)0x007E3408, GetPrivateProfileInt(L"Bio_Mine_Launcher", L"Silicon", 800, ini_file));  // Bio_Mine_Launcher silicon 07
-    patch.WriteU32((void *)0x007E345C, GetPrivateProfileInt(L"Parcher", L"Silicon", 900, ini_file)); // Parcher silicon 14
-    patch.WriteU32((void *)0x007E3360, GetPrivateProfileInt(L"Protoplasm_Generator", L"Silicon", 1500, ini_file)); // Protoplasm_Generator silicon 14
-
+    patch.WriteU32Triple((void *)0x007E3400, GetPrivateProfileInt(L"Bio_Mine_Launcher", L"Silicon", 800, ini_file));  // Bio_Mine_Launcher silicon 07
+    patch.WriteU32Triple((void *)0x007E33F4, GetPrivateProfileInt(L"Jump_Mine_Launcher", L"Silicon", 900, ini_file));  // Jump_Mine_Launcher silicon 07
+    patch.WriteU32Triple((void *)0x007E3454, GetPrivateProfileInt(L"Parcher", L"Silicon", 900, ini_file)); // Parcher silicon 14
+    
+    patch.WriteU32((void *)0x007E3450, GetPrivateProfileInt(L"Orbital_laser", L"Silicon", 1100, ini_file)); // Orbital_laser launcher silicon 2
     patch.WriteU32((void *)0x007E3468, GetPrivateProfileInt(L"Vacuum_Bomb", L"Silicon", 800, ini_file)); // Vacuum_Bomb launcher silicon 2
 
-    
-     // TURRETS 
     // BUILDTIME
+    // COMMON HUMANS
+    patch.WriteU32Dual((void *)0x007E3DC4, GetPrivateProfileInt(L"Subcenter", L"BuildTime", 2250, ini_file));
+    patch.WriteU32Dual((void *)0x007E3DD0, GetPrivateProfileInt(L"Repair_Docks", L"BuildTime", 700, ini_file));
+    patch.WriteU32Dual((void *)0x007E3DDC, GetPrivateProfileInt(L"Arsenal", L"BuildTime", 1000, ini_file));
+    patch.WriteU32Dual((void *)0x007E3DE8, GetPrivateProfileInt(L"Research_Center", L"BuildTime", 1500, ini_file));
+    patch.WriteU32Dual((void *)0x007E3DF4, GetPrivateProfileInt(L"Sonar", L"BuildTime", 500, ini_file));
+    patch.WriteU32Triple((void *)0x007E3E00, GetPrivateProfileInt(L"Teleport", L"BuildTime", 2250, ini_file));
+    patch.WriteU32Triple((void *)0x007E3E18, GetPrivateProfileInt(L"Corium_Mine_Humans", L"BuildTime", 500, ini_file));
+    patch.WriteU32Dual((void *)0x007E3E24, GetPrivateProfileInt(L"Gold_Extractor", L"BuildTime", 500, ini_file));
+    patch.WriteU32Dual((void *)0x007E3E30, GetPrivateProfileInt(L"Depot", L"BuildTime", 1000, ini_file));
+    patch.WriteU32Dual((void *)0x007E3E3C, GetPrivateProfileInt(L"Infocenter", L"BuildTime", 1500, ini_file));
+    patch.WriteU32Dual((void *)0x007E3E48, GetPrivateProfileInt(L"Disperser", L"BuildTime", 500, ini_file));
+    patch.WriteU32Dual((void *)0x007E3F20, GetPrivateProfileInt(L"Metal_Mine_Humans", L"BuildTime", 500, ini_file));
+    patch.WriteU32Dual((void *)0x007E3F2C, GetPrivateProfileInt(L"Oxygen_Generator_Humans", L"BuildTime", 500, ini_file));
+    patch.WriteU32Dual((void *)0x007E3F44, GetPrivateProfileInt(L"Market_humans", L"BuildTime", 1500, ini_file));
+    
+    // WS
+    patch.WriteU32Dual((void *)0x007E3E6C, GetPrivateProfileInt(L"Cybercenter_WS", L"BuildTime", 1500, ini_file));
+    patch.WriteU32Dual((void *)0x007E3E78, GetPrivateProfileInt(L"Shark_Control", L"BuildTime", 625, ini_file));
+    patch.WriteU32Dual((void *)0x007E3E90, GetPrivateProfileInt(L"Psychotron", L"BuildTime", 1125, ini_file));
+    patch.WriteU32Dual((void *)0x007E40A0, GetPrivateProfileInt(L"Teleshield", L"BuildTime", 1500, ini_file));
 
-    patch.WriteU32((void *)0x007E3E54, GetPrivateProfileInt(L"HF_Cannon", L"BuildTime", 500, ini_file)); // HF cannon buildtime
-    patch.WriteU32((void *)0x007E3E58, GetPrivateProfileInt(L"HF_Cannon", L"BuildTime", 500, ini_file)); // HF cannon buildtime
-    patch.WriteU32((void *)0x007E3E5C, GetPrivateProfileInt(L"HF_Cannon", L"BuildTime", 500, ini_file)); // HF cannon buildtime
+    patch.WriteU32Triple((void *)0x007E3E54, GetPrivateProfileInt(L"HF_Cannon", L"BuildTime", 500, ini_file));
+    patch.WriteU32Triple((void *)0x007E3E60, GetPrivateProfileInt(L"STOLp", L"BuildTime", 750, ini_file)); 
+    patch.WriteU32Triple((void *)0x007E3E84, GetPrivateProfileInt(L"USG", L"BuildTime", 625, ini_file));
+    patch.WriteU32Triple((void *)0x007E3F38, GetPrivateProfileInt(L"Plasma_Cannon", L"BuildTime", 625, ini_file));
+    
+    patch.WriteU32Triple((void *)0x007E3E9C, GetPrivateProfileInt(L"Plasmatron", L"BuildTime", 1500, ini_file));
+    patch.WriteU32Triple((void *)0x007E3EA8, GetPrivateProfileInt(L"Nuclear_Launcher", L"BuildTime", 1500, ini_file));
 
-    patch.WriteU32((void *)0x007E3E60, GetPrivateProfileInt(L"STOLp", L"BuildTime", 750, ini_file)); // STOLp buildtime
-    patch.WriteU32((void *)0x007E3E64, GetPrivateProfileInt(L"STOLp", L"BuildTime", 750, ini_file)); // STOLp buildtime
-    patch.WriteU32((void *)0x007E3E68, GetPrivateProfileInt(L"STOLp", L"BuildTime", 750, ini_file)); // STOLp buildtime
+    // BO
+    patch.WriteU32Dual((void *)0x007E3ECC, GetPrivateProfileInt(L"Power_station", L"BuildTime", 750, ini_file));
+    patch.WriteU32Dual((void *)0x007E3ED8, GetPrivateProfileInt(L"Cyber_laboratory_dolphins", L"BuildTime", 750, ini_file));
+    patch.WriteU32Dual((void *)0x007E3EFC, GetPrivateProfileInt(L"Protective_field_gen", L"BuildTime", 1000, ini_file));
+    patch.WriteU32Dual((void *)0x007E3F08, GetPrivateProfileInt(L"Force_field", L"BuildTime", 2250, ini_file));
 
-    patch.WriteU32((void *)0x007E3E84, GetPrivateProfileInt(L"USG", L"BuildTime", 625, ini_file)); // USG buildtime
-    patch.WriteU32((void *)0x007E3E88, GetPrivateProfileInt(L"USG", L"BuildTime", 625, ini_file)); // USG buildtime
-    patch.WriteU32((void *)0x007E3E8C, GetPrivateProfileInt(L"USG", L"BuildTime", 625, ini_file)); // USG buildtime
+    patch.WriteU32Triple((void *)0x007E3EB4, GetPrivateProfileInt(L"Light_Laser", L"BuildTime", 500, ini_file));
+    patch.WriteU32Triple((void *)0x007E3EE4, GetPrivateProfileInt(L"Heavy_Laser", L"BuildTime", 750, ini_file));
+    patch.WriteU32Triple((void *)0x007E3EC0, GetPrivateProfileInt(L"Magnetic_Mine_Launcher", L"BuildTime", 625, ini_file));
+    patch.WriteU32Triple((void *)0x007E3EF0, GetPrivateProfileInt(L"EM_Launcher", L"BuildTime", 750, ini_file));
 
-    patch.WriteU32((void *)0x007E3F38, GetPrivateProfileInt(L"Plasma_Cannon", L"BuildTime", 625, ini_file)); // Plasma cannon buildtime
-    patch.WriteU32((void *)0x007E3F3C, GetPrivateProfileInt(L"Plasma_Cannon", L"BuildTime", 625, ini_file)); // Plasma cannon buildtime
-    patch.WriteU32((void *)0x007E3F40, GetPrivateProfileInt(L"Plasma_Cannon", L"BuildTime", 625, ini_file)); // Plasma cannon buildtime
+    patch.WriteU32Triple((void *)0x007E3F14, GetPrivateProfileInt(L"Lasbomb_Launcher", L"BuildTime", 1500, ini_file));
 
-    patch.WriteU32((void *)0x007E3EB4, GetPrivateProfileInt(L"Light_Laser", L"BuildTime", 500, ini_file)); // Light laser buildtime
-    patch.WriteU32((void *)0x007E3EB8, GetPrivateProfileInt(L"Light_Laser", L"BuildTime", 500, ini_file)); // Light laser buildtime
-    patch.WriteU32((void *)0x007E3EBC, GetPrivateProfileInt(L"Light_Laser", L"BuildTime", 500, ini_file)); // Light laser buildtime
+    // SI
+    patch.WriteU32((void *)0x007E3F58, GetPrivateProfileInt(L"Core", L"BuildTime", 1125, ini_file)); // Core buildtime
+    patch.WriteU32((void *)0x007E3F64, GetPrivateProfileInt(L"Tech_Module", L"BuildTime", 1500, ini_file)); // Tech_Module buildtime
+    patch.WriteU32((void *)0x007E3F70, GetPrivateProfileInt(L"Tech_Module", L"BuildTime", 1500, ini_file)); // Tech_Module buildtime
+    patch.WriteU32((void *)0x007E3F7C, GetPrivateProfileInt(L"Tech_Module", L"BuildTime", 1500, ini_file)); // Tech_Module buildtime
+    patch.WriteU32((void *)0x007E3F88, GetPrivateProfileInt(L"Tech_Module", L"BuildTime", 1500, ini_file)); // Tech_Module buildtime
+    patch.WriteU32((void *)0x007E3F94, GetPrivateProfileInt(L"Tech_Module", L"BuildTime", 1500, ini_file)); // Tech_Module buildtime
+    patch.WriteU32((void *)0x007E3FA0, GetPrivateProfileInt(L"Tech_Module", L"BuildTime", 1500, ini_file)); // Tech_Module buildtime
+    patch.WriteU32((void *)0x007E3FAC, GetPrivateProfileInt(L"Tech_Module", L"BuildTime", 1500, ini_file)); // Tech_Module buildtime
+    patch.WriteU32((void *)0x007E3FB8, GetPrivateProfileInt(L"Arsenal_SI", L"BuildTime", 1125, ini_file)); // Arsenal_SI buildtime
+    patch.WriteU32((void *)0x007E3FC4, GetPrivateProfileInt(L"Protoplasm_Generator", L"BuildTime", 2250, ini_file)); // Protoplasm_Generator buildtime
+    patch.WriteU32((void *)0x007E3FD0, GetPrivateProfileInt(L"Biolocator", L"BuildTime", 750, ini_file)); // Biolocator buildtime
+    patch.WriteU32((void *)0x007E3FD4, GetPrivateProfileInt(L"Corium_Mine_SI", L"BuildTime", 500, ini_file)); // Corium_Mine_SI buildtime
+    patch.WriteU32((void *)0x007E3FD8, GetPrivateProfileInt(L"Corium_Mine_SI", L"BuildTime", 500, ini_file)); // Corium_Mine_SI buildtime
+    patch.WriteU32((void *)0x007E3FDC, GetPrivateProfileInt(L"Corium_Mine_SI", L"BuildTime", 500, ini_file)); // Corium_Mine_SI buildtime
+    patch.WriteU32((void *)0x007E3FE8, GetPrivateProfileInt(L"Energy_converter", L"BuildTime", 1000, ini_file)); // Energy_converter buildtime
+    patch.WriteU32((void *)0x007E3FF4, GetPrivateProfileInt(L"Depot_SI", L"BuildTime", 500, ini_file)); // Depot_SI buildtime
+    patch.WriteU32((void *)0x007E4000, GetPrivateProfileInt(L"Energy_accumulator", L"BuildTime", 750, ini_file)); // Energy_accumulator buildtime
+    patch.WriteU32((void *)0x007E400C, GetPrivateProfileInt(L"Replenish_pod", L"BuildTime", 750, ini_file)); // Replenish_pod buildtime
+    patch.WriteU32((void *)0x007E4018, GetPrivateProfileInt(L"Recyclotron", L"BuildTime", 1125, ini_file)); // Recyclotron buildtime
+    patch.WriteU32((void *)0x007E4024, GetPrivateProfileInt(L"Silicon_Extractor", L"BuildTime", 750, ini_file)); // Silicon_Extractor buildtime
+    patch.WriteU32((void *)0x007E4084, GetPrivateProfileInt(L"Gate", L"BuildTime", 1500, ini_file)); // Gate buildtime
+    patch.WriteU32((void *)0x007E4090, GetPrivateProfileInt(L"Ion_field_generator", L"BuildTime", 1250, ini_file)); // Gate buildtime
+    patch.WriteU32((void *)0x007E409C, GetPrivateProfileInt(L"Molecular_repair_facility", L"BuildTime", 2250, ini_file)); // Molecular_repair_facility buildtime
+    patch.WriteU32((void *)0x007E40D8, GetPrivateProfileInt(L"Quantum_Paralyzer", L"BuildTime", 1500, ini_file)); // Gate buildtime
 
-    patch.WriteU32((void *)0x007E3EE4, GetPrivateProfileInt(L"Heavy_Laser", L"BuildTime", 750, ini_file)); // Heavy laser buildtime
-    patch.WriteU32((void *)0x007E3EE8, GetPrivateProfileInt(L"Heavy_Laser", L"BuildTime", 750, ini_file)); // Heavy laser buildtime
-    patch.WriteU32((void *)0x007E3EEC, GetPrivateProfileInt(L"Heavy_Laser", L"BuildTime", 750, ini_file)); // Heavy laser buildtime
-
-    patch.WriteU32((void *)0x007E3EC0, GetPrivateProfileInt(L"Magnetic_Mine_Launcher", L"BuildTime", 625, ini_file)); // MML buildtime
-    patch.WriteU32((void *)0x007E3EC4, GetPrivateProfileInt(L"Magnetic_Mine_Launcher", L"BuildTime", 625, ini_file)); // MML buildtime
-    patch.WriteU32((void *)0x007E3EC8, GetPrivateProfileInt(L"Magnetic_Mine_Launcher", L"BuildTime", 625, ini_file)); // MML buildtime
-
-    patch.WriteU32((void *)0x007E3EF0, GetPrivateProfileInt(L"EM_Launcher", L"BuildTime", 750, ini_file)); // EML launcher buildtime
-    patch.WriteU32((void *)0x007E3EF4, GetPrivateProfileInt(L"EM_Launcher", L"BuildTime", 750, ini_file)); // EML launcher buildtime
-    patch.WriteU32((void *)0x007E3EF8, GetPrivateProfileInt(L"EM_Launcher", L"BuildTime", 750, ini_file)); // EML launcher buildtime
-
-    patch.WriteU32((void *)0x007E4070, GetPrivateProfileInt(L"Pulsar", L"BuildTime", 500, ini_file)); // Pulsar buildtime
-    patch.WriteU32((void *)0x007E4074, GetPrivateProfileInt(L"Pulsar", L"BuildTime", 500, ini_file)); // Pulsar buildtime
-    patch.WriteU32((void *)0x007E4078, GetPrivateProfileInt(L"Pulsar", L"BuildTime", 500, ini_file)); // Pulsar buildtime
-
-    patch.WriteU32((void *)0x007E4028, GetPrivateProfileInt(L"Soliton", L"BuildTime", 750, ini_file)); // Soliton buildtime
-    patch.WriteU32((void *)0x007E402C, GetPrivateProfileInt(L"Soliton", L"BuildTime", 750, ini_file)); // Soliton buildtime
-    patch.WriteU32((void *)0x007E4030, GetPrivateProfileInt(L"Soliton", L"BuildTime", 750, ini_file)); // Soliton buildtime
-
-    patch.WriteU32((void *)0x007E4040, GetPrivateProfileInt(L"Double_Plasma_Turret", L"BuildTime", 500, ini_file)); // DPT buildtime
-    patch.WriteU32((void *)0x007E4044, GetPrivateProfileInt(L"Double_Plasma_Turret", L"BuildTime", 500, ini_file)); // DPT buildtime
-    patch.WriteU32((void *)0x007E4048, GetPrivateProfileInt(L"Double_Plasma_Turret", L"BuildTime", 500, ini_file)); // DPT buildtime
-
-    patch.WriteU32((void *)0x007E4034, GetPrivateProfileInt(L"Gas_Shell_Launcher", L"BuildTime", 625, ini_file)); // Gas shell launcher buildtime
-    patch.WriteU32((void *)0x007E4038, GetPrivateProfileInt(L"Gas_Shell_Launcher", L"BuildTime", 625, ini_file)); // Gas shell launcher buildtime
-    patch.WriteU32((void *)0x007E403C, GetPrivateProfileInt(L"Gas_Shell_Launcher", L"BuildTime", 625, ini_file)); // Gas shell launcher buildtime
-
-    patch.WriteU32((void *)0x007E40B8, GetPrivateProfileInt(L"Parcher", L"BuildTime", 875, ini_file)); // Parcher buildtime
-    patch.WriteU32((void *)0x007E40BC, GetPrivateProfileInt(L"Parcher", L"BuildTime", 875, ini_file)); // Parcher buildtime
-    patch.WriteU32((void *)0x007E40C0, GetPrivateProfileInt(L"Parcher", L"BuildTime", 875, ini_file)); // Parcher buildtime
-
+    patch.WriteU32Triple((void *)0x007E4028, GetPrivateProfileInt(L"Soliton", L"BuildTime", 750, ini_file));
+    patch.WriteU32Triple((void *)0x007E4034, GetPrivateProfileInt(L"Gas_Shell_Launcher", L"BuildTime", 625, ini_file));
+    patch.WriteU32Triple((void *)0x007E4040, GetPrivateProfileInt(L"Double_Plasma_Turret", L"BuildTime", 500, ini_file));
+    patch.WriteU32((void *)0x007E4054, GetPrivateProfileInt(L"Ion_Reflector", L"BuildTime", 750, ini_file));
+    patch.WriteU32Triple((void *)0x007E4058, GetPrivateProfileInt(L"Jump_Mine_Launcher", L"BuildTime", 875, ini_file));
+    patch.WriteU32Triple((void *)0x007E4064, GetPrivateProfileInt(L"Bio_Mine_Launcher", L"BuildTime", 875, ini_file));
+    patch.WriteU32Triple((void *)0x007E4070, GetPrivateProfileInt(L"Pulsar", L"BuildTime", 500, ini_file));
+    patch.WriteU32Triple((void *)0x007E40B8, GetPrivateProfileInt(L"Parcher", L"BuildTime", 875, ini_file));
+    
+    patch.WriteU32((void *)0x007E40B4, GetPrivateProfileInt(L"Orbital_laser", L"BuildTime", 1250, ini_file));
+    patch.WriteU32((void *)0x007E40D8, GetPrivateProfileInt(L"Vacuum_Bomb", L"BuildTime", 1500, ini_file));
+    
 
     // RANGE
+    // Unlock Turrets Range 8->10
+    patch.WriteByte((void *)0x004C3CC2, 246);
+    patch.WriteByte((void *)0x004C3CF0, 246);
+    patch.WriteByte((void *)0x004C3CF3, 10);
+    patch.WriteByte((void *)0x004C3CC5, 10);
+    patch.WriteByte((void *)0x004C426F, 10);
+    patch.WriteByte((void *)0x004C4281, 10);
+    //
+
     patch.WriteByte((void *)0x00792208, GetPrivateProfileInt(L"HF_Cannon", L"Range", 8, ini_file)); // HF_Cannon first range 7
     patch.WriteByte((void *)0x00792218, GetPrivateProfileInt(L"STOLp", L"Range", 8, ini_file)); // STOLp first range 8
     patch.WriteByte((void *)0x00792338, GetPrivateProfileInt(L"Plasma_Cannon", L"Range", 8, ini_file)); // Plasma_Cannon first range 9 
@@ -1666,27 +1675,65 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteByte((void *)0x007922A0, GetPrivateProfileInt(L"Magnetic_Mine_Launcher", L"Range_Mines", 8, ini_file));  // Magnetic_Mine_Launcher mines range 8 
     patch.WriteByte((void *)0x007922D8, GetPrivateProfileInt(L"EM_Launcher", L"Range", 8, ini_file)); // EM_Launcher first range 9
 
-    patch.WriteByte((void *)0x007924D8, GetPrivateProfileInt(L"Pulsar", L"Range", 8, ini_file)); // Pulsar first range 7
     patch.WriteByte((void *)0x00792488, GetPrivateProfileInt(L"Gas_Shell_Launcher", L"Range", 8, ini_file));  // Gas_Shell_Launcher first range 7
     patch.WriteU32((void *)0x00792498, GetPrivateProfileInt(L"Double_Plasma_Turret", L"Range_1", 8, ini_file));  // DPT range 1 8
     patch.WriteU32((void *)0x0079249C, GetPrivateProfileInt(L"Double_Plasma_Turret", L"Range_2", 10, ini_file)); // DPT range 2 10
-
     patch.WriteByte((void *)0x007924A8, GetPrivateProfileInt(L"Ion_Reflector", L"Range", 8, ini_file)); // Ion_Reflector first range 8
+    patch.WriteByte((void *)0x007924D8, GetPrivateProfileInt(L"Pulsar", L"Range", 8, ini_file)); // Pulsar first range 7
     patch.WriteByte((void *)0x00792538, GetPrivateProfileInt(L"Parcher", L"Range", 8, ini_file)); // Parcher first range 9
     //
 
-    // Unlock Turrets Range 8->10
-    patch.WriteByte((void *)0x004C3CC2, 246);
-    patch.WriteByte((void *)0x004C3CF0, 246);
-    patch.WriteByte((void *)0x004C3CF3, 10);
-    patch.WriteByte((void *)0x004C3CC5, 10);
-    patch.WriteByte((void *)0x004C426F, 10);
-    patch.WriteByte((void *)0x004C4281, 10);
-    //
 
     // ATTACK COOLDOWN
-    patch.WriteU32((void *)0x007DFF20, GetPrivateProfileInt(L"Plasma_Cannon", L"Reload", 100, ini_file)); // Plasma_Cannon reload (vanilla 100 (4 sec))
+    patch.WriteU32((void *)0x007DFDF0, GetPrivateProfileInt(L"HF_Cannon", L"Reload_1", 50, ini_file));
+    patch.WriteU32((void *)0x007DFDF4, GetPrivateProfileInt(L"HF_Cannon", L"Reload_2", 25, ini_file));
+    patch.WriteU32((void *)0x007DFE00, GetPrivateProfileInt(L"STOLp", L"Reload", 75, ini_file));
+    //patch.WriteU32((void *)0x007DFF20, GetPrivateProfileInt(L"USG", L"Reload", 100, ini_file)); UNKNOWN ADRESS!
+    patch.WriteU32((void *)0x007DFF20, GetPrivateProfileInt(L"Plasma_Cannon", L"Reload", 100, ini_file));
 
+    patch.WriteU32((void *)0x007DFE70, GetPrivateProfileInt(L"Light_Laser", L"Reload_1", 25, ini_file));
+    patch.WriteU32((void *)0x007DFE74, GetPrivateProfileInt(L"Light_Laser", L"Reload_2", 13, ini_file));
+    patch.WriteU32((void *)0x007DFEB0, GetPrivateProfileInt(L"Heavy_Laser", L"Reload_1", 50, ini_file));
+    patch.WriteU32((void *)0x007DFEB4, GetPrivateProfileInt(L"Heavy_Laser", L"Reload_2", 25, ini_file));
+    patch.WriteU32((void *)0x007DFE80, GetPrivateProfileInt(L"Magnetic_Mine_Launcher", L"Reload_main", 50, ini_file));
+    patch.WriteU32((void *)0x007DFE88, GetPrivateProfileInt(L"Magnetic_Mine_Launcher", L"Reload_mines", 75, ini_file));
+    patch.WriteU32((void *)0x007DFEC0, GetPrivateProfileInt(L"EM_Launcher", L"Reload", 50, ini_file));
+
+    //patch.WriteU32((void *)0x007DFF20, GetPrivateProfileInt(L"Soliton", L"Reload", 100, ini_file)); UNKNOWN ADRESS!
+    patch.WriteU32((void *)0x007E0070, GetPrivateProfileInt(L"Gas_Shell_Launcher", L"Reload_1", 50, ini_file));
+    patch.WriteU32((void *)0x007E0074, GetPrivateProfileInt(L"Gas_Shell_Launcher", L"Reload_2", 25, ini_file));
+    patch.WriteU32((void *)0x007E0080, GetPrivateProfileInt(L"Double_Plasma_Turret", L"Reload", 50, ini_file)); 
+    patch.WriteU32((void *)0x007E0090, GetPrivateProfileInt(L"Ion_Reflector", L"Reload", 25, ini_file)); 
+    patch.WriteU32((void *)0x007E00A0, GetPrivateProfileInt(L"Jump_Mine_Launcher", L"Reload", 75, ini_file));
+    patch.WriteU32((void *)0x007E00B0, GetPrivateProfileInt(L"Bio_Mine_Launcher", L"Reload", 175, ini_file)); 
+    patch.WriteU32((void *)0x007E00C0, GetPrivateProfileInt(L"Pulsar", L"Reload_1", 50, ini_file));
+    patch.WriteU32((void *)0x007E00C4, GetPrivateProfileInt(L"Pulsar", L"Reload_2", 25, ini_file));
+    patch.WriteU32((void *)0x007E0120, GetPrivateProfileInt(L"Parcher", L"Reload", 50, ini_file));
+    
+
+    // WEAPON    
+    // WS    
+    patch.WriteU32Dual((void *)0x00792DC0, GetPrivateProfileInt(L"HF_Cannon", L"Weapon", 160, ini_file));
+    patch.WriteU32Dual((void *)0x00792DD8, GetPrivateProfileInt(L"STOLp", L"Weapon", 151, ini_file));
+    patch.WriteU32((void *)0x00792E20, GetPrivateProfileInt(L"USG", L"Weapon", 192, ini_file));
+    patch.WriteU32((void *)0x00792F88, GetPrivateProfileInt(L"Plasma_Cannon", L"Weapon", 164, ini_file));
+    
+    // BO
+    patch.WriteU32((void *)0x00792E80, GetPrivateProfileInt(L"Light_Laser", L"Weapon", 156, ini_file));
+    patch.WriteU32Dual((void *)0x00792EE0, GetPrivateProfileInt(L"Heavy_Laser", L"Weapon", 158, ini_file));
+    patch.WriteU32((void *)0x00792E98, GetPrivateProfileInt(L"Magnetic_Mine_Launcher", L"Weapon_main", 153, ini_file));
+    patch.WriteU32Dual((void *)0x00792EA4, GetPrivateProfileInt(L"Magnetic_Mine_Launcher", L"Weapon_secondary", 171, ini_file));
+    patch.WriteU32((void *)0x00792EF8, GetPrivateProfileInt(L"EM_Launcher", L"Weapon", 154, ini_file));
+
+    // SI
+    patch.WriteU32Dual((void *)0x00793180, GetPrivateProfileInt(L"Gas_Shell_Launcher", L"Weapon", 174, ini_file));
+    patch.WriteU32Dual((void *)0x00793198, GetPrivateProfileInt(L"Double_Plasma_Turret", L"Weapon", 186, ini_file));
+    patch.WriteU32((void *)0x007931B0, GetPrivateProfileInt(L"Ion_Reflector", L"Weapon", 176, ini_file)); 
+    patch.WriteU32((void *)0x007931C8, GetPrivateProfileInt(L"Jump_Mine_Launcher", L"Weapon", 179, ini_file));
+    patch.WriteU32((void *)0x007931E0, GetPrivateProfileInt(L"Bio_Mine_Launcher", L"Weapon", 188, ini_file)); 
+    patch.WriteU32((void *)0x007931F8, GetPrivateProfileInt(L"Pulsar", L"Weapon", 191, ini_file));
+    patch.WriteU32((void *)0x00793270, GetPrivateProfileInt(L"Parcher", L"Weapon", 178, ini_file));
+    
 
     // SUBMARINES
     // METAL/SILICON
@@ -1783,51 +1830,105 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteByte((void *)0x0045094E, GetPrivateProfileInt(L"Phantom", L"Discharge", 30, ini_file)); // Phantom discharge
 
     // DAMAGE     
-    patch.WriteU32((void *)0x007E6490, GetPrivateProfileInt(L"Weap_HeavyTorpedo", L"Damage_1", 90, ini_file)); // Cruiser T1 damage
-    patch.WriteU32((void *)0x007E6494, GetPrivateProfileInt(L"Weap_HeavyTorpedo", L"Damage_2", 120, ini_file)); // Cruiser T2 damage
-    patch.WriteU32((void *)0x007E6498, GetPrivateProfileInt(L"Weap_HeavyTorpedo", L"Damage_3", 150, ini_file)); // Cruiser T3 damage
-    patch.WriteU32((void *)0x007E649C, GetPrivateProfileInt(L"Weap_HeavyTorpedo", L"Damage_4", 170, ini_file)); // Cruiser T4 damage
-    patch.WriteU32((void *)0x007E64A0, GetPrivateProfileInt(L"Weap_HeavyTorpedo", L"Damage_5", 200, ini_file)); // Cruiser T5 damage
+    patch.WriteU32((void *)0x007E6468, GetPrivateProfileInt(L"Light_Torpedo", L"Damage_1", 50, ini_file));
+    patch.WriteU32((void *)0x007E646C, GetPrivateProfileInt(L"Light_Torpedo", L"Damage_2", 70, ini_file));
+    patch.WriteU32((void *)0x007E6470, GetPrivateProfileInt(L"Light_Torpedo", L"Damage_3", 90, ini_file));
+    patch.WriteU32((void *)0x007E6474, GetPrivateProfileInt(L"Light_Torpedo", L"Damage_4", 110, ini_file));
+    patch.WriteU32((void *)0x007E6478, GetPrivateProfileInt(L"Light_Torpedo", L"Damage_5", 120, ini_file));
     
+    patch.WriteU32((void *)0x007E647C, GetPrivateProfileInt(L"Medium_Torpedo", L"Damage_1", 80, ini_file));
+    patch.WriteU32((void *)0x007E6480, GetPrivateProfileInt(L"Medium_Torpedo", L"Damage_2", 100, ini_file));
+    patch.WriteU32((void *)0x007E6484, GetPrivateProfileInt(L"Medium_Torpedo", L"Damage_3", 130, ini_file));
+    patch.WriteU32((void *)0x007E6488, GetPrivateProfileInt(L"Medium_Torpedo", L"Damage_4", 150, ini_file));
+    patch.WriteU32((void *)0x007E648C, GetPrivateProfileInt(L"Medium_Torpedo", L"Damage_5", 180, ini_file)); 
+
+    patch.WriteU32((void *)0x007E6490, GetPrivateProfileInt(L"Heavy_Torpedo", L"Damage_1", 90, ini_file));
+    patch.WriteU32((void *)0x007E6494, GetPrivateProfileInt(L"Heavy_Torpedo", L"Damage_2", 120, ini_file));
+    patch.WriteU32((void *)0x007E6498, GetPrivateProfileInt(L"Heavy_Torpedo", L"Damage_3", 150, ini_file));
+    patch.WriteU32((void *)0x007E649C, GetPrivateProfileInt(L"Heavy_Torpedo", L"Damage_4", 170, ini_file));
+    patch.WriteU32((void *)0x007E64A0, GetPrivateProfileInt(L"Heavy_Torpedo", L"Damage_5", 200, ini_file));
     
-    patch.WriteU32((void *)0x007E651C, GetPrivateProfileInt(L"Weap_LHF", L"Damage_1", 30, ini_file));  // Sentinel dmg T1
-    patch.WriteU32((void *)0x007E6520, GetPrivateProfileInt(L"Weap_LHF", L"Damage_2", 80, ini_file));  // Sentinel dmg T2
+    patch.WriteU32((void *)0x007E651C, GetPrivateProfileInt(L"LHF", L"Damage_1", 30, ini_file));
+    patch.WriteU32((void *)0x007E6520, GetPrivateProfileInt(L"LHF", L"Damage_2", 80, ini_file));
     
-    patch.WriteU32((void *)0x007E6530, GetPrivateProfileInt(L"Weap_HHF", L"Damage_1", 70, ini_file)); // HF heavy T1 damage
-    patch.WriteU32((void *)0x007E6534, GetPrivateProfileInt(L"Weap_HHF", L"Damage_2", 120, ini_file)); // HF heavy T2 damage
+    patch.WriteU32((void *)0x007E6530, GetPrivateProfileInt(L"HHF", L"Damage_1", 70, ini_file));
+    patch.WriteU32((void *)0x007E6534, GetPrivateProfileInt(L"HHF", L"Damage_2", 120, ini_file));
     
+    patch.WriteU32((void *)0x007E65E4, GetPrivateProfileInt(L"DCBomb", L"Damage", 500, ini_file)); // DC Bomb damage
+    
+    patch.WriteU32((void *)0x007E65A8, GetPrivateProfileInt(L"Depth_Mine", L"Damage", 1000, ini_file)); 
+    patch.WriteU32((void *)0x007E64CC, GetPrivateProfileInt(L"Laser_Snare", L"Damage", 800, ini_file)); 
+    patch.WriteU32((void *)0x007E6774, GetPrivateProfileInt(L"Acoustic_Mine", L"Damage", 950, ini_file)); 
+
+    patch.WriteU32((void *)0x007E6580, GetPrivateProfileInt(L"Plasma", L"Damage", 600, ini_file)); // Plasma damage  
+
+    // BO
+    patch.WriteU32((void *)0x007E6620, GetPrivateProfileInt(L"Splinter_Torpedo", L"Damage_1", 60, ini_file)); // Destroyer T1 damage (vanilla 60)
+    patch.WriteU32((void *)0x007E6624, GetPrivateProfileInt(L"Splinter_Torpedo", L"Damage_2", 150, ini_file)); // Destroyer T2 damage (vanilla 150)
+    
+    patch.WriteU32((void *)0x007E64E0, GetPrivateProfileInt(L"Light_Laser", L"Damage", 60, ini_file));
+    patch.WriteU32((void *)0x007E64F4, GetPrivateProfileInt(L"Ruby_Laser", L"Damage", 120, ini_file));
+    patch.WriteU32((void *)0x007E6508, GetPrivateProfileInt(L"Heavy_Laser", L"Damage", 200, ini_file));
+
+    patch.WriteU32((void *)0x007E64B8, GetPrivateProfileInt(L"EM_Torpedo", L"Damage_1", 400, ini_file));
+    patch.WriteU32((void *)0x007E64BC, GetPrivateProfileInt(L"EM_Torpedo", L"Damage_2", 500, ini_file));
+
+    patch.WriteU32((void *)0x00464814, GetPrivateProfileInt(L"Cyberdolphin", L"Damage", 600, ini_file)); 
+    
+    patch.WriteU32((void *)0x007E64A4, GetPrivateProfileInt(L"Cassete_Shell", L"Damage", 120, ini_file));
+
+    patch.WriteU32((void *)0x007E66C0, GetPrivateProfileInt(L"Cassete_Subshell", L"Damage_1", 30, ini_file));
+    patch.WriteU32((void *)0x007E66C4, GetPrivateProfileInt(L"Cassete_Subshell", L"Damage_2", 45, ini_file));
+    patch.WriteU32((void *)0x007E66C8, GetPrivateProfileInt(L"Cassete_Subshell", L"Damage_3", 60, ini_file));
+    patch.WriteU32((void *)0x007E66CC, GetPrivateProfileInt(L"Cassete_Subshell", L"Damage_4", 75, ini_file));
+    patch.WriteU32((void *)0x007E66D0, GetPrivateProfileInt(L"Cassete_Subshell", L"Damage_5", 90, ini_file));
+
+    patch.WriteU32((void *)0x007E660C, GetPrivateProfileInt(L"Magnetic_Mine", L"Damage", 350, ini_file));
+    
+    // SI
     patch.WriteU32((void *)0x007E679C, GetPrivateProfileInt(L"Weap_Pulsar", L"Damage_1", 80, ini_file)); // Pulsar T1 damage
     patch.WriteU32((void *)0x007E67A0, GetPrivateProfileInt(L"Weap_Pulsar", L"Damage_2", 120, ini_file)); // Pulsar T2 damage
     patch.WriteU32((void *)0x007E67A4, GetPrivateProfileInt(L"Weap_Pulsar", L"Damage_3", 150, ini_file)); // Pulsar T3 damage
     
-    patch.WriteU32((void *)0x007E65E4, GetPrivateProfileInt(L"Weap_DCBomb", L"Damage", 500, ini_file)); // DC Bomb damage
+    patch.WriteU32((void *)0x007E66FC, GetPrivateProfileInt(L"Ion_Cassete", L"Damage_1", 120, ini_file)); // Ion cassete t1 
+    patch.WriteU32((void *)0x007E6700, GetPrivateProfileInt(L"Ion_Cassete", L"Damage_2", 140, ini_file)); // Ion cassete t2
+    patch.WriteU32((void *)0x007E6704, GetPrivateProfileInt(L"Ion_Cassete", L"Damage_3", 160, ini_file)); // Ion cassete t3
 
-    
-    patch.WriteU32((void *)0x007E6620, GetPrivateProfileInt(L"Weap_SplinterTorpedo", L"Damage_1", 60, ini_file)); // Destroyer T1 damage (vanilla 60)
-    patch.WriteU32((void *)0x007E6624, GetPrivateProfileInt(L"Weap_SplinterTorpedo", L"Damage_2", 150, ini_file)); // Destroyer T2 damage (vanilla 150)
+    patch.WriteU32((void *)0x007E6724, GetPrivateProfileInt(L"Ion_Cassete_Subshell", L"Damage_1", 20, ini_file)); // Ion cassete subshell t1
+    patch.WriteU32((void *)0x007E6728, GetPrivateProfileInt(L"Ion_Cassete_Subshell", L"Damage_2", 30, ini_file)); // Ion cassete subshell t2
+    patch.WriteU32((void *)0x007E672C, GetPrivateProfileInt(L"Ion_Cassete_Subshell", L"Damage_3", 40, ini_file)); // Ion cassete subshell t3
 
-    patch.WriteU32((void *)0x007E6508, GetPrivateProfileInt(L"Weap_HeavyLaser", L"Damage", 200, ini_file)); // Heavy_Laser (vanilla 200)
+	patch.WriteU32((void *)0x007E66E8, GetPrivateProfileInt(L"Energy_Shell", L"Damage_1", 40, ini_file)); // Energy shell dmg t1 
+	patch.WriteU32((void *)0x007E66EC, GetPrivateProfileInt(L"Energy_Shell", L"Damage_2", 60, ini_file)); // Energy shell dmg t2 
+    patch.WriteU32((void *)0x007E66F0, GetPrivateProfileInt(L"Energy_Shell", L"Damage_3", 100, ini_file)); // Energy shell dmg t3 
 
-    patch.WriteU32((void *)0x00464814, GetPrivateProfileInt(L"Cyberdolphin", L"Damage", 600, ini_file)); // Cyberdolphin damage
-
-    patch.WriteU32((void *)0x007E64A4, GetPrivateProfileInt(L"Weap_CasseteShell", L"Damage", 120, ini_file)); // Weap_CasseteShell
-    patch.WriteU32((void *)0x007E66FC, GetPrivateProfileInt(L"Weap_IonCassete", L"Damage_1", 120, ini_file)); // Ion cassete t1 
-    patch.WriteU32((void *)0x007E6700, GetPrivateProfileInt(L"Weap_IonCassete", L"Damage_2", 140, ini_file)); // Ion cassete t2
-    patch.WriteU32((void *)0x007E6704, GetPrivateProfileInt(L"Weap_IonCassete", L"Damage_3", 160, ini_file)); // Ion cassete t3
-
-    patch.WriteU32((void *)0x007E6724, GetPrivateProfileInt(L"Weap_IonCasseteSubshell", L"Damage_1", 20, ini_file)); // Ion cassete subshell t1
-    patch.WriteU32((void *)0x007E6728, GetPrivateProfileInt(L"Weap_IonCasseteSubshell", L"Damage_2", 30, ini_file)); // Ion cassete subshell t2
-    patch.WriteU32((void *)0x007E672C, GetPrivateProfileInt(L"Weap_IonCasseteSubshell", L"Damage_3", 40, ini_file)); // Ion cassete subshell t3
-
-	patch.WriteU32((void *)0x007E66E8, GetPrivateProfileInt(L"Weap_EnergyShell", L"Damage_1", 40, ini_file)); // Energy shell dmg t1 
-	patch.WriteU32((void *)0x007E66EC, GetPrivateProfileInt(L"Weap_EnergyShell", L"Damage_2", 60, ini_file)); // Energy shell dmg t2 
-    patch.WriteU32((void *)0x007E66F0, GetPrivateProfileInt(L"Weap_EnergyShell", L"Damage_3", 100, ini_file)); // Energy shell dmg t3 
     patch.WriteU32((void *)0x007E67C4, GetPrivateProfileInt(L"Weap_Soliton", L"Damage", 30, ini_file)); // Soliton dmg 
     
+    patch.WriteU32((void *)0x007E66D4, GetPrivateProfileInt(L"BHE_Shell", L"Damage", 300, ini_file));
 
-    patch.WriteU32((void *)0x007E6648, GetPrivateProfileInt(L"Weap_GasShell", L"Damage", 150, ini_file));  // Gas Shell Launcher damage
-
-    patch.WriteU32((void *)0x007E6580, GetPrivateProfileInt(L"Weap_Plasma", L"Damage", 600, ini_file)); // Plasma damage          
+    patch.WriteU32((void *)0x007E6648, GetPrivateProfileInt(L"Gas_Shell", L"Damage", 150, ini_file));
+    
+    patch.WriteU32((void *)0x007E67B0, GetPrivateProfileInt(L"Weap_USG", L"Damage", 25, ini_file));
+    
+    patch.WriteU32((void *)0x007E66AC, GetPrivateProfileInt(L"Jump_mine", L"Damage", 200, ini_file));
+    patch.WriteU32((void *)0x007E6760, GetPrivateProfileInt(L"Bio_mine", L"Damage", 150, ini_file));
+    patch.WriteU32((void *)0x007E6594, GetPrivateProfileInt(L"Satellite_Gas_Laser", L"Damage", 1500, ini_file));
+    
+    patch.WriteU32((void *)0x007E6710, GetPrivateProfileInt(L"Bioacid_Shell", L"Damage_1", 400, ini_file));
+    patch.WriteU32((void *)0x007E6714, GetPrivateProfileInt(L"Bioacid_Shell", L"Damage_2", 600, ini_file));
+     
+    patch.WriteU32((void *)0x007E6544, GetPrivateProfileInt(L"Paralyze_Ray", L"Damage", 20, ini_file));  
+    patch.WriteU32((void *)0x007E6634, GetPrivateProfileInt(L"Neuro_Paralysis_Shell", L"Damage_1", 10, ini_file)); 
+    patch.WriteU32((void *)0x007E6638, GetPrivateProfileInt(L"Neuro_Paralysis_Shell", L"Damage_2", 20, ini_file)); 
+    patch.WriteU32((void *)0x007E663C, GetPrivateProfileInt(L"Neuro_Paralysis_Shell", L"Damage_3", 30, ini_file)); 
+    patch.WriteU32((void *)0x007E6640, GetPrivateProfileInt(L"Neuro_Paralysis_Shell", L"Damage_4", 30, ini_file)); 
+    
+    patch.WriteU32((void *)0x007E6670, GetPrivateProfileInt(L"Weap_Parcher", L"Damage_1", 400, ini_file)); 
+    patch.WriteU32((void *)0x007E6674, GetPrivateProfileInt(L"Weap_Parcher", L"Damage_2", 500, ini_file)); 
+    patch.WriteU32((void *)0x007E6678, GetPrivateProfileInt(L"Weap_Parcher", L"Damage_3", 600, ini_file)); 
+    // PARALYZE
+    patch.WriteByte((void *)0x007D2220, GetPrivateProfileInt(L"Paralyze_Ray", L"Time", 375, ini_file)); 
+    patch.WriteByte((void *)0x007D2210, GetPrivateProfileInt(L"Neuro_Paralysis_Shell", L"Time", 250, ini_file));
 
     //--------------------------------------------------------------------------------------------------------------------
 
@@ -2432,6 +2533,7 @@ static const PatchFunction Patches[] = {
     AutosaveIPXNetGame,
 
     SiResearchModulesReduce2,
+
     // ShiftQueue
 
     // Experimental2
