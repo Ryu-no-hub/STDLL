@@ -1904,8 +1904,18 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
 
     patch.WriteU32((void *)0x007E67C4, GetPrivateProfileInt(L"Weap_Soliton", L"Damage", 30, ini_file)); // Soliton dmg 
     
+    patch.WriteU32((void *)0x007E66D4, GetPrivateProfileInt(L"BHE_Shell", L"Damage", 300, ini_file));
+
     patch.WriteU32((void *)0x007E6648, GetPrivateProfileInt(L"Gas_Shell", L"Damage", 150, ini_file));
+    
+    patch.WriteU32((void *)0x007E67B0, GetPrivateProfileInt(L"Weap_USG", L"Damage", 25, ini_file));
+    
+    patch.WriteU32((void *)0x007E66AC, GetPrivateProfileInt(L"Jump_mine", L"Damage", 200, ini_file));
+    patch.WriteU32((void *)0x007E6760, GetPrivateProfileInt(L"Bio_mine", L"Damage", 150, ini_file));
     patch.WriteU32((void *)0x007E6594, GetPrivateProfileInt(L"Satellite_Gas_Laser", L"Damage", 1500, ini_file));
+    
+    patch.WriteU32((void *)0x007E6710, GetPrivateProfileInt(L"Bioacid_Shell", L"Damage_1", 400, ini_file));
+    patch.WriteU32((void *)0x007E6714, GetPrivateProfileInt(L"Bioacid_Shell", L"Damage_2", 600, ini_file));
      
     patch.WriteU32((void *)0x007E6544, GetPrivateProfileInt(L"Paralyze_Ray", L"Damage", 20, ini_file));  
     patch.WriteU32((void *)0x007E6634, GetPrivateProfileInt(L"Neuro_Paralysis_Shell", L"Damage_1", 10, ini_file)); 
