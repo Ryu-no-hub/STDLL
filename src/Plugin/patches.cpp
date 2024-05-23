@@ -259,20 +259,6 @@ static bool FixesQoL(Patcher::SPatch &patch) {
 
     // BUILDINGS
     // BUILDTIME
-
-    patch.WriteU32((void *)0x007E3DF4, 500); // sonar buildtime
-    patch.WriteU32((void *)0x007E3DF8, 500); // sonar buildtime
-    patch.WriteU32((void *)0x007E3E18, 500); // metal extractor buildtime
-    patch.WriteU32((void *)0x007E3E1C, 500); // metal extractor buildtime
-    patch.WriteU32((void *)0x007E3E20, 500); // metal extractor buildtime
-    patch.WriteU32((void *)0x007E3E24, 500); // gold mine buildtime
-    patch.WriteU32((void *)0x007E3E28, 500); // gold mine buildtime
-    patch.WriteU32((void *)0x007E3F20, 500); // metal extractor buildtime
-    patch.WriteU32((void *)0x007E3F24, 500); // metal extractor buildtime
-    patch.WriteU32((void *)0x007E3F2C, 500); // oxygen generator buildtime
-    patch.WriteU32((void *)0x007E3F30, 500); // oxygen generator buildtime
-    
-
     patch.WriteU32((void *)0x007E3E54, 625); // HF canon buildtime
     patch.WriteU32((void *)0x007E3E58, 625); // HF canon buildtime
     patch.WriteU32((void *)0x007E3E5C, 625); // HF canon buildtime
@@ -352,30 +338,30 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     // REPAIR
     // WS
     patch.WriteU32((void *)0x007E29FC, 400);  // Repair_Docks repair cost WS
-    patch.WriteU32((void *)0x007E093C, 125);  // Repair speed Transport dock
-    patch.WriteU32((void *)0x007E0944, 500);  // Repair speed Terminator dock
     patch.WriteU32((void *)0x007E0920, 150);  // Repair speed Sentinel dock
-    patch.WriteU32((void *)0x007E0938, 125);  // Repair speed Repair Platf dock
+    patch.WriteU32((void *)0x007E0924, 225);  // Repair speed Hunter dock
+    patch.WriteU32((void *)0x007E0928, 550);  // Repair speed Cruiser dock
+    patch.WriteU32((void *)0x007E092C, 400);  // Repair speed DC Bomber dock
     patch.WriteU32((void *)0x007E0930, 325);  // Repair speed Minelayer dock
     patch.WriteU32((void *)0x007E0934, 325);  // Repair speed Marauder dock
+    patch.WriteU32((void *)0x007E0938, 125);  // Repair speed Repair Platf dock
+    patch.WriteU32((void *)0x007E093C, 125);  // Repair speed Transport dock
+    patch.WriteU32((void *)0x007E0944, 500);  // Repair speed Terminator dock
     patch.WriteU32((void *)0x007E0948, 400);  // Repair speed Liberator dock
-    patch.WriteU32((void *)0x007E0924, 225);  // Repair speed Hunter dock
-    patch.WriteU32((void *)0x007E092C, 400);  // Repair speed DC Bomber dock
     patch.WriteU32((void *)0x007E094C, 250);  // Repair speed Builder WS dock
-    patch.WriteU32((void *)0x007E0928, 550);  // Repair speed Cruiser dock
     patch.WriteU32((void *)0x007E08F4, 1500); // Repair speed Flagship WS dock
 
-    patch.WriteU32((void *)0x007E087C, 300); // Repair cost Transport dock
-    patch.WriteU32((void *)0x007E0878, 200); // Repair cost Repair Platf dock
-    patch.WriteU32((void *)0x007E0884, 500); // Repair cost Terminator dock
     patch.WriteU32((void *)0x007E0860, 200); // Repair cost Sentinel dock
+    patch.WriteU32((void *)0x007E0864, 200); // Repair cost Hunter dock
+    patch.WriteU32((void *)0x007E0868, 550); // Repair cost Cruiser dock
+    patch.WriteU32((void *)0x007E086C, 500); // Repair cost DC Bomber dock
     patch.WriteU32((void *)0x007E0870, 350); // Repair cost Minelayer dock
     patch.WriteU32((void *)0x007E0874, 400); // Repair cost Marauder dock
+    patch.WriteU32((void *)0x007E0878, 200); // Repair cost Repair Platf dock
+    patch.WriteU32((void *)0x007E087C, 300); // Repair cost Transport dock
+    patch.WriteU32((void *)0x007E0884, 500); // Repair cost Terminator dock
     patch.WriteU32((void *)0x007E0888, 350); // Repair cost Liberator dock
-    patch.WriteU32((void *)0x007E0864, 200); // Repair cost Hunter dock
-    patch.WriteU32((void *)0x007E086C, 500); // Repair cost DC Bomber dock
     patch.WriteU32((void *)0x007E088C, 500); // Repair cost Builder WS dock
-    patch.WriteU32((void *)0x007E0868, 550); // Repair cost Cruiser dock
 
     // BO
     patch.WriteU32((void *)0x007E2A00, 400);  // Repair_Docks repair cost BO
@@ -1823,6 +1809,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007E0528, GetPrivateProfileInt(L"Psi_Zond", L"BuildTime", 1000, ini_file));
     patch.WriteU32((void *)0x007E052C, GetPrivateProfileInt(L"Explorer", L"BuildTime", 500, ini_file));
 
+
     // HP
     // WS
     patch.WriteU32((void *)0x007DFBB0, GetPrivateProfileInt(L"Sentinel", L"HP", 300, ini_file));
@@ -1836,13 +1823,13 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007DFBD0, GetPrivateProfileInt(L"Cyberworm", L"HP", 1000, ini_file));
     patch.WriteU32((void *)0x007DFBD4, GetPrivateProfileInt(L"Terminator", L"HP", 800, ini_file));
     patch.WriteU32((void *)0x007DFBD8, GetPrivateProfileInt(L"Liberator", L"HP", 700, ini_file));
-    patch.WriteU32((void *)0x007DFBDC, GetPrivateProfileInt(L"Builder_Humans", L"BuildTime", 800, ini_file));
+    patch.WriteU32((void *)0x007DFBDC, GetPrivateProfileInt(L"Builder_Humans", L"HP", 800, ini_file));
 
     // BO
     patch.WriteU32((void *)0x007DFBE0, GetPrivateProfileInt(L"Fighter", L"HP", 400, ini_file));
     patch.WriteU32((void *)0x007DFBE4, GetPrivateProfileInt(L"Destroyer", L"HP", 600, ini_file));
-    patch.WriteU32((void *)0x007DFBE8, GetPrivateProfileInt(L"Heavy_Ñruiser", L"HP", 1500, ini_file));  
-    patch.WriteU32((void *)0x007DFBEC, GetPrivateProfileInt(L"Invader", L"HP", 800, ini_file));  
+    patch.WriteU32((void *)0x007DFBE8, GetPrivateProfileInt(L"Heavy_Ñruiser", L"HP", 1500, ini_file)); 
+    patch.WriteU32((void *)0x007DFBEC, GetPrivateProfileInt(L"Invader", L"HP", 800, ini_file));
     patch.WriteU32((void *)0x007DFBF0, GetPrivateProfileInt(L"Defender", L"HP", 900, ini_file));
     patch.WriteU32((void *)0x007DFBF4, GetPrivateProfileInt(L"Raider", L"HP", 1300, ini_file));
     patch.WriteU32((void *)0x007DFBF8, GetPrivateProfileInt(L"Repair_Platform_BO", L"HP", 800, ini_file));
@@ -1866,64 +1853,144 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007DFC34, GetPrivateProfileInt(L"Usurper", L"HP", 1200, ini_file));
     patch.WriteU32((void *)0x007DFC38, GetPrivateProfileInt(L"Psi_Zond", L"HP", 700, ini_file));
     patch.WriteU32((void *)0x007DFC3C, GetPrivateProfileInt(L"Explorer", L"HP", 200, ini_file));
-
-    // ATTACK COOLDOWN
-    patch.WriteU32((void *)0x007A8C5C, GetPrivateProfileInt(L"Sentinel", L"Reload", 30, ini_file)); // Sentinel reload
-    patch.WriteU32((void *)0x007A8C80, GetPrivateProfileInt(L"Terminator", L"Reload", 100, ini_file)); // Terminator reload
-    patch.WriteU32((void *)0x007A8C90, GetPrivateProfileInt(L"Destroyer", L"Reload", 50, ini_file));  // Destroyer reload
-    patch.WriteU32((void *)0x007A8CB4, GetPrivateProfileInt(L"Avenger", L"Reload", 50, ini_file)); // Aveger reload
     
-    // SPEED
-        // SPEED
-    // WS
-    // patch.WriteU32((void *)0x007DFC9C, 8); // Builder
-    // patch.WriteU32((void *)0x007DFC8C, ); // Transport
-    patch.WriteU32((void *)0x007DFC88, 12); // Repair platform
 
+    // SPEED
+    // WS
+    patch.WriteU32((void *)0x007DFC70, GetPrivateProfileInt(L"Sentinel", L"Speed", 12, ini_file)); // Setinel
+    patch.WriteU32((void *)0x007DFC74, GetPrivateProfileInt(L"Hunter", L"Speed", 9, ini_file)); // Hunter
+    patch.WriteU32((void *)0x007DFC78, GetPrivateProfileInt(L"Ñruiser", L"Speed", 6, ini_file));  // Cruiser
+    patch.WriteU32((void *)0x007DFC7C, GetPrivateProfileInt(L"Bomber", L"Speed", 6, ini_file)); // DC Bomber (standard)
+    patch.WriteU32((void *)0x007DFC80, GetPrivateProfileInt(L"Minelayer", L"Speed", 9, ini_file)); // Minelayer
+    patch.WriteU32((void *)0x007DFC84, GetPrivateProfileInt(L"Marauder", L"Speed", 9, ini_file)); // Marauder
+    patch.WriteU32((void *)0x007DFC88, GetPrivateProfileInt(L"Repair_Platform_WS", L"Speed", 9, ini_file)); // Repair platform
+    patch.WriteU32((void *)0x007DFC8C, GetPrivateProfileInt(L"Transport_Humans", L"Speed", 6, ini_file)); // Transport
+    patch.WriteU32((void *)0x007DFC90, GetPrivateProfileInt(L"Cyberworm", L"Speed", 6, ini_file)); // Cyberworm
+    patch.WriteU32((void *)0x007DFC94, GetPrivateProfileInt(L"Terminator", L"Speed", 6, ini_file)); // Terminator
+    patch.WriteU32((void *)0x007DFC98, GetPrivateProfileInt(L"Liberator", L"Speed", 9, ini_file)); // Liberator
+    patch.WriteU32((void *)0x007DFC9C, GetPrivateProfileInt(L"Builder_Humans", L"Speed", 6, ini_file)); // Builder
     patch.WriteU32((void *)0x007DFD04, GetPrivateProfileInt(L"Flaship_WS", L"Speed", 9, ini_file)); // Flagship
-    // patch.WriteU32((void *)0x007DFC70, 15); // Setinel
-    // patch.WriteU32((void *)0x007DFC74, 11); // Hunter
-    // patch.WriteU32((void *)0x007DFC78, 7);  // Cruiser
-    // patch.WriteU32((void *)0x007DFC7C, 6); // DC Bomber (standard)
-    // patch.WriteU32((void *)0x007DFC80, ); // Minelayer
-    // patch.WriteU32((void *)0x007DFC84, ); // Marauder
-    // patch.WriteU32((void *)0x007DFC90, ); // Cyberworm
-    // patch.WriteU32((void *)0x007DFC94, 8); // Terminator
-    // patch.WriteU32((void *)0x007DFC98, ); // Liberator
 
     // BO
-    // patch.WriteU32((void *)0x007DFCCC, 8); // Builder
-    // patch.WriteU32((void *)0x007DFCBC, ); // Transport
-    patch.WriteU32((void *)0x007DFCB8, 12); // Repair platform
-
+    patch.WriteU32((void *)0x007DFCA0, GetPrivateProfileInt(L"Fighter", L"Speed", 12, ini_file)); // Fighter
+    patch.WriteU32((void *)0x007DFCA4, GetPrivateProfileInt(L"Destroyer", L"Speed", 9, ini_file)); // Destroyer
+    patch.WriteU32((void *)0x007DFCA8, GetPrivateProfileInt(L"Heavy_Cruiser", L"Speed", 6, ini_file));  // Heavy Cruiser
+    patch.WriteU32((void *)0x007DFCAC, GetPrivateProfileInt(L"Invader", L"Speed", 9, ini_file)); // Invader
+    patch.WriteU32((void *)0x007DFCB0, GetPrivateProfileInt(L"Defender", L"Speed", 6, ini_file)); // Defender
+    patch.WriteU32((void *)0x007DFCB4, GetPrivateProfileInt(L"Raider", L"Speed", 9, ini_file)); // Raider
+    patch.WriteU32((void *)0x007DFCB8, GetPrivateProfileInt(L"Repair_Platform_BO", L"Speed", 6, ini_file)); // Repair platform
+    patch.WriteU32((void *)0x007DFCBC, GetPrivateProfileInt(L"Transport_Humans", L"Speed", 6, ini_file));   // Transport
+    patch.WriteU32((void *)0x007DFCC0, GetPrivateProfileInt(L"Cyberdolphin", L"Speed", 12, ini_file)); // Cyberdolphin
+    patch.WriteU32((void *)0x007DFCC4, GetPrivateProfileInt(L"Phantom", L"Speed", 9, ini_file)); // Phantom
+    patch.WriteU32((void *)0x007DFCC8, GetPrivateProfileInt(L"Avenger", L"Speed", 9, ini_file)); // Avenger
+    patch.WriteU32((void *)0x007DFCCC, GetPrivateProfileInt(L"Builder_Humans", L"Speed", 6, ini_file)); // Builder
+    patch.WriteU32((void *)0x007DFD00, GetPrivateProfileInt(L"Stealth_Scout", L"Speed", 12, ini_file)); // Builder
     patch.WriteU32((void *)0x007DFD08, GetPrivateProfileInt(L"Flaship_BO", L"Speed", 9, ini_file)); // Flagship
-    // patch.WriteU32((void *)0x007DFCA0, 15); // Fighter
-    // patch.WriteU32((void *)0x007DFCA4, ); // Destroyer
-    // patch.WriteU32((void *)0x007DFCA8, );  // Heavy Cruiser
-    // patch.WriteU32((void *)0x007DFCAC, ); // Invader
-    // patch.WriteU32((void *)0x007DFCB0, ); // Defender
-    // patch.WriteU32((void *)0x007DFCB4, ); // Raider
-    // patch.WriteU32((void *)0x007DFCC0, ); // Cyberdolphin
-    // patch.WriteU32((void *)0x007DFCC4, 8); // Phantom
-    // patch.WriteU32((void *)0x007DFCC8, ); // Avenger
 
     // SI
-    // patch.WriteU32((void *)0x007DFCD0, 8); // Module-prototype
-    // patch.WriteU32((void *)0x007DFCD4, ); // Transport
-    patch.WriteU32((void *)0x007DFCD8, 12); // Supplier
-    // patch.WriteU32((void *)0x007DFCE0, ); // Replenisher
-    // patch.WriteU32((void *)0x007DFCFC, ); // Explorer
+    patch.WriteU32((void *)0x007DFCD0, GetPrivateProfileInt(L"Module_Prototype", L"Speed", 6, ini_file)); // Module-prototype
+    patch.WriteU32((void *)0x007DFCD4, GetPrivateProfileInt(L"Transport_SI", L"Speed", 6, ini_file)); // Transport
+    patch.WriteU32((void *)0x007DFCD8, GetPrivateProfileInt(L"Supplier", L"Speed", 6, ini_file)); // Supplier
+    patch.WriteU32((void *)0x007DFCDC, GetPrivateProfileInt(L"Paralizator", L"Speed", 12, ini_file));   // Paralyzer
+    patch.WriteU32((void *)0x007DFCE0, GetPrivateProfileInt(L"Energizer", L"Speed", 6, ini_file)); // Replenisher
+    patch.WriteU32((void *)0x007DFCE4, GetPrivateProfileInt(L"Skat", L"Speed", 12, ini_file)); // SHS
+    patch.WriteU32((void *)0x007DFCE8, GetPrivateProfileInt(L"Dreadnaught", L"Speed", 6, ini_file));   // Dreadnaught
+    patch.WriteU32((void *)0x007DFCEC, GetPrivateProfileInt(L"Escort", L"Speed", 9, ini_file)); // Escort
+    patch.WriteU32((void *)0x007DFCF0, GetPrivateProfileInt(L"Bio_Assaulter", L"Speed", 6, ini_file));   // Bio-assaulter
+    patch.WriteU32((void *)0x007DFCF4, GetPrivateProfileInt(L"Usurper", L"Speed", 9, ini_file)); // Usurper
+    patch.WriteU32((void *)0x007DFCF8, GetPrivateProfileInt(L"Psi_Zond", L"Speed", 9, ini_file)); // Psi-zond (Vermin)
+    patch.WriteU32((void *)0x007DFCFC, GetPrivateProfileInt(L"Explorer", L"Speed", 12, ini_file)); // Explorer
+    patch.WriteU32((void *)0x007DFD0C, GetPrivateProfileInt(L"Flaship_SI", L"Speed", 9, ini_file)); // Flagship
 
-    patch.WriteU32((void *)0x007DFD0C, GetPrivateProfileInt(L"Flaship_BO", L"Speed", 9, ini_file)); // Flagship
-    patch.WriteU32((void *)0x007DFCE4, 12); // SHS
-    // patch.WriteU32((void *)0x007DFCEC, ); // Escort
-    // patch.WriteU32((void *)0x007DFCE8, ); // Drednaught
-    // patch.WriteU32((void *)0x007DFCF4, ); // Usurper
-    // patch.WriteU32((void *)0x007DFCF0, ); // Bio-assaulter
-    // patch.WriteU32((void *)0x007DFCF8, ); // Psi-zond (Vermin)
-    // patch.WriteU32((void *)0x007DFCDC, ); // Paralyzer
+    // WEAPON
+    // WS
+    patch.WriteU32((void *)0x007A8B1C, GetPrivateProfileInt(L"Sentinel", L"Weapon", 159, ini_file));
+    patch.WriteU32((void *)0x007A8B20, GetPrivateProfileInt(L"Hunter", L"Weapon", 150, ini_file));
+    patch.WriteU32((void *)0x007A8B24, GetPrivateProfileInt(L"Ñruiser", L"Weapon", 152, ini_file));
+    patch.WriteU32((void *)0x007A8B28, GetPrivateProfileInt(L"Bomber", L"Weapon", 150, ini_file));
+    patch.WriteU32((void *)0x007A8B2C, GetPrivateProfileInt(L"Minelayer", L"Weapon", 150, ini_file)); 
+    patch.WriteU32((void *)0x007A8B30, GetPrivateProfileInt(L"Marauder", L"Weapon", 150, ini_file));
+    //patch.WriteU32((void *)0x007A8B34, GetPrivateProfileInt(L"Repair_Platform_WS", L"Weapon", 0, ini_file));
+    //patch.WriteU32((void *)0x007A8B38, GetPrivateProfileInt(L"Transport_Humans", L"Weapon", 0, ini_file)); 
+    //patch.WriteU32((void *)0x007A8B3C, GetPrivateProfileInt(L"Cyberworm", L"Weapon", 0, ini_file));
+    patch.WriteU32((void *)0x007A8B40, GetPrivateProfileInt(L"Terminator", L"Weapon", 164, ini_file));
+    patch.WriteU32((void *)0x007A8B44, GetPrivateProfileInt(L"Liberator", L"Weapon", 150, ini_file));
+    //patch.WriteU32((void *)0x007A8B48, GetPrivateProfileInt(L"Builder_Humans", L"Weapon", 0, ini_file)); 
 
-     
+    // BO
+    patch.WriteU32((void *)0x007A8B4C, GetPrivateProfileInt(L"Fighter", L"Weapon", 150, ini_file));
+    patch.WriteU32((void *)0x007A8B50, GetPrivateProfileInt(L"Destroyer", L"Weapon", 172, ini_file));
+    patch.WriteU32((void *)0x007A8B54, GetPrivateProfileInt(L"Heavy_Ñruiser", L"Weapon", 157, ini_file)); 
+    patch.WriteU32((void *)0x007A8B58, GetPrivateProfileInt(L"Invader", L"Weapon", 153, ini_file));
+    patch.WriteU32((void *)0x007A8B5C, GetPrivateProfileInt(L"Defender", L"Weapon", 150, ini_file));
+    patch.WriteU32((void *)0x007A8B60, GetPrivateProfileInt(L"Raider", L"Weapon", 156, ini_file));
+    //patch.WriteU32((void *)0x007A8B64, GetPrivateProfileInt(L"Repair_Platform_BO", L"Weapon", 0, ini_file));
+    //patch.WriteU32((void *)0x007A8B68, GetPrivateProfileInt(L"Transport_Humans", L"Weapon", 0, ini_file));
+    //patch.WriteU32((void *)0x007A8B6C, GetPrivateProfileInt(L"Cyberdolphin", L"Weapon", 0, ini_file));
+    patch.WriteU32((void *)0x007A8B70, GetPrivateProfileInt(L"Phantom", L"Weapon", 157, ini_file));
+    patch.WriteU32((void *)0x007A8B74, GetPrivateProfileInt(L"Avenger", L"Weapon", 156, ini_file));
+    //patch.WriteU32((void *)0x007A8B78, GetPrivateProfileInt(L"Builder_Humans", L"Weapon", 0, ini_file));
+    //patch.WriteU32((void *)0x007A8BA8, GetPrivateProfileInt(L"Stealth_Scout", L"Weapon", 0, ini_file)); 
+
+    // SI
+    //patch.WriteU32((void *)0x007A8B7C, GetPrivateProfileInt(L"Module_Prototype", L"Weapon", 0, ini_file));
+    //patch.WriteU32((void *)0x007A8B80, GetPrivateProfileInt(L"Transport_SI", L"Weapon", 0, ini_file)); 
+    //patch.WriteU32((void *)0x007A8B84, GetPrivateProfileInt(L"Supplier", L"Weapon", 0, ini_file));
+    patch.WriteU32((void *)0x007A8B88, GetPrivateProfileInt(L"Paralizator", L"Weapon", 173, ini_file));
+    //patch.WriteU32((void *)0x007A8B8C, GetPrivateProfileInt(L"Energizer", L"Weapon", 0, ini_file));
+    patch.WriteU32((void *)0x007A8B90, GetPrivateProfileInt(L"Skat", L"Weapon", 182, ini_file));
+    patch.WriteU32((void *)0x007A8B94, GetPrivateProfileInt(L"Dreadnaught", L"Weapon", 181, ini_file));
+    patch.WriteU32((void *)0x007A8B98, GetPrivateProfileInt(L"Escort", L"Weapon", 183, ini_file)); 
+    patch.WriteU32((void *)0x007A8B9C, GetPrivateProfileInt(L"Bio_Assaulter", L"Weapon", 184, ini_file));
+    patch.WriteU32((void *)0x007A8BA0, GetPrivateProfileInt(L"Usurper", L"Weapon", 182, ini_file));
+    patch.WriteU32((void *)0x007A8BA4, GetPrivateProfileInt(L"Psi_Zond", L"Weapon", 182, ini_file));
+    //patch.WriteU32((void *)0x007A8BA8, GetPrivateProfileInt(L"Explorer", L"Weapon", 0, ini_file));
+    
+
+    // RELOAD
+    // WS
+    patch.WriteU32((void *)0x007A8C5C, GetPrivateProfileInt(L"Sentinel", L"Reload", 30, ini_file));
+    patch.WriteU32((void *)0x007A8C60, GetPrivateProfileInt(L"Hunter", L"Reload", 50, ini_file));
+    patch.WriteU32((void *)0x007A8C64, GetPrivateProfileInt(L"Ñruiser", L"Reload", 90, ini_file));
+    patch.WriteU32((void *)0x007A8C68, GetPrivateProfileInt(L"Bomber", L"Reload", 80, ini_file));
+    patch.WriteU32((void *)0x007A8C6C, GetPrivateProfileInt(L"Minelayer", L"Reload", 80, ini_file)); 
+    patch.WriteU32((void *)0x007A8C70, GetPrivateProfileInt(L"Marauder", L"Reload", 70, ini_file));
+    //patch.WriteU32((void *)0x007A8C74, GetPrivateProfileInt(L"Repair_Platform_WS", L"Reload", 0, ini_file));
+    //patch.WriteU32((void *)0x007A8C78, GetPrivateProfileInt(L"Transport_Humans", L"Reload", 0, ini_file)); 
+    //patch.WriteU32((void *)0x007A8C7C, GetPrivateProfileInt(L"Cyberworm", L"Reload", 0, ini_file));
+    patch.WriteU32((void *)0x007A8C80, GetPrivateProfileInt(L"Terminator", L"Reload", 100, ini_file));
+    patch.WriteU32((void *)0x007A8C84, GetPrivateProfileInt(L"Liberator", L"Reload", 80, ini_file));
+    //patch.WriteU32((void *)0x007A8C88, GetPrivateProfileInt(L"Builder_Humans", L"Reload", 0, ini_file)); 
+
+    // BO
+    patch.WriteU32((void *)0x007A8C8C, GetPrivateProfileInt(L"Fighter", L"Reload", 40, ini_file));
+    patch.WriteU32((void *)0x007A8C90, GetPrivateProfileInt(L"Destroyer", L"Reload", 50, ini_file));
+    patch.WriteU32((void *)0x007A8C94, GetPrivateProfileInt(L"Heavy_Ñruiser", L"Reload", 50, ini_file)); 
+    patch.WriteU32((void *)0x007A8C98, GetPrivateProfileInt(L"Invader", L"Reload", 80, ini_file));
+    patch.WriteU32((void *)0x007A8C9C, GetPrivateProfileInt(L"Defender", L"Reload", 70, ini_file));
+    patch.WriteU32((void *)0x007A8CA0, GetPrivateProfileInt(L"Raider", L"Reload", 70, ini_file));
+    //patch.WriteU32((void *)0x007A8CA4, GetPrivateProfileInt(L"Repair_Platform_BO", L"Reload", 0, ini_file));
+    //patch.WriteU32((void *)0x007A8CA8, GetPrivateProfileInt(L"Transport_Humans", L"Reload", 0, ini_file));
+    //patch.WriteU32((void *)0x007A8CAC, GetPrivateProfileInt(L"Cyberdolphin", L"Reload", 0, ini_file));
+    patch.WriteU32((void *)0x007A8CB0, GetPrivateProfileInt(L"Phantom", L"Reload", 50, ini_file));
+    patch.WriteU32((void *)0x007A8CB4, GetPrivateProfileInt(L"Avenger", L"Reload", 50, ini_file));
+    //patch.WriteU32((void *)0x007A8CB8, GetPrivateProfileInt(L"Builder_Humans", L"Reload", 0, ini_file));
+    //patch.WriteU32((void *)0x007A8CEC, GetPrivateProfileInt(L"Stealth_Scout", L"Reload", 0, ini_file)); 
+
+    // SI
+    //patch.WriteU32((void *)0x007A8CBC, GetPrivateProfileInt(L"Module_Prototype", L"Reload", 0, ini_file));
+    //patch.WriteU32((void *)0x007A8CC0, GetPrivateProfileInt(L"Transport_SI", L"Reload", 0, ini_file)); 
+    //patch.WriteU32((void *)0x007A8CC4, GetPrivateProfileInt(L"Supplier", L"Reload", 0, ini_file));
+    patch.WriteU32((void *)0x007A8CC8, GetPrivateProfileInt(L"Paralizator", L"Reload", 100, ini_file));
+    //patch.WriteU32((void *)0x007A8CCC, GetPrivateProfileInt(L"Energizer", L"Reload", 0, ini_file));
+    patch.WriteU32((void *)0x007A8CD0, GetPrivateProfileInt(L"Skat", L"Reload", 40, ini_file));
+    patch.WriteU32((void *)0x007A8CD4, GetPrivateProfileInt(L"Dreadnaught", L"Reload", 150, ini_file));
+    patch.WriteU32((void *)0x007A8CD8, GetPrivateProfileInt(L"Escort", L"Reload", 60, ini_file)); 
+    patch.WriteU32((void *)0x007A8CDC, GetPrivateProfileInt(L"Bio_Assaulter", L"Reload", 60, ini_file));
+    patch.WriteU32((void *)0x007A8CE0, GetPrivateProfileInt(L"Usurper", L"Reload", 50, ini_file));
+    patch.WriteU32((void *)0x007A8CE4, GetPrivateProfileInt(L"Psi_Zond", L"Reload", 40, ini_file));
+    //patch.WriteU32((void *)0x007A8CE8, GetPrivateProfileInt(L"Explorer", L"Reload", 0, ini_file));
+
     // SPECIAL
     patch.WriteByte((void *)0x0045094E, GetPrivateProfileInt(L"Phantom", L"Discharge", 30, ini_file)); // Phantom discharge
 
