@@ -5334,14 +5334,11 @@ __declspec(naked) void inline CancelledModulesAndHumanCenters()
 
 
 //static unsigned long func_draw_signal = 0x004CD55E;
-static unsigned long CapturedTechBuildings_Jmp = 0x004CD55E;
+static unsigned long CapturedTechBuildings_Jmp = 0x004CD537;
 static unsigned long CapturedTechBuildings_JmpBack = CapturedTechBuildings_Jmp + 6;
 __declspec(naked) void inline CapturedTechBuildings()
 {
     __asm {
-        mov cl, [esi+36]
-        add esp, 12
-        
         cmp dword ptr [esi+1452],53
         je start
         cmp dword ptr [esi+1452],84
@@ -5365,9 +5362,13 @@ __declspec(naked) void inline CapturedTechBuildings()
         pop eax
 
         exitt:
+        mov ecx, 0x0080874D
+        mov cl, [ecx]
+        and ecx, 0xFF
         jmp[CapturedTechBuildings_JmpBack]
     }
 }
+
 
 static unsigned long AntiAbuseHumanCenters_Jmp = 0x00452E31;
 static unsigned long AntiAbuseHumanCenters_JmpBack = AntiAbuseHumanCenters_Jmp + 13;
@@ -7645,7 +7646,7 @@ __declspec(naked) void inline ChangeGameVersion()
     __asm {
         mov eax, 0x00807DD5
         //mov dword ptr [eax], 0x01030000 // 0x0102002A - standart, 0x0102001A - V2, 0x01030000 - V3
-        mov dword ptr [eax], 0x01020037
+        mov dword ptr [eax], 0x0102003C
         /*mov byte ptr [eax+2], author_number
         mov byte ptr [eax], version_number*/
         mov eax, [eax]

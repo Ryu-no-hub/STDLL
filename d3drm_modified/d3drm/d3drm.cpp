@@ -48,9 +48,8 @@ DWORD LoadPlugins(unsigned long gameVersion)
 {
     void *v1;
     struct _WIN32_FIND_DATAA FindFileData;
-    CHAR Buffer[264];
-    LPWSTR inistr;
-    CHAR String1[264];
+    CHAR Buffer[MAX_PATH];
+    CHAR FullPath[MAX_PATH];
 
     typedef int(__cdecl * procSetVar)(unsigned long version);
 
@@ -67,10 +66,10 @@ DWORD LoadPlugins(unsigned long gameVersion)
         {
             do
             {
-                GetCurrentDirectoryA(260, String1);
-                lstrcatA(String1, "\\plugins\\");
-                lstrcatA(String1, FindFileData.cFileName);
-                auto pluglib = LoadLibraryA(String1);
+                GetCurrentDirectoryA(260, FullPath);
+                lstrcatA(FullPath, "\\plugins\\");
+                lstrcatA(FullPath, FindFileData.cFileName);
+                auto pluglib = LoadLibraryA(FullPath);
                 if (!pluglib)
                 {
                     MessageBox(NULL, L"No plugins detected", L"d3drm", MB_ICONINFORMATION);

@@ -9,15 +9,49 @@
 using namespace Common;
 using namespace Patcher;
 
-WCHAR Buffer[MAX_PATH];
-auto result = GetCurrentDirectoryW(MAX_PATH, Buffer);
 
-std::wstring FileDirectory(Buffer);
-std::wstring full_path = FileDirectory + L"\\plugins\\config.ini";
-static LPCWSTR ini_file = full_path.c_str();
+//std::wstring FileDirectory(Buffer);
+//std::wstring full_path = FileDirectory + L"\\plugins\\config.ini";
+//
+//
+//static LPCWSTR ini_file = full_path.c_str();
 
 #pragma comment(lib, "winhttp.lib")
+
+wchar_t *convertCharArrayToLPCWSTR(const char *charArray)
+{
+    wchar_t *wString = new wchar_t[4096];
+    MultiByteToWideChar(CP_ACP, 0, charArray, -1, wString, 4096);
+    return wString;
+}
     
+LPCWSTR InitConfig()
+{
+    CHAR Buffer[MAX_PATH];
+    CHAR FullPath[MAX_PATH];
+    struct _WIN32_FIND_DATAA FindFileData;
+
+    auto result = GetCurrentDirectoryA(MAX_PATH, Buffer);
+    if (result)
+    {
+        lstrcatA(Buffer, "\\plugins\\*.ini");
+        auto hFind = FindFirstFileA(Buffer, &FindFileData);
+        if (hFind == INVALID_HANDLE_VALUE)
+        {
+            FullPath[0] = ' ';
+            FullPath[1] = '\0';
+        }
+        else
+        {
+            GetCurrentDirectoryA(MAX_PATH, FullPath);
+            lstrcatA(FullPath, "\\plugins\\");
+            lstrcatA(FullPath, FindFileData.cFileName);
+            FindClose(hFind);
+        }        
+    }
+    return convertCharArrayToLPCWSTR(FullPath);
+}
+
 // Implement your patches here
 static bool AutosaveIPXNetGame(Patcher::SPatch &patch)
 {
@@ -39,6 +73,11 @@ static bool FixesQoL(Patcher::SPatch &patch) {
 #ifdef _DEBUG
     //MessageBoxA(NULL, "FlagshipsPatch LOL Debug", "", MB_OK);
 #endif // _DEBUG
+
+    auto ini_file = InitConfig();
+    if (wcslen(ini_file) < 5)
+        MessageBox(NULL, L"Config file not found, setting default unit parameters", L"d3drm", MB_ICONINFORMATION);
+    
 
     // GENERAL
     patch.WriteJumpSized(ChangeGameVersion_Jmp, 5, (unsigned long)ChangeGameVersion);
@@ -895,28 +934,27 @@ static bool BalancingNormalTree(Patcher::SPatch &patch)
 
 static bool BalancingTacticsTree(Patcher::SPatch &patch)
 {
-    // OTHER
-    // patch.WriteU32((void *)0x007A8C98, ); // Invader reload
-
-
-    //patch.WriteU32((void *)0x007E6544, 0); // Paralyze shell damage
-
+    auto ini_file = InitConfig();   
     // Research make unavailable
     // patch.WriteByte((void *)0x00798FF6, ); // Mining upgrade ws
     // patch.WriteByte((void *)0x00799062, ); // Mining upgrade bo
-    patch.WriteByte((void *)0x0079902B, 0); // Mining upgrade silicon si
 
-    // patch.WriteByte((void *)0x0079902C, ); // Mining upgrade corium si
-    patch.WriteByte((void *)0x00799070, 0); // WS Capture upg
-    patch.WriteByte((void *)0x0079906C, 0); // BO Capture upg
+    patch.WriteByte((void *)0x007BFBBB, 0); // Mining upgrade silicon si
+    // patch.WriteByte((void *)0x007BFBBC, ); // Mining upgrade corium si
+    
+    patch.WriteByte((void *)0x007BFAC7, 0); // WS Capture upg
+    patch.WriteByte((void *)0x007BFB60, 0); // BO Capture upg
     patch.WriteByte((void *)0x007BFBF8, 0); // SI Capture upg
+
     patch.WriteByte((void *)0x007BFBD6, 0); // SI TRPEVADE unavailable
-    patch.WriteByte((void *)0x007BFBCF, 0); // SI IONARMOR unavailable
+    //patch.WriteByte((void *)0x007BFBCF, 0); // SI IONARMOR unavailable
+    patch.WriteByte((void *)0x0079903F, 1); // SI IONARMOR 1 lvl only
     patch.WriteByte((void *)0x007BFBB8, 0); // SI UPG NRG MINE unavailable
 
     //patch.WriteByte((void *)0x007BFB02, 0); // BO LIGHTLASRANGE unavailable
     //patch.WriteByte((void *)0x007BFB03, 0); // BO HEAVYLASRANGE unavailable
     patch.WriteByte((void *)0x007BFBE1, 0); // SI DPTRANGE unavailable
+
 
 
     // RESEARCH
@@ -1828,7 +1866,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     // BO
     patch.WriteU32((void *)0x007DFBE0, GetPrivateProfileInt(L"Fighter", L"HP", 400, ini_file));
     patch.WriteU32((void *)0x007DFBE4, GetPrivateProfileInt(L"Destroyer", L"HP", 600, ini_file));
-    patch.WriteU32((void *)0x007DFBE8, GetPrivateProfileInt(L"Heavy_Ñruiser", L"HP", 1500, ini_file)); 
+    patch.WriteU32((void *)0x007DFBE8, GetPrivateProfileInt(L"Heavy_Cruiser", L"HP", 1500, ini_file)); 
     patch.WriteU32((void *)0x007DFBEC, GetPrivateProfileInt(L"Invader", L"HP", 800, ini_file));
     patch.WriteU32((void *)0x007DFBF0, GetPrivateProfileInt(L"Defender", L"HP", 900, ini_file));
     patch.WriteU32((void *)0x007DFBF4, GetPrivateProfileInt(L"Raider", L"HP", 1300, ini_file));
@@ -1859,7 +1897,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     // WS
     patch.WriteU32((void *)0x007DFC70, GetPrivateProfileInt(L"Sentinel", L"Speed", 12, ini_file)); // Setinel
     patch.WriteU32((void *)0x007DFC74, GetPrivateProfileInt(L"Hunter", L"Speed", 9, ini_file)); // Hunter
-    patch.WriteU32((void *)0x007DFC78, GetPrivateProfileInt(L"Ñruiser", L"Speed", 6, ini_file));  // Cruiser
+    patch.WriteU32((void *)0x007DFC78, GetPrivateProfileInt(L"Cruiser", L"Speed", 6, ini_file));  // Cruiser
     patch.WriteU32((void *)0x007DFC7C, GetPrivateProfileInt(L"Bomber", L"Speed", 6, ini_file)); // DC Bomber (standard)
     patch.WriteU32((void *)0x007DFC80, GetPrivateProfileInt(L"Minelayer", L"Speed", 9, ini_file)); // Minelayer
     patch.WriteU32((void *)0x007DFC84, GetPrivateProfileInt(L"Marauder", L"Speed", 9, ini_file)); // Marauder
@@ -1906,7 +1944,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     // WS
     patch.WriteU32((void *)0x007A8B1C, GetPrivateProfileInt(L"Sentinel", L"Weapon", 159, ini_file));
     patch.WriteU32((void *)0x007A8B20, GetPrivateProfileInt(L"Hunter", L"Weapon", 150, ini_file));
-    patch.WriteU32((void *)0x007A8B24, GetPrivateProfileInt(L"Ñruiser", L"Weapon", 152, ini_file));
+    patch.WriteU32((void *)0x007A8B24, GetPrivateProfileInt(L"Cruiser", L"Weapon", 152, ini_file));
     patch.WriteU32((void *)0x007A8B28, GetPrivateProfileInt(L"Bomber", L"Weapon", 150, ini_file));
     patch.WriteU32((void *)0x007A8B2C, GetPrivateProfileInt(L"Minelayer", L"Weapon", 150, ini_file)); 
     patch.WriteU32((void *)0x007A8B30, GetPrivateProfileInt(L"Marauder", L"Weapon", 150, ini_file));
@@ -1920,7 +1958,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     // BO
     patch.WriteU32((void *)0x007A8B4C, GetPrivateProfileInt(L"Fighter", L"Weapon", 150, ini_file));
     patch.WriteU32((void *)0x007A8B50, GetPrivateProfileInt(L"Destroyer", L"Weapon", 172, ini_file));
-    patch.WriteU32((void *)0x007A8B54, GetPrivateProfileInt(L"Heavy_Ñruiser", L"Weapon", 157, ini_file)); 
+    patch.WriteU32((void *)0x007A8B54, GetPrivateProfileInt(L"Heavy_Cruiser", L"Weapon", 157, ini_file)); 
     patch.WriteU32((void *)0x007A8B58, GetPrivateProfileInt(L"Invader", L"Weapon", 153, ini_file));
     patch.WriteU32((void *)0x007A8B5C, GetPrivateProfileInt(L"Defender", L"Weapon", 150, ini_file));
     patch.WriteU32((void *)0x007A8B60, GetPrivateProfileInt(L"Raider", L"Weapon", 156, ini_file));
@@ -1951,7 +1989,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     // WS
     patch.WriteU32((void *)0x007A8C5C, GetPrivateProfileInt(L"Sentinel", L"Reload", 30, ini_file));
     patch.WriteU32((void *)0x007A8C60, GetPrivateProfileInt(L"Hunter", L"Reload", 50, ini_file));
-    patch.WriteU32((void *)0x007A8C64, GetPrivateProfileInt(L"Ñruiser", L"Reload", 90, ini_file));
+    patch.WriteU32((void *)0x007A8C64, GetPrivateProfileInt(L"Cruiser", L"Reload", 90, ini_file));
     patch.WriteU32((void *)0x007A8C68, GetPrivateProfileInt(L"Bomber", L"Reload", 80, ini_file));
     patch.WriteU32((void *)0x007A8C6C, GetPrivateProfileInt(L"Minelayer", L"Reload", 80, ini_file)); 
     patch.WriteU32((void *)0x007A8C70, GetPrivateProfileInt(L"Marauder", L"Reload", 70, ini_file));
@@ -1965,7 +2003,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     // BO
     patch.WriteU32((void *)0x007A8C8C, GetPrivateProfileInt(L"Fighter", L"Reload", 40, ini_file));
     patch.WriteU32((void *)0x007A8C90, GetPrivateProfileInt(L"Destroyer", L"Reload", 50, ini_file));
-    patch.WriteU32((void *)0x007A8C94, GetPrivateProfileInt(L"Heavy_Ñruiser", L"Reload", 50, ini_file)); 
+    patch.WriteU32((void *)0x007A8C94, GetPrivateProfileInt(L"Heavy_Cruiser", L"Reload", 50, ini_file)); 
     patch.WriteU32((void *)0x007A8C98, GetPrivateProfileInt(L"Invader", L"Reload", 80, ini_file));
     patch.WriteU32((void *)0x007A8C9C, GetPrivateProfileInt(L"Defender", L"Reload", 70, ini_file));
     patch.WriteU32((void *)0x007A8CA0, GetPrivateProfileInt(L"Raider", L"Reload", 70, ini_file));
@@ -2147,6 +2185,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
 
 static bool Flagships(Patcher::SPatch &patch)
 {
+    auto ini_file = InitConfig();   
     // Flagships in wargroups and not in special groups
     patch.WriteU32((void *)0x0080148C, 899);        // Flagships add to wargroups 899
     patch.WriteU32((void *)0x004E87F7, 2425393296); // nops to not overwrite
@@ -2406,7 +2445,9 @@ static bool SiResearchModulesReduce(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x0079A5D8, 122);
     patch.WriteU32((void *)0x0079A5DC, 125);
     patch.WriteU32((void *)0x0079A5E0, 126);
-    patch.WriteU32((void *)0x0079A5E4, 0);
+    patch.WriteU32((void *)0x0079A5E4, 103);
+    patch.WriteU32((void *)0x0079A5E8, 121);
+    patch.WriteU32((void *)0x0079A5EC, 0);
 
     patch.WriteU32((void *)0x0079A654, 95); // SI supertech module
     patch.WriteU32((void *)0x0079A658, 96);
@@ -2427,6 +2468,9 @@ static bool SiResearchModulesReduce(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x0079A694, 97);
     patch.WriteU32((void *)0x0079A698, 99);
     patch.WriteU32((void *)0x0079A69C, 117);
+    patch.WriteU32((void *)0x0079A6A0, 83);
+    patch.WriteU32((void *)0x0079A6A4, 80);
+    patch.WriteU32((void *)0x0079A6A8, 144);
 
     return true;
 }
@@ -2523,21 +2567,15 @@ static bool SiResearchModulesReduce2(Patcher::SPatch &patch)
 
 static bool AI2021Compatible(Patcher::SPatch &patch)
 {
-    // AI-2021 - compatible
-patch.WriteU32((void *)0x007E59A8, 10); // Mining upgrade silicon si time
-patch.WriteU32((void *)0x007E5DF8, 10); // WS Capture time
-patch.WriteU32((void *)0x007E5DB8, 10); // BO Capture time
-patch.WriteU32((void *)0x007E5D78, 10); // SI Capture time
-patch.WriteU32((void *)0x007E5B58, 10); // SI TRPEVADE time
-
-patch.WriteByte((void *)0x0079902B, 1); // Mining upgrade silicon si
-patch.WriteByte((void *)0x00799070, 1); // WS Capture upg
-patch.WriteByte((void *)0x0079906C, 1); // BO Capture upg
-patch.WriteByte((void *)0x007BFBF8, 1); // SI Capture upg
-patch.WriteByte((void *)0x007BFBD6, 1); // SI TRPEVADE unavailable
-patch.WriteByte((void *)0x007BFBCF, 1); // SI IONARMOR unavailable
-patch.WriteByte((void *)0x007BFBB8, 1); // SI UPG NRG MINE unavailable
-patch.WriteByte((void *)0x007BFBE1, 1); // SI DPTRANGE unavailable
+    patch.WriteByte((void *)0x007BFBBB, 1); // Mining upgrade silicon si
+    patch.WriteByte((void *)0x007BFAC7, 1); // WS Capture upg
+    patch.WriteByte((void *)0x007BFB60, 1); // BO Capture upg
+    patch.WriteByte((void *)0x007BFBF8, 1); // SI Capture upg
+    
+    patch.WriteByte((void *)0x007BFBD6, 1); // SI TRPEVADE unavailable
+    patch.WriteByte((void *)0x0079903F, 3); // SI IONARMOR 1 lvl only
+    patch.WriteByte((void *)0x007BFBB8, 1); // SI UPG NRG MINE unavailable
+    patch.WriteByte((void *)0x007BFBE1, 1); // SI DPTRANGE unavailable
 
     return true;
 }
@@ -2699,7 +2737,7 @@ static const PatchFunction Patches[] = {
 
     SiResearchModulesReduce2,
 
-    // ShiftQueue
+    ShiftQueue
 
     // Experimental2
     
