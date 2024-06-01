@@ -352,7 +352,8 @@ static bool FixesQoL(Patcher::SPatch &patch) {
 
     patch.WriteU32((void *)0x007C1620, 4); // Silicoids corium buy coeff
     patch.WriteU32((void *)0x007C1624, 3); // Silicoids corium sell coeff
-    patch.WriteU32((void *)0x007C1628, 2); // Silicoids silicon coeff
+    patch.WriteU32((void *)0x007C1628, 2); // Silicoids silicon buy coeff
+    patch.WriteU32((void *)0x007C162C, 10); // Silicoids silicon sell coeff
 
     patch.WriteByte((void *)0x004D9A66, 20); // Gold mine storage
     patch.WriteJumpSized(GoldMineInterfaceAdjust_Jmp, 8, (unsigned long)GoldMineInterfaceAdjust);
