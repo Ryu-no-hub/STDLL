@@ -32,6 +32,41 @@ static char *player_name_ptr = (char *)0x00807DDD;
 
 static auto host_flag = (DWORD *)0x007F586A;
 
+static wchar_t *convertCharArrayToLPCWSTR(const char *charArray)
+{
+    wchar_t *wString = new wchar_t[4096];
+    MultiByteToWideChar(CP_ACP, 0, charArray, -1, wString, 4096);
+    return wString;
+}
+
+static LPCWSTR InitConfig()
+{
+    CHAR Buffer[MAX_PATH];
+    CHAR FullPath[MAX_PATH];
+    struct _WIN32_FIND_DATAA FindFileData;
+
+    auto result = GetCurrentDirectoryA(MAX_PATH, Buffer);
+    if (result)
+    {
+        lstrcatA(Buffer, "\\plugins\\*.ini");
+        auto hFind = FindFirstFileA(Buffer, &FindFileData);
+        if (hFind == INVALID_HANDLE_VALUE)
+        {
+            FullPath[0] = ' ';
+            FullPath[1] = '\0';
+        }
+        else
+        {
+            GetCurrentDirectoryA(MAX_PATH, FullPath);
+            lstrcatA(FullPath, "\\plugins\\");
+            lstrcatA(FullPath, FindFileData.cFileName);
+            FindClose(hFind);
+        }
+    }
+ 
+    return convertCharArrayToLPCWSTR(FullPath);
+}
+static auto ini_file = InitConfig();
 
 void inline AnnounceGameHost()
 {
@@ -348,6 +383,10 @@ __declspec(naked) void inline MinesDetectionSI()
     __asm jmp[MinesDetectionSI_JmpBack];
 }
 
+static int energy_mine_amount_1 = GetPrivateProfileInt(L"Economics", L"EnergyMineAmount_1", 5, ini_file);
+static int energy_mine_amount_2 = GetPrivateProfileInt(L"Economics", L"EnergyMineAmount_2", 5, ini_file);
+static int energy_mine_amount_1_neg = -energy_mine_amount_1_neg;
+static int energy_mine_amount_2_neg = -energy_mine_amount_2_neg;
 static unsigned long UPGNRGACCUM_decrease_deposit_Jmp = 0x004E0FA4;
 static unsigned long UPGNRGACCUM_decrease_deposit_JmpBack = UPGNRGACCUM_decrease_deposit_Jmp + 9;
 __declspec(naked) void inline UPGNRGACCUM_decrease_deposit()
@@ -359,14 +398,14 @@ __declspec(naked) void inline UPGNRGACCUM_decrease_deposit()
     call eax
 
     test ax, ax
-    jle stock
+    jz stock
     xor eax, eax
-    add eax, -6
+    add eax, energy_mine_amount_2_neg
     jmp originalcode
 
     stock:
     xor eax, eax
-    add eax, -5
+    add eax, energy_mine_amount_1_neg
 
     originalcode:
     add[esi + 0x000004E0], eax
@@ -387,12 +426,12 @@ __declspec(naked) void inline UPGNRGACCUM_increase_accum()
     __asm test ax, ax;
     __asm jle stock;
     __asm xor edi, edi;
-    __asm add edi, 6;
+    __asm add edi, energy_mine_amount_2;
     __asm jmp originalcode;
 
     __asm stock:;
     __asm xor edi, edi;
-    __asm add edi, 5;
+    __asm add edi, energy_mine_amount_1;
 
     __asm originalcode:;
     __asm add[esi + 0x00000518], edi;
@@ -470,68 +509,91 @@ __declspec(naked) void inline OpenMap()
     __asm jmp[OpenMap_JmpBack];
 }
 
+static int bhe_expansion_rate_1 = GetPrivateProfileInt(L"BHE_Shell", L"ExpansionRate_1", 7, ini_file);
+static int bhe_expansion_rate_2 = GetPrivateProfileInt(L"BHE_Shell", L"ExpansionRate_2", 7, ini_file);
 static unsigned long UpgBHEExpansionRate_Jmp = 0x005F4CA7;
 static unsigned long UpgBHEExpansionRate_JmpBack = UpgBHEExpansionRate_Jmp + 10;
 __declspec(naked) void inline UpgBHEExpansionRate()
 {
-    __asm push 124;
-    __asm push[esi + 0x0000051];
-    __asm mov eax, 0x0040186B;
-    __asm call eax;
-    __asm test ax, ax;
-    __asm jle originalcode;
-    __asm mov[esi + 0x125], 0xA;
-    __asm test ecx, ecx;
-    __asm jmp exitt;
+    __asm {
+        push 124
+        push[esi + 0x0000051]
+        mov eax, 0x0040186B
+        call eax
+        test ax, ax
+        jle originalcode
+        mov eax, bhe_expansion_rate_1
+        mov dword ptr [esi + 0x125], eax
+        test ecx, ecx
+        jmp exitt
 
-    __asm originalcode:;
-    __asm mov[esi + 0x125], 7;
-    __asm test ecx, ecx;
+        originalcode:
+        mov eax, bhe_expansion_rate_2
+        mov dword ptr [esi + 0x125], eax
+        test ecx, ecx
 
-    __asm exitt:;
-    __asm jmp[UpgBHEExpansionRate_JmpBack];
+        exitt:
+        jmp[UpgBHEExpansionRate_JmpBack]
+    }
 }
 
+static int fall_Speed_1 = GetPrivateProfileInt(L"BHE_Shell", L"FallSpeed_1", 25, ini_file);
+static int fall_Speed_2 = GetPrivateProfileInt(L"BHE_Shell", L"FallSpeed_2", 25, ini_file);
+static int fall_Speed_1_neg = -fall_Speed_1;
+static int fall_Speed_2_neg = -fall_Speed_2;
 static unsigned long UpgBHESpeed_Jmp = 0x005F4C93;
 static unsigned long UpgBHESpeed_JmpBack = UpgBHESpeed_Jmp + 10;
 __declspec(naked) void inline UpgBHESpeed()
 {
-    __asm push 124;
-    __asm push[esi + 0x0000051];
-    __asm mov eax, 0x0040186B;
-    __asm call eax;
-    __asm test ax, ax;
-    __asm jz originalcode;
-    __asm mov dword ptr [esi + 0x121], 0xFFFFFFE7;
-    __asm test ecx, ecx;
-    __asm jmp exitt;
+    __asm {
+        push 124
+        push[esi + 0x0000051]
+        mov eax, 0x0040186B
+        call eax
+        test ax, ax
+        jz originalcode
+        mov eax, fall_Speed_2_neg
+        mov dword ptr [esi + 0x121], eax
+        test ecx, ecx
+        jmp exitt
 
-    __asm originalcode:;
-    __asm mov dword ptr [esi + 0x121], 0xFFFFFFE2; // same
+        originalcode:
+        mov eax, fall_Speed_1_neg
+        mov dword ptr [esi + 0x121], eax // same
 
-    __asm exitt:;
-    __asm jmp[UpgBHESpeed_JmpBack];
+        exitt:
+        jmp[UpgBHESpeed_JmpBack]
+    }
 }
 
+static int particles_amount_1 = GetPrivateProfileInt(L"BHE_Shell", L"ParticlesAmount_1", 30, ini_file);
+static int particles_amount_2 = GetPrivateProfileInt(L"BHE_Shell", L"ParticlesAmount_2", 30, ini_file);
 static unsigned long UpgBHEDotsAmount_Jmp = 0x005F4C56;
 static unsigned long UpgBHEDotsAmount_JmpBack = UpgBHEDotsAmount_Jmp + 6;
 __declspec(naked) void inline UpgBHEDotsAmount()
 {
-    __asm push 124;
-    __asm push[esi + 0x0000051];
-    __asm mov eax, 0x0040186B;
-    __asm call eax;
-    __asm test ax, ax;
-    __asm jz originalcode;
-    __asm mov[ebp + 0x18], 0x32;
+    __asm {
+        push 124
+        push[esi + 0x0000051]
+        mov eax, 0x0040186B
+        call eax
+        test ax, ax
+        jz originalcode
+        mov eax, particles_amount_2
+        jmp outt
 
-    __asm originalcode:;
-    __asm fild dword ptr[ebp + 0x18];
-    __asm mov eax, [ebp + 0x18];
-    __asm mov edx, [ebp - 0x4];
-    __asm mov ecx, esi;
+        originalcode:
+        mov eax, particles_amount_1
 
-    __asm jmp[UpgBHEDotsAmount_JmpBack];
+        outt:
+        mov dword ptr [ebp + 0x18], eax
+        fild dword ptr[ebp + 0x18]
+        mov eax, [ebp + 0x18]
+        mov edx, [ebp - 0x4]
+        mov ecx, esi
+
+        jmp[UpgBHEDotsAmount_JmpBack]
+    }
 }
 
 static unsigned long UpgRepairSpeed_Jmp = 0x004E238E;
@@ -985,182 +1047,298 @@ __declspec(naked) void inline SplinterTorpedoAoEDamageCheckLvl()
     }
 }
 
-static unsigned long ChangeSubsRange_Jmp = 0x0044F7F7;
-static unsigned long ChangeSubsRange_JmpBack = ChangeSubsRange_Jmp + 7;
-__declspec(naked) void inline ChangeSubsRange()
-{
-    __asm {
-        push eax
-        mov eax,[ebx+1783]
-        cmp eax,2 //6
-        je range_6
-        cmp eax,4
-        je range_6
-        cmp eax,5
-        je range_6
-        cmp eax,6
-        je range_6
-        cmp eax,11
-        je range_6
-        cmp eax,38
-        je range_6
-        cmp eax,13
-        je range_6
-        cmp eax,17
-        je range_6
-        cmp eax,18
-        je range_6
-        cmp eax,23
-        je range_6
-        cmp eax,39
-        je range_6
-        cmp eax,32
-        je range_6
-        cmp eax,33
-        je range_6
-        cmp eax,28
-        je range_6
 
-        cmp eax,3 // 5
-        je outt
-        cmp eax,10
-        je outt
-        cmp eax,15
-        je outt
-        cmp eax,16
-        je outt
-        cmp eax,22
-        je outt
-        cmp eax,31
-        je outt
-        
-        //range_7:
-        mov WORD PTR [ebx+0x814], 0x57F
-        mov WORD PTR [ebx+0x816], 7
-        mov WORD PTR [ebx+1802], 7
-        jmp outt
-
-        range_6:
-        mov WORD PTR [ebx+0x814], 0x4B6
-        mov WORD PTR [ebx+0x816], 6
-        mov WORD PTR [ebx+1802], 6
-
-        outt:
-        //mov byte ptr [ebx+1129],0 //dodge distance
-        pop eax
-        jmp dword ptr [eax*4+0x0045B044]
-    }
-}
-
-static unsigned long ChangeSubsRangeStd_Jmp = 0x0044F7F7;
-static unsigned long ChangeSubsRangeStd_JmpBack = ChangeSubsRangeStd_Jmp + 7;
-__declspec(naked) void inline ChangeSubsRangeStd()
-{
-    __asm {
-        push eax
-        mov eax,[ebx+1783]
-        cmp eax,2 //6
-        je range_6
-        cmp eax,13
-        je range_6
-        cmp eax,30
-        je range_6
-        jmp outt
-
-        range_6:
-        mov WORD PTR [ebx+0x814], 0x4B6
-        mov WORD PTR [ebx+0x816], 6
-        mov WORD PTR [ebx+1802], 6
-
-        outt:
-        //mov byte ptr [ebx+1129],0 //dodge distance
-        pop eax
-        jmp dword ptr [eax*4+0x0045B044]
-    }
-}
-
-//static unsigned long ChangeSubsRange_Jmp = 0x0044F7F7;
-//static unsigned long ChangeSubsRange_JmpBack = ChangeSubsRange_Jmp + 7;
-//__declspec(naked) void inline ChangeSubsRange()
+//static unsigned long ChangeSubsRangeStd_Jmp = 0x0044F7F7;
+//static unsigned long ChangeSubsRangeStd_JmpBack = ChangeSubsRangeStd_Jmp + 7;
+//__declspec(naked) void inline ChangeSubsRangeStd()
 //{
 //    __asm {
 //        push eax
 //        mov eax,[ebx+1783]
-//        cmp eax,1 //6
-//        je range_6
-//        cmp eax,3
+//        cmp eax,2 //6
 //        je range_6
 //        cmp eax,13
 //        je range_6
-//        cmp eax,38
-//        je range_6
-//        cmp eax,14
-//        je range_6
-//        cmp eax,18
-//        je range_6
-//        cmp eax,23
-//        je range_6
 //        cmp eax,30
 //        je range_6
-//        cmp eax,32
-//        je range_6
-//        cmp eax,28
-//        je range_6
-//        cmp eax,33
-//        je range_6
-//        cmp eax,39
-//        je range_6
-//
-//        cmp eax,31 // 5
-//        je outt
-//        cmp eax,22
-//        je outt
-//        cmp eax,15
-//        je outt
-//        cmp eax,16
-//        je outt
-//        cmp eax,10
-//        je outt
-//        
-//        //range_7:
-//        mov WORD PTR [ebx+0x814], 0x57F
-//        mov WORD PTR [ebx+0x816], 7
 //        jmp outt
 //
 //        range_6:
 //        mov WORD PTR [ebx+0x814], 0x4B6
 //        mov WORD PTR [ebx+0x816], 6
+//        mov WORD PTR [ebx+1802], 6
 //
 //        outt:
+//        //mov byte ptr [ebx+1129],0 //dodge distance
 //        pop eax
 //        jmp dword ptr [eax*4+0x0045B044]
 //    }
 //}
 
-static unsigned long BOFlagshipRange6_Jmp = 0x0044F94A;
-static unsigned long BOFlagshipRange6_JmpBack = BOFlagshipRange6_Jmp + 5;
-__declspec(naked) void inline BOFlagshipRange6()
+static WORD Sentinel_1_range = GetPrivateProfileInt(L"Sentinel", L"Range", 5, ini_file);
+static WORD Hunter_2_range = GetPrivateProfileInt(L"Hunter", L"Range", 5, ini_file);
+static WORD Cruiser_3_range = GetPrivateProfileInt(L"Cruiser", L"Range", 5, ini_file);
+static WORD Bomber_4_range = GetPrivateProfileInt(L"Bomber", L"Range", 5, ini_file);
+static WORD Minelayer_5_range = GetPrivateProfileInt(L"Minelayer", L"Range", 5, ini_file);
+static WORD Marauder_6_range = GetPrivateProfileInt(L"Marauder", L"Range", 5, ini_file);
+static WORD Terminator_10_range = GetPrivateProfileInt(L"Terminator", L"Range", 5, ini_file);
+static WORD Liberator_11_range = GetPrivateProfileInt(L"Liberator", L"Range", 5, ini_file);
+static WORD Flagship_WS_38_range = GetPrivateProfileInt(L"Flagship_WS", L"Range", 5, ini_file);
+
+static WORD Fighter_13_range = GetPrivateProfileInt(L"Fighter", L"Range", 5, ini_file);
+static WORD Destroyer_14_range = GetPrivateProfileInt(L"Destroyer", L"Range", 5, ini_file);
+static WORD Heavy_Cruiser_15_range = GetPrivateProfileInt(L"Heavy_Cruiser", L"Range", 5, ini_file);
+static WORD Invader_16_range = GetPrivateProfileInt(L"Invader", L"Range", 5, ini_file);
+static WORD Defender_17_range = GetPrivateProfileInt(L"Defender", L"Range", 5, ini_file);
+static WORD Raider_18_range = GetPrivateProfileInt(L"Raider", L"Range", 5, ini_file);
+static WORD Phantom_22_range = GetPrivateProfileInt(L"Phantom", L"Range", 5, ini_file);
+static WORD Avenger_23_range = GetPrivateProfileInt(L"Avenger", L"Range", 5, ini_file);
+static WORD Flagship_BO_39_range = GetPrivateProfileInt(L"Flagship_BO", L"Range", 5, ini_file);
+
+static WORD Paralizator_28_range = GetPrivateProfileInt(L"Paralizator", L"Range", 5, ini_file);
+static WORD Skat_30_range = GetPrivateProfileInt(L"Skat", L"Range", 5, ini_file);
+static WORD Dreadnaught_31_range = GetPrivateProfileInt(L"Dreadnaught", L"Range", 5, ini_file);
+static WORD Escort_32_range = GetPrivateProfileInt(L"Escort", L"Range", 5, ini_file);
+static WORD Bio_Assaulter_33_range = GetPrivateProfileInt(L"Bio_Assaulter", L"Range", 5, ini_file);
+static WORD Usurper_34_range = GetPrivateProfileInt(L"Usurper", L"Range", 5, ini_file);
+static WORD Psi_Zond_35_range = GetPrivateProfileInt(L"Psi_Zond", L"Range", 5, ini_file);
+static WORD Flagship_SI_40_range = GetPrivateProfileInt(L"Flagship_SI", L"Range", 5, ini_file);
+
+static unsigned long ChangeSubsRange_Jmp = 0x0044F7F7;
+__declspec(naked) void inline ChangeSubsRange()
 {
     __asm {
-        mov eax,0x180
-        mov WORD PTR [ebx+0x814], 0x4B6
-        mov WORD PTR [ebx+0x816], 6
-        jmp[BOFlagshipRange6_JmpBack]
+        push eax
+        push ecx
+        push esi
+        xor esi,esi
+        mov cx, 201
+        mov eax,[ebx+1783]
+        cmp eax,1 
+        je Sentinel
+        cmp eax,2
+        je Hunter
+        cmp eax,3
+        je Cruiser
+        cmp eax,4
+        je Bomber
+        cmp eax,5
+        je Minelayer
+        cmp eax,6
+        je Marauder
+        cmp eax,10
+        je Terminator
+        cmp eax,11
+        je Liberator
+        cmp eax,38
+        je Flagship_WS
+
+        cmp eax,13
+        je Fighter
+        cmp eax,14
+        je Destroyer
+        cmp eax,15
+        je Heavy_Cruiser
+        cmp eax,16
+        je Invader
+        cmp eax,17
+        je Defender
+        cmp eax,18
+        je Raider
+        cmp eax,22
+        je Phantom
+        cmp eax,23
+        je Avenger
+        cmp eax,39
+        je Flagship_BO
+
+        cmp eax,28
+        je Paralizator
+        cmp eax,30
+        je Skat
+        cmp eax,31
+        je Dreadnaught
+        cmp eax,32
+        je Escort
+        cmp eax,33
+        je Bio_Assaulter
+        cmp eax,34
+        je Usurper
+        cmp eax,35
+        je Psi_Zond
+        cmp eax,40
+        je Flagship_SI
+        jmp no_change
+        
+        Sentinel:
+        xor eax, eax
+        mov ax, Sentinel_1_range
+        jmp outt
+        
+        Hunter:
+        xor eax, eax
+        mov ax, Hunter_2_range
+        jmp outt
+        
+        Cruiser:
+        xor eax, eax
+        mov ax, Cruiser_3_range
+        jmp outt
+        
+        Bomber:
+        xor eax, eax
+        mov ax, Bomber_4_range
+        jmp outt
+        
+        Minelayer:
+        xor eax, eax
+        mov ax, Minelayer_5_range
+        jmp outt
+        
+        Marauder:
+        xor eax, eax
+        mov ax, Marauder_6_range
+        jmp outt
+        
+        Terminator:
+        xor eax, eax
+        mov ax, Terminator_10_range
+        jmp outt
+        
+        Liberator:
+        xor eax, eax
+        mov ax, Liberator_11_range
+        jmp outt
+        
+        Flagship_WS:
+        xor eax, eax
+        mov ax, Flagship_WS_38_range
+        jmp outt
+
+        
+        Fighter:
+        xor eax, eax
+        mov ax, Fighter_13_range
+        jmp outt
+        
+        Destroyer:
+        xor eax, eax
+        mov ax, Destroyer_14_range
+        jmp outt
+        
+        Heavy_Cruiser:
+        xor eax, eax
+        mov ax, Heavy_Cruiser_15_range
+        jmp outt
+        
+        Invader:
+        xor eax, eax
+        mov ax, Invader_16_range
+        jmp outt
+        
+        Defender:
+        xor eax, eax
+        mov ax, Defender_17_range
+        jmp outt
+        
+        Raider:
+        xor eax, eax
+        mov ax, Raider_18_range
+        jmp outt
+        
+        Phantom:
+        xor eax, eax
+        mov ax, Phantom_22_range
+        jmp outt
+        
+        Avenger:
+        xor eax, eax
+        mov ax, Avenger_23_range
+        jmp outt
+        
+        Flagship_BO:
+        xor eax, eax
+        mov ax, Flagship_BO_39_range
+        jmp outt
+            
+        
+        Paralizator:
+        xor eax, eax
+        mov ax, Paralizator_28_range
+        jmp outt
+        
+        Skat:
+        xor eax, eax
+        mov ax, Skat_30_range
+        jmp outt
+        
+        Dreadnaught:
+        xor eax, eax
+        mov ax, Dreadnaught_31_range
+        jmp outt
+        
+        Escort:
+        xor eax, eax
+        mov ax, Escort_32_range
+        jmp outt
+        
+        Bio_Assaulter:
+        xor eax, eax
+        mov ax, Bio_Assaulter_33_range
+        jmp outt
+        
+        Usurper:
+        xor eax, eax
+        mov ax, Usurper_34_range
+        jmp outt
+        
+        Psi_Zond:
+        xor eax, eax
+        mov ax, Psi_Zond_35_range
+        jmp outt
+        
+        Flagship_SI:
+        xor eax, eax
+        mov ax, Flagship_SI_40_range
+
+        outt:
+        mov si, ax
+        mul cx
+        mov WORD PTR [ebx+0x814], ax
+        mov WORD PTR [ebx+0x816], si
+
+        no_change:
+        pop esi
+        pop ecx
+        pop eax
+        jmp dword ptr [eax*4+0x0045B044]
     }
 }
 
-static unsigned long SIFlagshipRange7_Jmp = 0x0044F951;
-static unsigned long SIFlagshipRange7_JmpBack = SIFlagshipRange7_Jmp + 5;
-__declspec(naked) void inline SIFlagshipRange7()
-{
-    __asm {
-        mov eax,0x1DF
-        mov WORD PTR [ebx+0x814], 0x57F
-        mov WORD PTR [ebx+0x816], 7
-        mov WORD PTR [ebx+1802], 7
-        jmp[SIFlagshipRange7_JmpBack]
-    }
-}
+//static unsigned long BOFlagshipRange6_Jmp = 0x0044F94A;
+//static unsigned long BOFlagshipRange6_JmpBack = BOFlagshipRange6_Jmp + 5;
+//__declspec(naked) void inline BOFlagshipRange6()
+//{
+//    __asm {
+//        mov eax,0x180
+//        mov WORD PTR [ebx+0x814], 0x4B6
+//        mov WORD PTR [ebx+0x816], 6
+//        jmp[BOFlagshipRange6_JmpBack]
+//    }
+//}
+
+//static unsigned long SIFlagshipRange7_Jmp = 0x0044F951;
+//static unsigned long SIFlagshipRange7_JmpBack = SIFlagshipRange7_Jmp + 5;
+//__declspec(naked) void inline SIFlagshipRange7()
+//{
+//    __asm {
+//        mov eax,0x1DF
+//        mov WORD PTR [ebx+0x814], 0x57F
+//        mov WORD PTR [ebx+0x816], 7
+//        mov WORD PTR [ebx+1802], 7
+//        jmp[SIFlagshipRange7_JmpBack]
+//    }
+//}
 
 static unsigned long MediumTorpedoOnlyAoE_Jmp = 0x006412F0;
 static unsigned long MediumTorpedoOnlyAoE_JmpBack = MediumTorpedoOnlyAoE_Jmp + 7;
@@ -5142,10 +5320,13 @@ __declspec(naked) void inline ResearchBuildingsLimitCreateCommon()
     }
 }
 
+static BYTE human_limit = GetPrivateProfileInt(L"Tech_centers", L"human_limit", 3, ini_file);
+static BYTE si_limit = GetPrivateProfileInt(L"Tech_centers", L"si_limit", 2, ini_file);
 static unsigned long CheckHumanResearchCenters_Jmp = 0x0048898D;
 static unsigned long CheckHumanResearchCenters_JmpBack = CheckHumanResearchCenters_Jmp + 5;
 __declspec(naked) void inline CheckHumanResearchCenters()
 {
+
     __asm {
         mov eax, 0x0040571D
         call eax
@@ -5157,7 +5338,7 @@ __declspec(naked) void inline CheckHumanResearchCenters()
 
         mov eax,[esi+0x24]
         mov al,[eax+0x007F586E]
-        cmp al, 3 // max centers
+        cmp al, human_limit // max centers
 
         pop eax
         jb exitt
@@ -5199,7 +5380,7 @@ __declspec(naked) void inline CheckSIModules()
 
         mov eax,[ebx+0x24]
         mov al,[eax+0x007F586E]
-        cmp al, 3 //max modules
+        cmp al, si_limit // max modules
 
         pop eax
         jb exitt
@@ -5383,7 +5564,7 @@ __declspec(naked) void inline AntiAbuseHumanCenters()
 
         mov eax,[ebx+0x24]
         mov al,[eax+0x007F586E]
-        cmp al, 3 // max centers
+        cmp al, human_limit // max centers
 
         pop eax
         jb originalcode
@@ -5459,7 +5640,7 @@ __declspec(naked) void inline ModifyAimGpsV2()
         jbe idle
         //---
 
-        mov eax,[edx+0xAF]
+        mov eax,[edx+0xAF] //направление движения
         test eax,eax
         jne non_zero
         mov edi,1
@@ -5511,22 +5692,22 @@ __declspec(naked) void inline ModifyAimGpsV2()
 
         calc:
         mov edx,[esi+0x0C]
-        movsx eax,word ptr [edx+0x41]
-        imul edi,201
+        movsx eax,word ptr [edx+65] // X*200
+        imul edi,200
                     // speed
         xor ecx,ecx
-        mov cl,[edx+0x61]
+        mov cl,[edx+97]
         sub ecx,17
         imul ecx,0x10
         test edi,edi
-        je set_change_x
+        je set_change_y
         jns increasing_x
         sub edi,ecx
-        jmp set_change_x
+        jmp set_change_y
         increasing_x:
         add edi,ecx
 
-        set_change_x:
+        set_change_y:
                     // ecx, edx, push eax
                     // get distance
                     // mov ecx,[esi+0C]
@@ -5535,30 +5716,94 @@ __declspec(naked) void inline ModifyAimGpsV2()
         mov dword ptr [esi+0x20],eax
 
         mov ecx,[esi+0x0C]
-        movsx edx,word ptr [ecx+0x43]
+        movsx edx,word ptr [ecx+67]
         imul ebx,201
 
                     // speed
         xor eax,eax
-        mov al,[ecx+0x61]
+        mov al,[ecx+97]
         sub eax,17
         imul eax,0x10
         test ebx,ebx
-        je set_change_y
+        je set_change_z
         jns increasing_y
         sub ebx,eax
-        jmp set_change_y
+        jmp set_change_z
         increasing_y:
         add ebx,eax
 
-        set_change_y:
+        set_change_z:
         add edx,ebx
         mov dword ptr [esi+0x24],edx
+            
+        mov edx, [esi+12]
+        cmp [edx+227], 0
+        jz skip
+        mov ebx,[edx+175] //направление движения
+        cmp ebx, 0x2FFE
+        jb skip
 
-        mov eax,[esi+0x0C]
-        movsx ecx,word ptr [eax+0x45]
+        // Calc distance
+        push ecx
+        push edx
+        mov edi, [ebp-0x14]
+        movsx eax,word ptr [edx+0x4B]
+        push eax
+        movsx ecx,word ptr [edx+0x49]
+        push ecx
+        movsx edx,word ptr [edx+0x47]
+        push edx
+        movsx eax,word ptr [edi+0x4B]
+        push eax
+        movsx ecx,word ptr [edi+0x49]
+        push ecx
+        movsx edx,word ptr [edi+0x47]
+        push edx
+        mov eax, 0x006AADD0
+        call eax
+        pop edx
+        pop ecx
+        //---
+        imul eax, 2 // тиков полёта снаряда до цели
+        //sub eax,2 //корректировка
+        mov ecx, [esi+12]
+        mov cl, [ecx+98]
+        and ecx,0xFF
+        imul eax, ecx
+        cmp ebx, 0x2FFE
+        je up
+        cmp ebx, 0x4FFE
+        je down
+        jmp skip
+            
+        down:
+        mov ebx,[esi+0x0C]
+        movsx ecx,word ptr [ebx+69]
+        sub ecx, eax
+        cmp ecx, 100
+        ja put_bottom
+        mov ecx, 100
+        put_bottom:
+        mov dword ptr [esi+0x28],ecx
+        jmp outt
+
+        up:
+        mov ebx,[esi+0x0C]
+        movsx ecx,word ptr [ebx+69]
+        add ecx, eax
+        cmp ecx, 1110
+        jb put_top
+        mov ecx, 1110
+        put_top:
+        mov dword ptr [esi+0x28],ecx
+        jmp outt
+
+        skip:
+        mov ebx,[esi+0x0C]
+        movsx ecx,word ptr [ebx+69]
         mov dword ptr [esi+0x28],ecx
 
+        outt:
         pop edi
         pop ebx
 
@@ -6341,6 +6586,7 @@ __declspec(naked) void inline Regen20Percent()
     }
 }
 
+static DWORD soliton_pulse_cost = GetPrivateProfileInt(L"Soliton", L"Pulse_cost", 0, ini_file);
 static unsigned long EnergyForSoliton_Jmp = 0x0060D0CB;
 static unsigned long EnergyForSoliton_JmpBack = EnergyForSoliton_Jmp + 9;
 __declspec(naked) void inline EnergyForSoliton()
@@ -6361,10 +6607,10 @@ __declspec(naked) void inline EnergyForSoliton()
         mov eax, 0x004036A7 // j_func_current_energy
         call eax
 
-        cmp eax, 7 // pulse cost
+        cmp eax, soliton_pulse_cost // pulse cost
         jb stall
         mov [ebx+556], 1
-        push 7     // pulse cost
+        push soliton_pulse_cost // pulse cost
         mov eax,[ebx+36] // field owner
         push eax
         mov eax, 0x004043F9 // j_func_take_energy_1
@@ -7637,6 +7883,20 @@ __declspec(naked) void inline AllySiliconMinesCheckPlacing()
 }
 
 
+static DWORD corium_steal = GetPrivateProfileInt(L"Cyberworm", L"Corium_steal", 100, ini_file);
+static unsigned long CyberWormCoriumSteal_Jmp = 0x004636BD;
+static unsigned long CyberWormCoriumSteal_JmpBack = CyberWormCoriumSteal_Jmp + 5;
+__declspec(naked) void inline CyberWormCoriumSteal()
+{
+    __asm {
+        mov ebx, eax
+        cmp ebx, corium_steal
+
+        jmp[CyberWormCoriumSteal_JmpBack]
+    }
+}
+
+
 //static BYTE author_number = GetPrivateProfileInt(L"GameVersion", L"Level_1", 1, ini_file);
 //static BYTE version_number = GetPrivateProfileInt(L"GameVersion", L"Level_2", 0, ini_file);
 static unsigned long ChangeGameVersion_Jmp = 0x005B324F;
@@ -7646,7 +7906,7 @@ __declspec(naked) void inline ChangeGameVersion()
     __asm {
         mov eax, 0x00807DD5
         //mov dword ptr [eax], 0x01030000 // 0x0102002A - standart, 0x0102001A - V2, 0x01030000 - V3
-        mov dword ptr [eax], 0x0102003C
+        mov dword ptr [eax], 0x0102003E
         /*mov byte ptr [eax+2], author_number
         mov byte ptr [eax], version_number*/
         mov eax, [eax]
