@@ -956,7 +956,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteByte((void *)0x007BFBBB, 0); // Mining upgrade silicon si
     // patch.WriteByte((void *)0x007BFBBC, ); // Mining upgrade corium si
     
-    patch.WriteByte((void *)0x007BFAC7, 0); // WS Capture upg
+    patch.WriteByte((void *)0x007BFAC8, 0); // WS Capture upg
     patch.WriteByte((void *)0x007BFB60, 0); // BO Capture upg
     patch.WriteByte((void *)0x007BFBF8, 0); // SI Capture upg
 
@@ -2232,7 +2232,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     if (ai_compatible)
     {
         patch.WriteByte((void *)0x007BFBBB, 1); // Mining upgrade silicon si
-        patch.WriteByte((void *)0x007BFAC7, 1); // WS Capture upg
+        patch.WriteByte((void *)0x007BFAC8, 1); // WS Capture upg
         patch.WriteByte((void *)0x007BFB60, 1); // BO Capture upg
         patch.WriteByte((void *)0x007BFBF8, 1); // SI Capture upg
 

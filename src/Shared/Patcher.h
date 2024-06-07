@@ -2123,6 +2123,9 @@ __declspec(naked) void inline CheckNestedOrderToNotCheckDistance()
         test eax,eax
         jz no_order
         //cmp dword ptr [eax+8], 0xFFFFFFFF
+        
+        //cmp byte ptr [eax+34],0xFF
+        //je fix_patrol_reset
         cmp byte ptr [eax+34],1
         pop eax
         jne originalcode
@@ -2132,6 +2135,10 @@ __declspec(naked) void inline CheckNestedOrderToNotCheckDistance()
         je originalcode
         mov eax,1
         jmp exitt
+
+        //fix_patrol_reset:
+        //pop eax
+        //jmp originalcode
 
         no_order:
         pop eax
