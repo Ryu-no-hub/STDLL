@@ -116,7 +116,8 @@
       <AdditionalLibraryDirectories>C:\src\vcpkg\vcpkg\packages\yaml-cpp_x64-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(OutputPath)STDLL.asi" "C:\GOG Games\Submarine Titans 2\plugins"</Command>
+      <Command>copy "$(OutputPath)STDLL.asi" "C:\GOG Games\Submarine Titans 2\plugins"
+copy "$(OutputPath)..\..\config.ini" "C:\GOG Games\Submarine Titans 2\plugins"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

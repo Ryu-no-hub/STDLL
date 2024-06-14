@@ -385,8 +385,8 @@ __declspec(naked) void inline MinesDetectionSI()
 
 static int energy_mine_amount_1 = GetPrivateProfileInt(L"Economics", L"EnergyMineAmount_1", 5, ini_file);
 static int energy_mine_amount_2 = GetPrivateProfileInt(L"Economics", L"EnergyMineAmount_2", 5, ini_file);
-static int energy_mine_amount_1_neg = -energy_mine_amount_1_neg;
-static int energy_mine_amount_2_neg = -energy_mine_amount_2_neg;
+static int energy_mine_amount_1_neg = -energy_mine_amount_1;
+static int energy_mine_amount_2_neg = -energy_mine_amount_2;
 static unsigned long UPGNRGACCUM_decrease_deposit_Jmp = 0x004E0FA4;
 static unsigned long UPGNRGACCUM_decrease_deposit_JmpBack = UPGNRGACCUM_decrease_deposit_Jmp + 9;
 __declspec(naked) void inline UPGNRGACCUM_decrease_deposit()
@@ -522,15 +522,17 @@ __declspec(naked) void inline UpgBHEExpansionRate()
         call eax
         test ax, ax
         jle originalcode
-        mov eax, bhe_expansion_rate_1
+        mov eax, bhe_expansion_rate_2
         mov dword ptr [esi + 0x125], eax
-        test ecx, ecx
+        //test ecx, ecx
+        test ebx, ebx
         jmp exitt
 
         originalcode:
-        mov eax, bhe_expansion_rate_2
+        mov eax, bhe_expansion_rate_1
         mov dword ptr [esi + 0x125], eax
-        test ecx, ecx
+        //test ecx, ecx
+        test ebx, ebx
 
         exitt:
         jmp[UpgBHEExpansionRate_JmpBack]
@@ -554,7 +556,7 @@ __declspec(naked) void inline UpgBHESpeed()
         jz originalcode
         mov eax, fall_Speed_2_neg
         mov dword ptr [esi + 0x121], eax
-        test ecx, ecx
+        //test ecx, ecx
         jmp exitt
 
         originalcode:
@@ -589,7 +591,7 @@ __declspec(naked) void inline UpgBHEDotsAmount()
         mov dword ptr [ebp + 0x18], eax
         fild dword ptr[ebp + 0x18]
         mov eax, [ebp + 0x18]
-        mov edx, [ebp - 0x4]
+        //mov edx, [ebp - 0x4]
         mov ecx, esi
 
         jmp[UpgBHEDotsAmount_JmpBack]
@@ -983,7 +985,7 @@ static unsigned long SplinterTorpedoRangex201_JmpBack = SplinterTorpedoRangex201
 __declspec(naked) void inline SplinterTorpedoRangex201()
 {
     __asm {
-        push 201
+        push 300
         push ebx
         mov eax, 0x00403116
         call eax
@@ -1315,17 +1317,56 @@ __declspec(naked) void inline ChangeSubsRange()
     }
 }
 
-//static unsigned long BOFlagshipRange6_Jmp = 0x0044F94A;
-//static unsigned long BOFlagshipRange6_JmpBack = BOFlagshipRange6_Jmp + 5;
-//__declspec(naked) void inline BOFlagshipRange6()
-//{
-//    __asm {
-//        mov eax,0x180
-//        mov WORD PTR [ebx+0x814], 0x4B6
-//        mov WORD PTR [ebx+0x816], 6
-//        jmp[BOFlagshipRange6_JmpBack]
-//    }
-//}
+static unsigned long FirstBuilderOxygen_Jmp = 0x0044EEEE; 
+static unsigned long FirstBuilderOxygen_JmpBack = FirstBuilderOxygen_Jmp + 6;
+__declspec(naked) void inline FirstBuilderOxygen()
+{
+    __asm {
+        mov [ebx+1783], ecx
+        cmp ecx, 12
+        je contructor
+        cmp ecx, 24
+        je contructor
+        jmp originalcode
+
+        contructor:
+        push eax
+        push ecx
+        push edx
+        mov ecx, ebx
+        push esi
+        mov esi, ecx
+        mov ecx, 0x007FA174
+        mov ecx, [ecx]
+        push 4 
+        xor eax, eax
+        mov al, [esi+36]
+        push eax
+        mov eax, 0x00404106
+        call eax
+        mov ecx, [esi+16]
+        mov eax, [esi+36]
+        xor edx,edx
+        mov dl, [ecx+4397]
+        cmp eax, edx
+        jne outt
+        mov ecx, 0x007FA174
+        mov ecx, [ecx]
+        push eax
+        mov eax, 0x00404B8D // func_give_and_update_oxygen
+        call eax
+
+        outt:
+        xor eax, eax
+        pop esi
+        pop edx
+        pop ecx
+        pop eax        
+
+        originalcode:
+        jmp[FirstBuilderOxygen_JmpBack]
+    }
+}
 
 //static unsigned long SIFlagshipRange7_Jmp = 0x0044F951;
 //static unsigned long SIFlagshipRange7_JmpBack = SIFlagshipRange7_Jmp + 5;
@@ -7913,7 +7954,7 @@ __declspec(naked) void inline ChangeGameVersion()
     __asm {
         mov eax, 0x00807DD5
         //mov dword ptr [eax], 0x01030000 // 0x0102002A - standart, 0x0102001A - V2, 0x01030000 - V3
-        mov dword ptr [eax], 0x0102003E
+        mov dword ptr [eax], 0x01020040
         /*mov byte ptr [eax+2], author_number
         mov byte ptr [eax], version_number*/
         mov eax, [eax]
