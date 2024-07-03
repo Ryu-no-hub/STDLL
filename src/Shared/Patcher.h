@@ -30,7 +30,7 @@ static auto game_mode_ptr = (BYTE *)0x00808783;
 static auto game_submode_ptr = (DWORD *)0x00808784;
 static char *player_name_ptr = (char *)0x00807DDD;
 
-static auto host_flag = (DWORD *)0x007F586A;
+static auto host_flag = (DWORD *)0x007F5866;
 
 static wchar_t *convertCharArrayToLPCWSTR(const char *charArray)
 {
@@ -307,13 +307,17 @@ __declspec(naked) void inline SetHostFlag_AnnounceGameHost_Detour()
     __asm je host;
     __asm cmp al, 5;
     __asm je host;
+    __asm cmp al, 7;
+    __asm je host;
     __asm cmp al, 12;
     __asm je host;
-    __asm mov dword ptr ss : [0x007F586A], 0;
+    __asm mov eax, [host_flag]
+    __asm mov dword ptr ss : [eax], 0;
     __asm jmp skip;
 
     __asm host:;
-    __asm mov dword ptr ss : [0x007F586A], 1;
+    __asm mov eax, [host_flag]
+    __asm mov dword ptr ss : [eax], 1;
 
     __asm skip:;
     __asm call[AnnounceGameHost];
@@ -332,13 +336,15 @@ __declspec(naked) void inline DontResetHostFlag()
 {
     __asm {
         push ebx
-        mov ebx, 0x007F586A
+        mov ebx, 0x007F5866
         mov ebx,[ebx]
         
-        mov dword ptr ss:[esi], 0x0079059C
-        rep stosd;
+        //mov dword ptr ss:[esi], 0x0079059C
+        mov dword ptr [esi], 0x0079059C
+        rep stosd
     
-        mov dword ptr ss:[0x007F586A], ebx
+        mov dword ptr ss:[0x007F5866], ebx
+        //mov dword ptr [0x007F5866], ebx
         pop ebx
         jmp[DontResetHostFlag_JmpBack]
     }
@@ -690,17 +696,30 @@ __declspec(naked) void inline UpgRepairSpeedPlatf()
     __asm jmp[UpgRepairSpeedPlatf_JmpBack];
 }
 
-static unsigned long TargetingNoHpPriority_Jmp = 0x00489BE1;
-static unsigned long TargetingNoHpPriority_JmpBack = TargetingNoHpPriority_Jmp + 9;
+static unsigned long TargetingNoHpPriority_Jmp = 0x00489BEA;
+static unsigned long TargetingNoHpPriority_JmpBack = TargetingNoHpPriority_Jmp + 5;
 __declspec(naked) void inline TargetingNoHpPriority()
 {
     __asm {
-        xor eax, eax
-        mov ecx, [ebp - 4] 
-        mov edx, [esi + 0x48B]
+        xor eax,eax
+        lea ebx,[edi+eax]
         jmp[TargetingNoHpPriority_JmpBack]
     }
 }
+
+//static unsigned long TargetingNoHpPriority_Jmp = 0x00489BEA;
+//static unsigned long TargetingNoHpPriority_JmpBack = TargetingNoHpPriority_Jmp + 5;
+//__declspec(naked) void inline TargetingNoHpPriority()
+//{
+//    __asm {
+//        shl eax,2
+//        neg eax
+//        add eax, 1
+//        lea ebx, [edi+eax]
+//        xor eax, eax
+//        jmp[TargetingNoHpPriority_JmpBack]
+//    }
+//}
 
 static unsigned long GoldForHumansOnly_Jmp = 0x004D86FD;
 static unsigned long GoldForHumansOnly_JmpBack = GoldForHumansOnly_Jmp + 7;
@@ -985,7 +1004,24 @@ static unsigned long SplinterTorpedoRangex201_JmpBack = SplinterTorpedoRangex201
 __declspec(naked) void inline SplinterTorpedoRangex201()
 {
     __asm {
-        push 300
+        push edx
+        push ecx
+        push 149
+        push [ebx+0x24]
+        mov eax, 0x0040186B
+        call eax
+        test ax, ax        
+        pop ecx
+        pop edx
+        jz stock
+
+        push 402
+        jmp originalcode
+
+        stock:
+        push 201
+
+        originalcode:
         push ebx
         mov eax, 0x00403116
         call eax
@@ -3439,13 +3475,13 @@ __declspec(naked) void inline NoEnergyOverflow()
         mov eax,[ebp+0x08]
         push eax
         mov eax, 0x00404390
-        call eax
+        call eax 
 
         pop eax
         pop ebp
         ret 8
         nop 
-        jmp[NoEnergyOverflow_JmpBack]
+        jmp[NoEnergyOverflow_JmpBack] 
     }
 }
 
@@ -5659,12 +5695,12 @@ __declspec(naked) void inline ModifyAimGpsV2()
         jmp calc
 
         main:
-        mov eax,[edx+0xE3] // move flag
+        mov eax,[edx+227] // move flag
         test eax,eax
         jz idle
 
-        // Check if too close        
-        push eax
+        // moving     
+        //push eax
         push ecx
         push edx
         movsx eax,word ptr [edx+0x4B]
@@ -5681,16 +5717,47 @@ __declspec(naked) void inline ModifyAimGpsV2()
         push edx
         mov eax, 0x006AADD0
         call eax
-        cmp eax, 2
+        cmp eax, 1 // Check if too close   
         pop edx
         pop ecx
-        pop eax
+        //pop eax
         jbe idle
         //---
 
-        mov eax,[edx+0xAF] //направление движения
+        mov ecx, eax
+        imul ecx, 201 // distance
+        push ecx
+
+        mov edx, [edi+565]
+        lea eax, [edx*2]
+        lea edx, [eax+eax*2]
+        mov edx, [edx*4+0x00792CA0] // id типа снаряда
+        push edx
+        mov eax, 0x004025AE // func_get_speed
+        call eax 
+        pop ecx
+
+        mov edx, eax
+        mov eax, ecx
+        mov ecx, edx
+
+        xor edx, edx
+        div ecx // тиков полёта снаряда до цели (eax)
+
+        mov ecx, [esi+12]
+        mov cl, [ecx+97] // submarine speed
+        and ecx,0xFF
+        imul eax, ecx // !
+        mov ecx, eax // смещение
+            
+        mov edx,[esi+0x0C]
+        mov eax,[edx+175] //направление движения
+        cmp eax, 0x2FFE
+        jae vertical
+        
+        // horizontal
         test eax,eax
-        jne non_zero
+        jnz non_zero
         mov edi,1
         mov ebx,0
         jmp calc // 0
@@ -5739,115 +5806,53 @@ __declspec(naked) void inline ModifyAimGpsV2()
         mov edi,-1         // 225
 
         calc:
+        cmp edi, ebx
+        jne adjust
+
+        //sar ecx,1
+
+        adjust:
+        imul edi,ecx
+        imul ebx,ecx
+            
         mov edx,[esi+0x0C]
         movsx eax,word ptr [edx+65] // X*200
-        imul edi,200
-                    // speed
-        xor ecx,ecx
-        mov cl,[edx+97]
-        sub ecx,17
-        imul ecx,0x10
-        test edi,edi
-        je set_change_y
-        jns increasing_x
-        sub edi,ecx
-        jmp set_change_y
-        increasing_x:
-        add edi,ecx
-
-        set_change_y:
-                    // ecx, edx, push eax
-                    // get distance
-                    // mov ecx,[esi+0C]
-                    // mov
         add eax,edi
         mov dword ptr [esi+0x20],eax
 
-        mov ecx,[esi+0x0C]
-        movsx edx,word ptr [ecx+67]
-        imul ebx,201
+        movsx eax,word ptr [edx+67]
+        add eax,ebx
+        mov dword ptr [esi+0x24],eax
+        jmp skip_vertical
 
-                    // speed
-        xor eax,eax
-        mov al,[ecx+97]
-        sub eax,17
-        imul eax,0x10
-        test ebx,ebx
-        je set_change_z
-        jns increasing_y
-        sub ebx,eax
-        jmp set_change_z
-        increasing_y:
-        add ebx,eax
 
-        set_change_z:
-        add edx,ebx
-        mov dword ptr [esi+0x24],edx
-            
-        mov edx, [esi+12]
-        cmp [edx+227], 0
-        jz skip
-        mov ebx,[edx+175] //направление движения
-        cmp ebx, 0x2FFE
-        jb skip
-
-        // Calc distance
-        push ecx
-        push edx
-        mov edi, [ebp-0x14]
-        movsx eax,word ptr [edx+0x4B]
-        push eax
-        movsx ecx,word ptr [edx+0x49]
-        push ecx
-        movsx edx,word ptr [edx+0x47]
-        push edx
-        movsx eax,word ptr [edi+0x4B]
-        push eax
-        movsx ecx,word ptr [edi+0x49]
-        push ecx
-        movsx edx,word ptr [edi+0x47]
-        push edx
-        mov eax, 0x006AADD0
-        call eax
-        pop edx
-        pop ecx
-        //---
-        imul eax, 2 // тиков полёта снаряда до цели
-        //sub eax,2 //корректировка
-        mov ecx, [esi+12]
-        mov cl, [ecx+98]
-        and ecx,0xFF
-        imul eax, ecx
-        cmp ebx, 0x2FFE
+        vertical:
+        sar ecx, 1
+        mov ebx,[esi+0x0C]
+        movsx ebx,word ptr [ebx+69] // Z*200
+        cmp eax, 0x2FFE
         je up
-        cmp ebx, 0x4FFE
-        je down
-        jmp skip
             
         down:
-        mov ebx,[esi+0x0C]
-        movsx ecx,word ptr [ebx+69]
-        sub ecx, eax
-        cmp ecx, 100
-        ja put_bottom
-        mov ecx, 100
-        put_bottom:
-        mov dword ptr [esi+0x28],ecx
-        jmp outt
+        sub ebx, ecx
+        cmp ebx, 100
+        ja set_vertical
+        mov ebx, 100
+        jmp set_vertical
 
         up:
-        mov ebx,[esi+0x0C]
-        movsx ecx,word ptr [ebx+69]
         add ecx, eax
         cmp ecx, 1110
-        jb put_top
+        jb set_vertical
         mov ecx, 1110
-        put_top:
-        mov dword ptr [esi+0x28],ecx
+
+        set_vertical:
+        mov dword ptr [esi+0x28],ebx
         jmp outt
 
-        skip:
-        mov ebx,[esi+0x0C]
+
+        skip_vertical:
+        mov ebx,[esi+12]
         movsx ecx,word ptr [ebx+69]
         mov dword ptr [esi+0x28],ecx
 
@@ -6201,54 +6206,407 @@ __declspec(naked) void inline AimPredictionSubmarines()
         mov dx,[edi+0x45] // Z target final
         mov ecx,[esi+0x24]
 
-        push ebx   // ecx free, edi = target ptr
+        push ebx // ecx free, edi = target ptr
         push eax
         push ecx
 
-                        // move check
+                // target has order check
+        mov eax,[edi+159]
+        test eax,eax
+        jz exitt
+                // move check
+        mov eax,[edi+227] // move flag (0, 1, 2)
+        test eax,eax
+        jz exitt
+
+
+
+            // moving
+        //mov eax,[edi+0x9F] // order
+        //mov ecx,[edi+0xA3]           // path length
+        //lea ecx,[ecx+ecx*8]
+        //// movsx eax, word ptr [eax+48] //X target in order
+        //movsx ebx, word ptr [edi+0x47] // X current
+        //cmp bx, [eax+ecx*8-0x48] // X target in order
+        //jne horizontal
+        //                       // mov eax,[edi+9F] //order
+        //    // movsx eax, word ptr [eax+4A] //Y target in order
+        //movsx ebx, word ptr [edi+0x49] // Y current
+        //cmp bx, [eax+ecx*8-0x46] // Y target in order
+        //jne horizontal
+
+
+        // vertical
+            // Calc distance
+        push ecx
+        push edx
+                // mov edi, [ebp-0x14]
+        movsx eax,word ptr [edi+0x4B]
+        push eax
+        movsx ecx,word ptr [edi+0x49]
+        push ecx
+        movsx edx,word ptr [edi+0x47]
+        push edx
+        movsx eax,word ptr [esi+0x4B]
+        push eax
+        movsx ecx,word ptr [esi+0x49]
+        push ecx
+        movsx edx,word ptr [esi+0x47]
+        push edx
+        mov eax, 0x006AADD0
+        call eax
+        cmp eax, 1           // Check if too close  
+        pop edx
+        pop ecx
+        jbe exitt
+            //---
+          
+            // imul eax, 2 // тиков полёта снаряда до цели (примерная скорость снаряда = 100)
+        mov ecx, eax
+        imul ecx, 201 // distance
+        push edx
+        push ecx
+        mov edx, [esi+1946]
+        push edx
+        mov eax, 0x004025AE // func_get_speed
+        call eax
+        pop ecx 
+
+        mov edx, eax
+        mov eax, ecx
+        mov ecx, edx
+
+        xor edx, edx
+        div ecx // тиков полёта снаряда до цели
+
+            // sub eax,2 //корректировка
+            // mov ecx, [esi+12]
+        mov cl, [edi+97] // submarine speed
+        and ecx,0xFF
+        imul eax, ecx
+        mov ecx, eax
+        
+        mov eax,[edi+175] //направление движения
+        cmp eax, 0x2FFE
+        //jb horizontal
+        jae vertical
+
+        
+        // horizontal
+        //mov eax,[edi+175]
+        test eax,eax
+        jnz non_zero
+        mov eax,1 // X
+        mov ebx,0 // Y
+        jmp calc // 0
+
+        non_zero:
+        cmp eax,180
+        je degree_180
+        jb under_180
+        mov ebx,1
+        cmp eax,270
+        je degree_270
+        jb degree_225
+        cmp eax,360
+        ja exittt
+        mov eax,1 // 315
+        jmp calc
+
+        degree_180:
+        mov eax,-1
+        mov ebx,0 // 180
+        jmp calc
+
+        under_180:
+        mov ebx,-1
+
+        cmp eax,90
+        jne not_90
+        mov eax,0 // 90
+        jmp calc
+
+        not_90:
+        cmp eax,45
+        je degree_45
+        mov eax,-1 // 135
+        jmp calc
+
+        degree_45:
+        mov eax,1 // 45
+        jmp calc
+
+        degree_270:
+        mov eax,0 // 270
+        jmp calc
+
+        degree_225:
+        mov eax,-1 // 225
+
+
+        calc:
+        //cmp eax, ebx
+        //jne adjust 
+
+        test eax, eax
+        jz adjust
+
+            
+        sar ecx,1
+            
+        adjust:
+        imul eax,ecx
+        imul ebx,ecx
+
+        //mov edx,[esi+0x0C]
+        pop edx
+        push ecx
+        movsx ecx,word ptr [edi+65] // X*200
+        add ecx,eax
+        mov [ebp-0x84],cx
+        pop ecx
+
+        movsx eax,word ptr [edi+67]
+        add eax,ebx
+        mov [ebp-0x82],ax
+        jmp skip
+
+
+        //test eax,eax
+        //jz calc_Y
+        //mov ax,[ebp-0x84] // X target final
+        //jns inceasing_X
+        //    // decreasing_X:
+        //xor ecx,ecx
+        //mov cl,[edi+0x61] //реальная скорость
+        //             // sub ecx,#17
+        //imul ecx,7
+        //sub eax,ecx // add to X axis
+
+        //set_X:
+        //mov [ebp-0x84],ax
+        //jmp exitt
+
+        //inceasing_X:
+        //xor ecx,ecx
+        //mov cl,[edi+0x61] //реальная скорость, от 6 до 21
+        //             // sub ecx,#17
+        //imul ecx,7
+        //add eax,ecx // add to X axis
+        //jmp set_X
+
+
+        //calc_Y:
+        //test ebx,ebx
+        //mov ax,[ebp-0x82] // Y target final
+        //jns inceasing_Y
+        //    // decreasing_Y:
+        //xor ecx,ecx
+        //mov cl,[edi+0x61] //реальная скорость
+        //             // sub ecx,#17
+        //imul ecx,7
+        //sub eax,ecx // add to Y axis
+
+        //set_Y:
+        //mov [ebp-0x82],ax
+        //jmp exitt
+
+        //inceasing_Y:
+        //xor ecx,ecx
+        //mov cl,[edi+0x61] //реальная скорость
+        //             // sub ecx,#17
+        //imul ecx,7
+        //add eax,ecx          // add to X axis
+        //jmp set_Y
+
+
+
+        vertical:
+        pop edx
+        sar ecx, 1
+        movsx edx,word ptr [edi+69] // Z*200
+        cmp eax, 0x2FFE
+        je up
+        cmp eax, 0x4FFE
+        je down
+        jmp skip
+            
+        down:
+            // mov ebx,[esi+0x0C]
+            // movsx ecx,word ptr [edi+69] // Z*200
+        sub dx, cx
+        cmp dx, 100
+        ja put_bottom
+        mov dx, 100
+        put_bottom:
+            // mov dword ptr [esi+0x28],ecx
+        jmp exitt
+
+        up:
+            // mov ebx,[esi+0x0C]
+            // movsx ecx,word ptr [edi+69]
+        add dx, cx
+        cmp dx, 1110
+        jb put_top
+        mov dx, 1110
+        put_top:
+            // mov dword ptr [esi+0x28],ecx
+
+        skip:
+        jmp exitt
+
+        exittt:
+        pop edx
+
+        exitt:
+        pop ecx
+        pop eax
+        pop ebx
+
+        jmp[AimPredictionSubmarines_JmpBack]
+    }
+}
+
+static unsigned long AimPredictionSubmarinesDef1_Jmp = 0x00461A54;
+static unsigned long AimPredictionSubmarinesDef1_JmpBack = AimPredictionSubmarinesDef1_Jmp + 15;
+__declspec(naked) void inline AimPredictionSubmarinesDef1()
+{
+    __asm {
+        push edi
+        push eax
+        push edx
+        push ecx
+        // get target pointer
+        mov ecx, [esi+1155]
+        push ecx
+        mov ecx, [esi+1163]
+        push ecx
+        mov ecx, [esi+1159]
+        push ecx
+        mov ecx, 0x7FA174
+        mov eax, 0x4028BA
+        call eax
+        mov edi, eax
+        //
+        pop ecx
+        pop edx
+        pop eax
+        
+        mov [ebp-0x4A], dx
+        mov dx,[ebp-0x18] // Z target final
+
+        push ebx // ecx free, edi = target ptr
+        push eax
+        push ecx
+
+                // move check
         mov eax,[edi+0xE3] // move flag (1, 2)
         test eax,eax
         jz exitt
 
-                    // target has order check
+            // target has order check
         mov eax,[edi+0x9F]
         test eax,eax
         jz exitt
 
-                    // moving
+            // moving
         mov eax,[edi+0x9F] // order
-        mov ecx,[edi+0xA3]         // path length
+        mov ecx,[edi+0xA3]           // path length
         lea ecx,[ecx+ecx*8]
-                // movsx eax, word ptr [eax+48] //X target in order
+        // movsx eax, word ptr [eax+48] //X target in order
         movsx ebx, word ptr [edi+0x47] // X current
         cmp bx, [eax+ecx*8-0x48] // X target in order
         jne horizontal
-                    // mov eax,[edi+9F] //order
-                    // movsx eax, word ptr [eax+4A] //Y target in order
+                               // mov eax,[edi+9F] //order
+            // movsx eax, word ptr [eax+4A] //Y target in order
         movsx ebx, word ptr [edi+0x49] // Y current
         cmp bx, [eax+ecx*8-0x46] // Y target in order
         jne horizontal
+        //jmp exitt
 
-                    // vertical
-        mov eax,[edi+0x9F]     // order
-                // movsx eax, word ptr [eax+4C] //Z target in order
-        movsx ebx, word ptr [edi+0x4B] // Z current
-        sub ebx, [eax+ecx*8-0x44] // Z target in order
-        je exitt         // must never be triggered
+        //vertical
+        cmp [edi+227], 0
+        jz skip
+        mov ebx,[edi+175]            //направление движения
+        cmp ebx, 0x2FFE
+        jb skip
 
+            // Calc distance
+        push ecx
+        push edx
+                // mov edi, [ebp-0x14]
+        movsx eax,word ptr [edi+0x4B]
+        push eax
+        movsx ecx,word ptr [edi+0x49]
+        push ecx
+        movsx edx,word ptr [edi+0x47]
+        push edx
+        movsx eax,word ptr [esi+0x4B]
+        push eax
+        movsx ecx,word ptr [esi+0x49]
+        push ecx
+        movsx edx,word ptr [esi+0x47]
+        push edx
+        mov eax, 0x006AADD0
+        call eax
+        pop edx
+        pop ecx
+            //---
+            // imul eax, 2 // тиков полёта снаряда до цели (примерная скорость снаряда = 100)
+        mov ecx, eax
+        imul ecx, 201 // distance
+        push edx
+        push ecx
+        mov edx, [esi+1946]
+        push edx
+        mov eax, 0x004025AE // func_get_speed
+        call eax
+        pop ecx 
 
-        xor ecx,ecx
-        mov cl,[edi+0x61]     //реальная скорость
-                                     // sub ecx,#17
-        imul ecx,5
-        test ebx,ebx
-        js going_up
-        sub edx,ecx
+        mov edx, eax
+        mov eax, ecx
+        mov ecx, edx
+
+        xor edx, edx
+        div ecx // тиков полёта снаряда до цели
+
+            // sub eax,2 //корректировка
+            // mov ecx, [esi+12]
+        mov cl, [edi+98] // half submarine speed
+        and ecx,0xFF
+        imul eax, ecx
+        cmp ebx, 0x2FFE
+        pop edx
+        je up
+        cmp ebx, 0x4FFE
+        je down
+        jmp skip
+            
+        down:
+                   // mov ebx,[esi+0x0C]
+                   // movsx ecx,word ptr [edi+69] // Z*200
+        sub dx, ax
+        cmp dx, 100
+        ja put_bottom
+        mov dx, 100
+        put_bottom:
+                   // mov dword ptr [esi+0x28],ecx
         jmp exitt
 
-        going_up:
-        add edx,ecx
+        up:
+                   // mov ebx,[esi+0x0C]
+                   // movsx ecx,word ptr [edi+69]
+        add dx, ax
+        cmp dx, 1110
+        jb put_top
+        mov dx, 1110
+        put_top:
+            // mov dword ptr [esi+0x28],ecx
         jmp exitt
+
+        skip:
+        jmp exitt
+
 
         horizontal: // define direction
         mov eax,[edi+0xAF]
@@ -6256,7 +6614,7 @@ __declspec(naked) void inline AimPredictionSubmarines()
         jnz non_zero
         mov eax,1 // X
         mov ebx,0 // Y
-        jmp calc             // 0
+        jmp calc // 0
 
         non_zero:
         cmp eax,180
@@ -6268,39 +6626,39 @@ __declspec(naked) void inline AimPredictionSubmarines()
         jb degree_225
         cmp eax,360
         ja exitt
-        mov eax,1                    // 315
+        mov eax,1 // 315
         jmp calc
 
         degree_180:
         mov eax,-1
-        mov ebx,0                    // 180
+        mov ebx,0          // 180
         jmp calc
 
         under_180:
         mov ebx,-1
 
-        //dimension_2:
+        // dimension_2:
         cmp eax,90
         jne not_90
-        mov eax,0                    // 90
+        mov eax,0 // 90
         jmp calc
 
         not_90:
         cmp eax,45
         je degree_45
-        mov eax,-1                   // 135
+        mov eax,-1 // 135
         jmp calc
 
         degree_45:
-        mov eax,1                    // 45
+        mov eax,1 // 45
         jmp calc
 
         degree_270:
-        mov eax,0                    // 270
+        mov eax,0 // 270
         jmp calc
 
         degree_225:
-        mov eax,-1                   // 225
+        mov eax,-1 // 225
 
 
         calc:
@@ -6308,10 +6666,10 @@ __declspec(naked) void inline AimPredictionSubmarines()
         jz calc_Y
         mov ax,[ebp-0x84] // X target final
         jns inceasing_X
-                    // decreasing_X:
+            // decreasing_X:
         xor ecx,ecx
-        mov cl,[edi+0x61]     //реальная скорость
-                                 // sub ecx,#17
+        mov cl,[edi+0x61] //реальная скорость
+                     // sub ecx,#17
         imul ecx,7
         sub eax,ecx // add to X axis
 
@@ -6321,8 +6679,8 @@ __declspec(naked) void inline AimPredictionSubmarines()
 
         inceasing_X:
         xor ecx,ecx
-        mov cl,[edi+0x61]     //реальная скорость, от 6 до 21
-                                 // sub ecx,#17
+        mov cl,[edi+0x61] //реальная скорость, от 6 до 21
+                     // sub ecx,#17
         imul ecx,7
         add eax,ecx // add to X axis
         jmp set_X
@@ -6332,10 +6690,10 @@ __declspec(naked) void inline AimPredictionSubmarines()
         test ebx,ebx
         mov ax,[ebp-0x82] // Y target final
         jns inceasing_Y
-                    // decreasing_Y:
+            // decreasing_Y:
         xor ecx,ecx
         mov cl,[edi+0x61] //реальная скорость
-                           // sub ecx,#17
+                     // sub ecx,#17
         imul ecx,7
         sub eax,ecx // add to Y axis
 
@@ -6346,9 +6704,9 @@ __declspec(naked) void inline AimPredictionSubmarines()
         inceasing_Y:
         xor ecx,ecx
         mov cl,[edi+0x61] //реальная скорость
-                           // sub ecx,#17
+                     // sub ecx,#17
         imul ecx,7
-        add eax,ecx        // add to X axis
+        add eax,ecx          // add to X axis
         jmp set_Y
 
 
@@ -6356,8 +6714,833 @@ __declspec(naked) void inline AimPredictionSubmarines()
         pop ecx
         pop eax
         pop ebx
+        pop edi
+        mov [ebp-0x48], dx
+        mov edx,[esi+0x24]
 
-        jmp[AimPredictionSubmarines_JmpBack]
+        jmp[AimPredictionSubmarinesDef1_JmpBack]
+    }
+}
+
+static unsigned long AimPredictionSubmarinesDef2_Jmp = 0x0046113A;
+static unsigned long AimPredictionSubmarinesDef2_JmpBack = AimPredictionSubmarinesDef2_Jmp + 15;
+__declspec(naked) void inline AimPredictionSubmarinesDef2()
+{
+    __asm {
+        push edi
+        push eax
+        push edx
+        push ecx
+            // get target pointer
+        mov ecx, [esi+1155]
+        push ecx
+        mov ecx, [esi+1163]
+        push ecx
+        mov ecx, [esi+1159]
+        push ecx
+        mov ecx, 0x7FA174
+        mov eax, 0x4028BA
+        call eax
+        mov edi, eax
+            //
+        pop ecx
+        pop edx
+        pop eax
+
+        mov [ebp-0x4A], dx
+        mov dx,[ebp-0x18] // Z target final
+
+        push ebx // ecx free, edi = target ptr
+        push eax
+        push ecx
+
+                // move check
+        mov eax,[edi+0xE3] // move flag (1, 2)
+        test eax,eax
+        jz exitt
+
+            // target has order check
+        mov eax,[edi+0x9F]
+        test eax,eax
+        jz exitt
+
+            // moving
+        mov eax,[edi+0x9F] // order
+        mov ecx,[edi+0xA3]           // path length
+        lea ecx,[ecx+ecx*8]
+        // movsx eax, word ptr [eax+48] //X target in order
+        movsx ebx, word ptr [edi+0x47] // X current
+        cmp bx, [eax+ecx*8-0x48] // X target in order
+        jne horizontal
+                               // mov eax,[edi+9F] //order
+            // movsx eax, word ptr [eax+4A] //Y target in order
+        movsx ebx, word ptr [edi+0x49] // Y current
+        cmp bx, [eax+ecx*8-0x46] // Y target in order
+        jne horizontal
+
+            // vertical old
+            // mov eax,[edi+0x9F]     // order
+            // movsx ebx, word ptr [edi+0x4B] // Z current
+            // sub ebx, [eax+ecx*8-0x44] // Z target in order
+            // je exitt         // must never be triggered
+
+            // xor ecx,ecx
+            // mov cl,[edi+0x61] //реальная скорость
+            //             // sub ecx,#17
+            // imul ecx,5
+            // test ebx,ebx
+            // js going_up
+            // sub edx,ecx
+            // jmp exitt
+
+            // going_up:
+            // add edx,ecx
+            // jmp exitt
+
+
+        cmp [edi+227], 0
+        jz skip
+        mov ebx,[edi+175] //направление движения
+        cmp ebx, 0x2FFE
+        jb skip
+
+            // Calc distance
+        push ecx
+        push edx
+                // mov edi, [ebp-0x14]
+        movsx eax,word ptr [edi+0x4B]
+        push eax
+        movsx ecx,word ptr [edi+0x49]
+        push ecx
+        movsx edx,word ptr [edi+0x47]
+        push edx
+        movsx eax,word ptr [esi+0x4B]
+        push eax
+        movsx ecx,word ptr [esi+0x49]
+        push ecx
+        movsx edx,word ptr [esi+0x47]
+        push edx
+        mov eax, 0x006AADD0
+        call eax
+        pop edx
+        pop ecx
+            //---
+            // imul eax, 2 // тиков полёта снаряда до цели (примерная скорость снаряда = 100)
+        mov ecx, eax
+        imul ecx, 201 // distance
+        push edx
+        push ecx
+        mov edx, [esi+1946]
+        push edx
+        mov eax, 0x004025AE // func_get_speed
+        call eax
+        pop ecx 
+
+        mov edx, eax
+        mov eax, ecx
+        mov ecx, edx
+
+        xor edx, edx
+        div ecx // тиков полёта снаряда до цели
+
+            // sub eax,2 //корректировка
+            // mov ecx, [esi+12]
+        mov cl, [edi+98] // half submarine speed
+        and ecx,0xFF
+        imul eax, ecx
+        cmp ebx, 0x2FFE
+        pop edx
+        je up
+        cmp ebx, 0x4FFE
+        je down
+        jmp skip
+            
+        down:
+                   // mov ebx,[esi+0x0C]
+                   // movsx ecx,word ptr [edi+69] // Z*200
+        sub dx, ax
+        cmp dx, 100
+        ja put_bottom
+        mov dx, 100
+        put_bottom:
+                   // mov dword ptr [esi+0x28],ecx
+        jmp exitt
+
+        up:
+                   // mov ebx,[esi+0x0C]
+                   // movsx ecx,word ptr [edi+69]
+        add dx, ax
+        cmp dx, 1110
+        jb put_top
+        mov dx, 1110
+        put_top:
+            // mov dword ptr [esi+0x28],ecx
+        jmp exitt
+
+        skip:
+        jmp exitt
+
+
+        horizontal: // define direction
+        mov eax,[edi+0xAF]
+        test eax,eax
+        jnz non_zero
+        mov eax,1 // X
+        mov ebx,0 // Y
+        jmp calc // 0
+
+        non_zero:
+        cmp eax,180
+        je degree_180
+        jb under_180
+        mov ebx,1
+        cmp eax,270
+        je degree_270
+        jb degree_225
+        cmp eax,360
+        ja exitt
+        mov eax,1 // 315
+        jmp calc
+
+        degree_180:
+        mov eax,-1
+        mov ebx,0          // 180
+        jmp calc
+
+        under_180:
+        mov ebx,-1
+
+        // dimension_2:
+        cmp eax,90
+        jne not_90
+        mov eax,0 // 90
+        jmp calc
+
+        not_90:
+        cmp eax,45
+        je degree_45
+        mov eax,-1 // 135
+        jmp calc
+
+        degree_45:
+        mov eax,1 // 45
+        jmp calc
+
+        degree_270:
+        mov eax,0 // 270
+        jmp calc
+
+        degree_225:
+        mov eax,-1 // 225
+
+
+        calc:
+        test eax,eax
+        jz calc_Y
+        mov ax,[ebp-0x84] // X target final
+        jns inceasing_X
+            // decreasing_X:
+        xor ecx,ecx
+        mov cl,[edi+0x61] //реальная скорость
+                     // sub ecx,#17
+        imul ecx,7
+        sub eax,ecx // add to X axis
+
+        set_X:
+        mov [ebp-0x84],ax
+        jmp exitt
+
+        inceasing_X:
+        xor ecx,ecx
+        mov cl,[edi+0x61] //реальная скорость, от 6 до 21
+                     // sub ecx,#17
+        imul ecx,7
+        add eax,ecx // add to X axis
+        jmp set_X
+
+
+        calc_Y:
+        test ebx,ebx
+        mov ax,[ebp-0x82] // Y target final
+        jns inceasing_Y
+            // decreasing_Y:
+        xor ecx,ecx
+        mov cl,[edi+0x61] //реальная скорость
+                     // sub ecx,#17
+        imul ecx,7
+        sub eax,ecx // add to Y axis
+
+        set_Y:
+        mov [ebp-0x82],ax
+        jmp exitt
+
+        inceasing_Y:
+        xor ecx,ecx
+        mov cl,[edi+0x61] //реальная скорость
+                     // sub ecx,#17
+        imul ecx,7
+        add eax,ecx          // add to X axis
+        jmp set_Y
+
+
+        exitt:
+        pop ecx
+        pop eax
+        pop ebx
+        pop edi
+        mov [ebp-0x48], dx
+        mov edx,[esi+0x24]
+
+        jmp[AimPredictionSubmarinesDef2_JmpBack]
+    }
+}
+
+
+static unsigned long AimPredictionSubmarinesDef3_Jmp = 0x004617C5;
+static unsigned long AimPredictionSubmarinesDef3_JmpBack = AimPredictionSubmarinesDef3_Jmp + 15;
+__declspec(naked) void inline AimPredictionSubmarinesDef3()
+{
+    __asm {
+        push edi
+        push eax
+        push edx
+        push ecx
+            // get target pointer
+        mov ecx, [esi+1155]
+        push ecx
+        mov ecx, [esi+1163]
+        push ecx
+        mov ecx, [esi+1159]
+        push ecx
+        mov ecx, 0x7FA174
+        mov eax, 0x4028BA
+        call eax
+        mov edi, eax
+            //
+        pop ecx
+        pop edx
+        pop eax
+
+        mov [ebp-0x4A], dx
+        mov dx,[ebp-0x18] // Z target final
+
+        push ebx // ecx free, edi = target ptr
+        push eax
+        push ecx
+
+                // move check
+        mov eax,[edi+0xE3] // move flag (1, 2)
+        test eax,eax
+        jz exitt
+
+            // target has order check
+        mov eax,[edi+0x9F]
+        test eax,eax
+        jz exitt
+
+            // moving
+        mov eax,[edi+0x9F] // order
+        mov ecx,[edi+0xA3]           // path length
+        lea ecx,[ecx+ecx*8]
+        // movsx eax, word ptr [eax+48] //X target in order
+        movsx ebx, word ptr [edi+0x47] // X current
+        cmp bx, [eax+ecx*8-0x48] // X target in order
+        jne horizontal
+                               // mov eax,[edi+9F] //order
+            // movsx eax, word ptr [eax+4A] //Y target in order
+        movsx ebx, word ptr [edi+0x49] // Y current
+        cmp bx, [eax+ecx*8-0x46] // Y target in order
+        jne horizontal
+
+            // vertical old
+            // mov eax,[edi+0x9F]     // order
+            // movsx ebx, word ptr [edi+0x4B] // Z current
+            // sub ebx, [eax+ecx*8-0x44] // Z target in order
+            // je exitt         // must never be triggered
+
+            // xor ecx,ecx
+            // mov cl,[edi+0x61] //реальная скорость
+            //             // sub ecx,#17
+            // imul ecx,5
+            // test ebx,ebx
+            // js going_up
+            // sub edx,ecx
+            // jmp exitt
+
+            // going_up:
+            // add edx,ecx
+            // jmp exitt
+
+
+        cmp [edi+227], 0
+        jz skip
+        mov ebx,[edi+175] //направление движения
+        cmp ebx, 0x2FFE
+        jb skip
+
+            // Calc distance
+        push ecx
+        push edx
+                // mov edi, [ebp-0x14]
+        movsx eax,word ptr [edi+0x4B]
+        push eax
+        movsx ecx,word ptr [edi+0x49]
+        push ecx
+        movsx edx,word ptr [edi+0x47]
+        push edx
+        movsx eax,word ptr [esi+0x4B]
+        push eax
+        movsx ecx,word ptr [esi+0x49]
+        push ecx
+        movsx edx,word ptr [esi+0x47]
+        push edx
+        mov eax, 0x006AADD0
+        call eax
+        pop edx
+        pop ecx
+            //---
+            // imul eax, 2 // тиков полёта снаряда до цели (примерная скорость снаряда = 100)
+        mov ecx, eax
+        imul ecx, 201 // distance
+        push edx
+        push ecx
+        mov edx, [esi+1946]
+        push edx
+        mov eax, 0x004025AE // func_get_speed
+        call eax
+        pop ecx 
+
+        mov edx, eax
+        mov eax, ecx
+        mov ecx, edx
+
+        xor edx, edx
+        div ecx // тиков полёта снаряда до цели
+
+            // sub eax,2 //корректировка
+            // mov ecx, [esi+12]
+        mov cl, [edi+98] // half submarine speed
+        and ecx,0xFF
+        imul eax, ecx
+        cmp ebx, 0x2FFE
+        pop edx
+        je up
+        cmp ebx, 0x4FFE
+        je down
+        jmp skip
+            
+        down:
+                   // mov ebx,[esi+0x0C]
+                   // movsx ecx,word ptr [edi+69] // Z*200
+        sub dx, ax
+        cmp dx, 100
+        ja put_bottom
+        mov dx, 100
+        put_bottom:
+                   // mov dword ptr [esi+0x28],ecx
+        jmp exitt
+
+        up:
+                   // mov ebx,[esi+0x0C]
+                   // movsx ecx,word ptr [edi+69]
+        add dx, ax
+        cmp dx, 1110
+        jb put_top
+        mov dx, 1110
+        put_top:
+            // mov dword ptr [esi+0x28],ecx
+        jmp exitt
+
+        skip:
+        jmp exitt
+
+
+        horizontal: // define direction
+        mov eax,[edi+0xAF]
+        test eax,eax
+        jnz non_zero
+        mov eax,1 // X
+        mov ebx,0 // Y
+        jmp calc // 0
+
+        non_zero:
+        cmp eax,180
+        je degree_180
+        jb under_180
+        mov ebx,1
+        cmp eax,270
+        je degree_270
+        jb degree_225
+        cmp eax,360
+        ja exitt
+        mov eax,1 // 315
+        jmp calc
+
+        degree_180:
+        mov eax,-1
+        mov ebx,0          // 180
+        jmp calc
+
+        under_180:
+        mov ebx,-1
+
+        // dimension_2:
+        cmp eax,90
+        jne not_90
+        mov eax,0 // 90
+        jmp calc
+
+        not_90:
+        cmp eax,45
+        je degree_45
+        mov eax,-1 // 135
+        jmp calc
+
+        degree_45:
+        mov eax,1 // 45
+        jmp calc
+
+        degree_270:
+        mov eax,0 // 270
+        jmp calc
+
+        degree_225:
+        mov eax,-1 // 225
+
+
+        calc:
+        test eax,eax
+        jz calc_Y
+        mov ax,[ebp-0x84] // X target final
+        jns inceasing_X
+            // decreasing_X:
+        xor ecx,ecx
+        mov cl,[edi+0x61] //реальная скорость
+                     // sub ecx,#17
+        imul ecx,7
+        sub eax,ecx // add to X axis
+
+        set_X:
+        mov [ebp-0x84],ax
+        jmp exitt
+
+        inceasing_X:
+        xor ecx,ecx
+        mov cl,[edi+0x61] //реальная скорость, от 6 до 21
+                     // sub ecx,#17
+        imul ecx,7
+        add eax,ecx // add to X axis
+        jmp set_X
+
+
+        calc_Y:
+        test ebx,ebx
+        mov ax,[ebp-0x82] // Y target final
+        jns inceasing_Y
+            // decreasing_Y:
+        xor ecx,ecx
+        mov cl,[edi+0x61] //реальная скорость
+                     // sub ecx,#17
+        imul ecx,7
+        sub eax,ecx // add to Y axis
+
+        set_Y:
+        mov [ebp-0x82],ax
+        jmp exitt
+
+        inceasing_Y:
+        xor ecx,ecx
+        mov cl,[edi+0x61] //реальная скорость
+                     // sub ecx,#17
+        imul ecx,7
+        add eax,ecx          // add to X axis
+        jmp set_Y
+
+
+        exitt:
+        pop ecx
+        pop eax
+        pop ebx
+        pop edi
+        mov [ebp-0x48], dx
+        mov edx,[esi+0x24]
+
+        jmp[AimPredictionSubmarinesDef3_JmpBack]
+    }
+}
+
+
+
+static unsigned long AimPredictionSubmarinesDef4_Jmp = 0x004614A0;
+static unsigned long AimPredictionSubmarinesDef4_JmpBack = AimPredictionSubmarinesDef4_Jmp + 15;
+__declspec(naked) void inline AimPredictionSubmarinesDef4()
+{
+    __asm {
+        push edi
+        push eax
+        push edx
+        push ecx
+            // get target pointer
+        mov ecx, [esi+1155]
+        push ecx
+        mov ecx, [esi+1163]
+        push ecx
+        mov ecx, [esi+1159]
+        push ecx
+        mov ecx, 0x7FA174
+        mov eax, 0x4028BA
+        call eax
+        mov edi, eax
+            //
+        pop ecx
+        pop edx
+        pop eax
+
+        mov [ebp-0x4A], dx
+        mov dx,[ebp-0x18] // Z target final
+
+        push ebx // ecx free, edi = target ptr
+        push eax
+        push ecx
+
+                // move check
+        mov eax,[edi+0xE3] // move flag (1, 2)
+        test eax,eax
+        jz exitt
+
+            // target has order check
+        mov eax,[edi+0x9F]
+        test eax,eax
+        jz exitt
+
+            // moving
+        mov eax,[edi+0x9F] // order
+        mov ecx,[edi+0xA3]           // path length
+        lea ecx,[ecx+ecx*8]
+        // movsx eax, word ptr [eax+48] //X target in order
+        movsx ebx, word ptr [edi+0x47] // X current
+        cmp bx, [eax+ecx*8-0x48] // X target in order
+        jne horizontal
+                               // mov eax,[edi+9F] //order
+            // movsx eax, word ptr [eax+4A] //Y target in order
+        movsx ebx, word ptr [edi+0x49] // Y current
+        cmp bx, [eax+ecx*8-0x46] // Y target in order
+        jne horizontal
+
+            // vertical old
+            // mov eax,[edi+0x9F]     // order
+            // movsx ebx, word ptr [edi+0x4B] // Z current
+            // sub ebx, [eax+ecx*8-0x44] // Z target in order
+            // je exitt         // must never be triggered
+
+            // xor ecx,ecx
+            // mov cl,[edi+0x61] //реальная скорость
+            //             // sub ecx,#17
+            // imul ecx,5
+            // test ebx,ebx
+            // js going_up
+            // sub edx,ecx
+            // jmp exitt
+
+            // going_up:
+            // add edx,ecx
+            // jmp exitt
+
+
+        cmp [edi+227], 0
+        jz skip
+        mov ebx,[edi+175] //направление движения
+        cmp ebx, 0x2FFE
+        jb skip
+
+            // Calc distance
+        push ecx
+        push edx
+                // mov edi, [ebp-0x14]
+        movsx eax,word ptr [edi+0x4B]
+        push eax
+        movsx ecx,word ptr [edi+0x49]
+        push ecx
+        movsx edx,word ptr [edi+0x47]
+        push edx
+        movsx eax,word ptr [esi+0x4B]
+        push eax
+        movsx ecx,word ptr [esi+0x49]
+        push ecx
+        movsx edx,word ptr [esi+0x47]
+        push edx
+        mov eax, 0x006AADD0
+        call eax
+        pop edx
+        pop ecx
+            //---
+            // imul eax, 2 // тиков полёта снаряда до цели (примерная скорость снаряда = 100)
+        mov ecx, eax
+        imul ecx, 201 // distance
+        push edx
+        push ecx
+        mov edx, [esi+1946]
+        push edx
+        mov eax, 0x004025AE // func_get_speed
+        call eax
+        pop ecx 
+
+        mov edx, eax
+        mov eax, ecx
+        mov ecx, edx
+
+        xor edx, edx
+        div ecx // тиков полёта снаряда до цели
+
+            // sub eax,2 //корректировка
+            // mov ecx, [esi+12]
+        mov cl, [edi+98] // half submarine speed
+        and ecx,0xFF
+        imul eax, ecx
+        cmp ebx, 0x2FFE
+        pop edx
+        je up
+        cmp ebx, 0x4FFE
+        je down
+        jmp skip
+            
+        down:
+                   // mov ebx,[esi+0x0C]
+                   // movsx ecx,word ptr [edi+69] // Z*200
+        sub dx, ax
+        cmp dx, 100
+        ja put_bottom
+        mov dx, 100
+        put_bottom:
+                   // mov dword ptr [esi+0x28],ecx
+        jmp exitt
+
+        up:
+                   // mov ebx,[esi+0x0C]
+                   // movsx ecx,word ptr [edi+69]
+        add dx, ax
+        cmp dx, 1110
+        jb put_top
+        mov dx, 1110
+        put_top:
+            // mov dword ptr [esi+0x28],ecx
+        jmp exitt
+
+        skip:
+        jmp exitt
+
+
+        horizontal: // define direction
+        mov eax,[edi+0xAF]
+        test eax,eax
+        jnz non_zero
+        mov eax,1 // X
+        mov ebx,0 // Y
+        jmp calc // 0
+
+        non_zero:
+        cmp eax,180
+        je degree_180
+        jb under_180
+        mov ebx,1
+        cmp eax,270
+        je degree_270
+        jb degree_225
+        cmp eax,360
+        ja exitt
+        mov eax,1 // 315
+        jmp calc
+
+        degree_180:
+        mov eax,-1
+        mov ebx,0          // 180
+        jmp calc
+
+        under_180:
+        mov ebx,-1
+
+        // dimension_2:
+        cmp eax,90
+        jne not_90
+        mov eax,0 // 90
+        jmp calc
+
+        not_90:
+        cmp eax,45
+        je degree_45
+        mov eax,-1 // 135
+        jmp calc
+
+        degree_45:
+        mov eax,1 // 45
+        jmp calc
+
+        degree_270:
+        mov eax,0 // 270
+        jmp calc
+
+        degree_225:
+        mov eax,-1 // 225
+
+
+        calc:
+        test eax,eax
+        jz calc_Y
+        mov ax,[ebp-0x84] // X target final
+        jns inceasing_X
+            // decreasing_X:
+        xor ecx,ecx
+        mov cl,[edi+0x61] //реальная скорость
+                     // sub ecx,#17
+        imul ecx,7
+        sub eax,ecx // add to X axis
+
+        set_X:
+        mov [ebp-0x84],ax
+        jmp exitt
+
+        inceasing_X:
+        xor ecx,ecx
+        mov cl,[edi+0x61] //реальная скорость, от 6 до 21
+                     // sub ecx,#17
+        imul ecx,7
+        add eax,ecx // add to X axis
+        jmp set_X
+
+
+        calc_Y:
+        test ebx,ebx
+        mov ax,[ebp-0x82] // Y target final
+        jns inceasing_Y
+            // decreasing_Y:
+        xor ecx,ecx
+        mov cl,[edi+0x61] //реальная скорость
+                     // sub ecx,#17
+        imul ecx,7
+        sub eax,ecx // add to Y axis
+
+        set_Y:
+        mov [ebp-0x82],ax
+        jmp exitt
+
+        inceasing_Y:
+        xor ecx,ecx
+        mov cl,[edi+0x61] //реальная скорость
+                     // sub ecx,#17
+        imul ecx,7
+        add eax,ecx          // add to X axis
+        jmp set_Y
+
+
+        exitt:
+        pop ecx
+        pop eax
+        pop ebx
+        pop edi
+        mov [ebp-0x48], dx
+        mov edx,[esi+0x24]
+
+        jmp[AimPredictionSubmarinesDef4_JmpBack]
     }
 }
 
@@ -7761,12 +8944,13 @@ __declspec(naked) void inline OpenBldMenuOnSelection()
     __asm {
 
         cmp [esi+1783], 12
-        jb originalcode
+        je builder
         cmp [esi+1783], 24
         jb originalcode
         cmp [esi+1783], 25
         ja originalcode
         
+        builder:
         push ecx
         push eax
         push edx
@@ -7944,9 +9128,64 @@ __declspec(naked) void inline CyberWormCoriumSteal()
     }
 }
 
+static unsigned long LasAbsorb2TimesLess_Jmp = 0x004BB375;
+static unsigned long LasAbsorb2TimesLess_JmpBack = LasAbsorb2TimesLess_Jmp + 5;
+__declspec(naked) void inline LasAbsorb2TimesLess()
+{
+    __asm {
+        sub eax, edx
+        sar eax, 2
+        push eax
 
-//static BYTE author_number = GetPrivateProfileInt(L"GameVersion", L"Level_1", 1, ini_file);
-//static BYTE version_number = GetPrivateProfileInt(L"GameVersion", L"Level_2", 0, ini_file);
+        jmp[LasAbsorb2TimesLess_JmpBack]
+    }
+}
+
+
+static unsigned long LasAbsorbSubmarines_Jmp = 0x00459E58;
+static unsigned long LasAbsorbSubmarines_JmpBack = LasAbsorbSubmarines_Jmp + 5;
+__declspec(naked) void inline LasAbsorbSubmarines()
+{
+    __asm {
+        // free eax, ecx, edx
+
+        mov edx,[edi+4]
+        cmp edx,155
+        jl outt
+        cmp edx,158
+        jle laser_shot
+        cmp edx,165
+        jne outt
+
+        laser_shot:
+        mov eax,[ebx+0x24]
+        mov ecx,0x007FA174
+        mov ecx,[ecx]
+        push 104
+        push eax
+        mov eax,0x0040186B
+        call eax
+        test eax,eax
+        je outt
+        mov eax,[edi] // damage
+        mov ecx,ebx
+        cdq 
+        sar eax,2
+        push eax
+        mov eax, 0x00403D6E
+        call eax
+
+        outt:
+        mov edx, [ebx+0x24]
+        push 101
+
+        jmp[LasAbsorbSubmarines_JmpBack]
+    }
+}
+
+static BYTE plugin_version = 4;
+static BYTE author_number = GetPrivateProfileInt(L"GameVersion", L"Author_id", 1, ini_file);
+static BYTE version_number = GetPrivateProfileInt(L"GameVersion", L"Version", 0, ini_file);
 static unsigned long ChangeGameVersion_Jmp = 0x005B324F;
 static unsigned long ChangeGameVersion_JmpBack = ChangeGameVersion_Jmp + 5;
 __declspec(naked) void inline ChangeGameVersion()
@@ -7954,9 +9193,19 @@ __declspec(naked) void inline ChangeGameVersion()
     __asm {
         mov eax, 0x00807DD5
         //mov dword ptr [eax], 0x01030000 // 0x0102002A - standart, 0x0102001A - V2, 0x01030000 - V3
-        mov dword ptr [eax], 0x01020040
-        /*mov byte ptr [eax+2], author_number
-        mov byte ptr [eax], version_number*/
+        //mov dword ptr [eax], 0x01020041
+
+        push ebx
+        mov bl, plugin_version
+        mov byte ptr [eax+3], bl
+        
+        mov bl, author_number
+        mov byte ptr [eax+2], bl
+        
+        mov bl, version_number
+        mov byte ptr [eax], bl
+        pop ebx
+
         mov eax, [eax]
         jmp[ChangeGameVersion_JmpBack]
     }
@@ -8075,8 +9324,9 @@ bool inline ApplyDetour(unsigned long origin, unsigned long length, unsigned lon
                          &previousProtection) == FALSE)
         return false;
 
-    // Hard length limit of 13...
-    unsigned char bytesToCopy[] = { 0xE9, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
+    // Hard length limit of 15...
+    unsigned char bytesToCopy[] = { 0xE9, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90,
+                                    0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
     if (sizeof(bytesToCopy) < length)
         return false;
 

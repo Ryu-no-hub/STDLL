@@ -216,7 +216,7 @@ static bool FixesQoL(Patcher::SPatch &patch) {
 
     patch.WriteJumpSized(CoriumMiningUpgrades_Jmp, 5, (unsigned long)CoriumMiningUpgrades);
     patch.WriteJumpSized(EnergyForSoliton_Jmp, 9, (unsigned long)EnergyForSoliton);
-    //patch.WriteJumpSized(OpenBldMenuOnSelection_Jmp, 5, (unsigned long)OpenBldMenuOnSelection);
+    patch.WriteJumpSized(OpenBldMenuOnSelection_Jmp, 5, (unsigned long)OpenBldMenuOnSelection);
 
 
     // No dodge
@@ -288,9 +288,9 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     //patch.WriteU32((void *)0x007E6170, 750); // Laser snare prodtime
     //patch.WriteU32((void *)0x007E6328, 750); // Acoustic mines prodtime
 
-    // patch.WriteU32((void *)0x007E6168, 10); // Depth mine storage arsenal
-    // patch.WriteU32((void *)0x007E617C, 10); // Laser snare storage arsenal
-    // patch.WriteU32((void *)0x007E6334, 10);  // Acoustic mines storage arsenal
+     patch.WriteU32((void *)0x007E6168, 30); // Depth mine storage arsenal
+     patch.WriteU32((void *)0x007E617C, 30); // Laser snare storage arsenal
+     patch.WriteU32((void *)0x007E6334, 30);  // Acoustic mines storage arsenal
 
     patch.WriteJumpSized(UpgParcherDmg_Jmp, 5, (unsigned long)UpgParcherDmg);
 
@@ -477,22 +477,26 @@ static bool FixesQoL(Patcher::SPatch &patch) {
 
     patch.WriteU32((void *)0x007BF558, GetPrivateProfileInt(L"Economics", L"Starting_gold_1", 500, ini_file)); // Starting gold t1
     patch.WriteU32((void *)0x007BF55C, GetPrivateProfileInt(L"Economics", L"Starting_gold_2", 1000, ini_file)); // Starting gold t2
-    patch.WriteU32((void *)0x007BF560, GetPrivateProfileInt(L"Economics", L"Starting_gold_3", 1500, ini_file)); // Starting gold t2
+    patch.WriteU32((void *)0x007BF560, GetPrivateProfileInt(L"Economics", L"Starting_gold_3", 1500, ini_file)); // Starting gold t3
     
     
     patch.WriteU32((void *)0x007BF57C, GetPrivateProfileInt(L"Economics", L"Starting_metal_1", 5000, ini_file)); // Starting metal t1
-    patch.WriteU32((void *)0x007BF580, GetPrivateProfileInt(L"Economics", L"Starting_metal_2", 15000, ini_file)); // Starting metal t1
-    patch.WriteU32((void *)0x007BF584, GetPrivateProfileInt(L"Economics", L"Starting_metal_3", 20000, ini_file)); // Starting metal t1
+    patch.WriteU32((void *)0x007BF580, GetPrivateProfileInt(L"Economics", L"Starting_metal_2", 15000, ini_file)); // Starting metal t2
+    patch.WriteU32((void *)0x007BF584, GetPrivateProfileInt(L"Economics", L"Starting_metal_3", 20000, ini_file)); // Starting metal t3
     
     patch.WriteU32((void *)0x007BF588, GetPrivateProfileInt(L"Economics", L"Starting_silicon_1", 5000, ini_file)); // Starting silicon t1
-    patch.WriteU32((void *)0x007BF58C, GetPrivateProfileInt(L"Economics", L"Starting_silicon_2", 15000, ini_file)); // Starting silicon t1
-    patch.WriteU32((void *)0x007BF590, GetPrivateProfileInt(L"Economics", L"Starting_silicon_3", 20000, ini_file)); // Starting silicon t1
+    patch.WriteU32((void *)0x007BF58C, GetPrivateProfileInt(L"Economics", L"Starting_silicon_2", 15000, ini_file)); // Starting silicon t2
+    patch.WriteU32((void *)0x007BF590, GetPrivateProfileInt(L"Economics", L"Starting_silicon_3", 20000, ini_file)); // Starting silicon t3
     
     patch.WriteU32((void *)0x004E4199, GetPrivateProfileInt(L"Economics", L"Energy_storage_basic", 1000, ini_file)); // Energy storage basic
-
+    
     patch.WriteU32((void *)0x007BF564, GetPrivateProfileInt(L"Economics", L"Starting_energy_1", 1000, ini_file)); // Starting energy t1
     patch.WriteU32((void *)0x007BF568, GetPrivateProfileInt(L"Economics", L"Starting_energy_2", 1500, ini_file)); // Starting energy t2
-    patch.WriteU32((void *)0x007BF56C, GetPrivateProfileInt(L"Economics", L"Starting_energy_3", 2000, ini_file)); // Starting energy t2
+    patch.WriteU32((void *)0x007BF56C, GetPrivateProfileInt(L"Economics", L"Starting_energy_3", 2000, ini_file)); // Starting energy t3
+
+    patch.WriteU32((void *)0x007BF570, GetPrivateProfileInt(L"Economics", L"Starting_corium_1", 500, ini_file)); // Starting corium t1
+    patch.WriteU32((void *)0x007BF574, GetPrivateProfileInt(L"Economics", L"Starting_corium_2", 2000, ini_file)); // Starting corium t2
+    patch.WriteU32((void *)0x007BF578, GetPrivateProfileInt(L"Economics", L"Starting_corium_3", 4000, ini_file)); // Starting corium t3
 
     patch.WriteU32((void *)0x00550CB0, 500); // Starting trade amount
 
@@ -541,9 +545,15 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     //patch.WriteByte((void *)0x0048BA09, 1);  // Avenger shot - shells number
     //patch.WriteU32((void *)0x007A8B74, 154); // Avenger weapon type
 
-    patch.WriteByte((void *)0x00430881, 6); // Light torpedo jump to higher speed
+    patch.WriteByte((void *)0x00430881, 6); // Light torpedo jump to higher speed (-> 60)
     patch.WriteByte((void *)0x004308A3, 6); // Acid shell jump to higher speed (48 -> 60)
-    
+    patch.WriteByte((void *)0x004308A1, 6); // Energy shell jump to higher speed (-> 60)
+
+    patch.WriteJumpSized(LasAbsorb2TimesLess_Jmp, 5, (unsigned long)LasAbsorb2TimesLess);
+    patch.WriteJumpSized(LasAbsorbSubmarines_Jmp, 5, (unsigned long)LasAbsorbSubmarines);
+
+    // for laser absorb submarines
+    //0x004BB345
  
     patch.WriteByte((void *)0x004E4197, 5); // Replenish pod capacity (shift, result=4000)
 
@@ -1217,7 +1227,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     // patch.WriteByte((void *)0x007C0B42, ); // SI PSISHIELD dep
     // patch.WriteByte((void *)0x007C0B46, ); // SI PSISHIELD dep lvl
     patch.WriteByte((void *)0x007C0A48, 101); // SI IONARMR dep
-    patch.WriteByte((void *)0x007C0A4C, 3); // SI IONARMR dep lvl
+    patch.WriteByte((void *)0x007C0A4C, 2); // SI IONARMR dep lvl
     patch.WriteByte((void *)0x007C0B2E, 0); // SI IONARMR T4 dep2
     patch.WriteByte((void *)0x007C0B32, 0); // SI IONARMR T4 dep2 lvl
     // patch.WriteByte((void *)0x007C0C0A, 0);   // SI DMG T2 dep
@@ -1233,7 +1243,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteByte((void *)0x007C0ACA, 107);   // SI VACBOMB dep2
     patch.WriteByte((void *)0x007C0ACE, 1);   // SI VACBOMB dep2 lvl
     patch.WriteByte((void *)0x007C0A7A, 101); // SI LASABSORB dep
-    patch.WriteByte((void *)0x007C0A7E, 2);  // SI LASABSORB dep lvl
+    patch.WriteByte((void *)0x007C0A7E, 3);  // SI LASABSORB dep lvl
     patch.WriteByte((void *)0x007C0A61, 101); // SI REGEN dep
     patch.WriteByte((void *)0x007C0A65, 1);  // SI REGEN dep lvl
     patch.WriteByte((void *)0x007C0A66, 0);  // SI REGEN dep2
@@ -2009,6 +2019,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     //patch.WriteU32((void *)0x007A8B6C, GetPrivateProfileInt(L"Cyberdolphin", L"Weapon", 0, ini_file));
     patch.WriteU32((void *)0x007A8B70, GetPrivateProfileInt(L"Phantom", L"Weapon", 157, ini_file));
     patch.WriteU32((void *)0x007A8B74, GetPrivateProfileInt(L"Avenger", L"Weapon", 156, ini_file));
+    patch.WriteU32((void *)0x00462727, GetPrivateProfileInt(L"Avenger", L"Weapon_ability", 161, ini_file));
     //patch.WriteU32((void *)0x007A8B78, GetPrivateProfileInt(L"Builder_Humans", L"Weapon", 0, ini_file));
     //patch.WriteU32((void *)0x007A8BA8, GetPrivateProfileInt(L"Stealth_Scout", L"Weapon", 0, ini_file)); 
 
@@ -2267,7 +2278,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     int bd = GetPrivateProfileInt(L"Bomber", L"Bombs_drop", 15, ini_file);
     patch.WriteByte((void *)0x00476B1B, -bd);
 
-    patch.WriteByte((void *)0x00463681, GetPrivateProfileInt(L"Cyberworm", L"Gold_steal", 200, ini_file));
+    patch.WriteByte((void *)0x00463683, GetPrivateProfileInt(L"Cyberworm", L"Gold_steal", 200, ini_file));
     patch.WriteByte((void *)0x0046368A, GetPrivateProfileInt(L"Cyberworm", L"Gold_steal", 200, ini_file));
     patch.WriteByte((void *)0x00463703, GetPrivateProfileInt(L"Cyberworm", L"Metal_steal", 1500, ini_file));
     patch.WriteByte((void *)0x004636FC, GetPrivateProfileInt(L"Cyberworm", L"Metal_steal", 1500, ini_file));
@@ -2401,7 +2412,7 @@ static bool Flagships(Patcher::SPatch &patch)
     //patch.WriteJumpSized(BOFlagshipRange6_Jmp, 5, (unsigned long)BOFlagshipRange6);
 
     //SI
-    patch.WriteByte((void *)0x007C0E4A, 109); // Research ID
+    patch.WriteByte((void *)0x007C0E4A, 0); // Research ID
     patch.WriteU16((void *)0x004E83A2, 204);  // Belongs race
     patch.WriteU32((void *)0x007E053C, GetPrivateProfileInt(L"Flagship_SI", L"BuildTime", 1750, ini_file)); // Time
     patch.WriteU32((void *)0x007E0A7C, GetPrivateProfileInt(L"Flagship_SI", L"Silicon", 1000, ini_file)); // Silicon
@@ -2429,6 +2440,9 @@ static bool AimPrediction(Patcher::SPatch &patch)
     patch.WriteJumpSized(ModifyTurretFix_Jmp, 5, (unsigned long)ModifyTurretFix);
     patch.WriteJumpSized(ModifyTurretFix2_Jmp, 5, (unsigned long)ModifyTurretFix2);
     patch.WriteJumpSized(AimPredictionSubmarines_Jmp, 7, (unsigned long)AimPredictionSubmarines);
+    patch.WriteJumpSized(AimPredictionSubmarinesDef1_Jmp, 15, (unsigned long)AimPredictionSubmarinesDef1);
+    patch.WriteJumpSized(AimPredictionSubmarinesDef2_Jmp, 15, (unsigned long)AimPredictionSubmarinesDef2);
+    patch.WriteJumpSized(AimPredictionSubmarinesDef3_Jmp, 15, (unsigned long)AimPredictionSubmarinesDef3);
     return true;
 }
 
