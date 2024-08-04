@@ -702,6 +702,8 @@ __declspec(naked) void inline TargetingNoHpPriority()
 {
     __asm {
         xor eax,eax
+        //sar eax,1
+        //neg eax
         lea ebx,[edi+eax]
         jmp[TargetingNoHpPriority_JmpBack]
     }
@@ -1805,8 +1807,9 @@ static unsigned long AppendOrderInsteadOfReplace_JmpBack = AppendOrderInsteadOfR
 __declspec(naked) void inline AppendOrderInsteadOfReplace()
 {
     __asm {
+
         test eax,eax
-        jz skip_set_flag
+        jz reset_order
         push edx
         mov edx,[ebx+0x0000009F] //взять текущий приказ
         test edx,edx
@@ -1856,17 +1859,18 @@ __declspec(naked) void inline AppendOrderInsteadOfReplace()
         zero:
         pop edx
         test eax,eax
-        jz skip_set_flag
+        jz reset_order
         //mov dword ptr [eax+0xC],0 //флаг отличия момента задания флага нового приказа
-        skip_set_flag:
+        reset_order:
+        //!!!!!
         mov dword ptr [ebx+0x0000009F],eax
         jmp exitt
 
         //originalcode:
         //test eax,eax
-        //jz skip_set_flag
+        //jz reset_order
         //mov dword ptr [eax+0xC],0 //флаг отличия момента задания флага нового приказа
-        //skip_set_flag:
+        //reset_order:
         //mov dword ptr [ebx+0x0000009F],eax
 
         exitt:
@@ -2789,7 +2793,8 @@ __declspec(naked) void inline ReplaceOrderGpsToOrderWithShiftRmk()
         next:
            //        
         movsx edx,word ptr [edi+0x16] // Y order
-        pop esi
+        //!!!!!
+        //pop esi
         pop edi
         push ecx // Z order push again changed
         push edx // Y order push again changed
@@ -2820,9 +2825,9 @@ __declspec(naked) void inline ReplaceOrderGpsToOrderWithShiftRmk()
         // Переписать координаты начала пути с подлодки на текущую точку назначения
         pop esi
         pop edi
-        movsx ecx,word ptr [ebx+0xC3]
-        movsx edx,word ptr [ebx+0xBF]
-        movsx eax,word ptr [ebx+0xBB]
+        movsx ecx,word ptr [ebx+195]
+        movsx edx,word ptr [ebx+191]
+        movsx eax,word ptr [ebx+187]
         push ecx
         jmp exitt
 
@@ -3014,6 +3019,7 @@ __declspec(naked) void inline AfterCheckOrderStateReturns2()
     }
 }
 
+static DWORD Autosave_timer = GetPrivateProfileInt(L"Plugins", L"Autosave_timer", 1500, ini_file);
 static unsigned long AutosaveCheckTick_Jmp = 0x00533DB6;
 static unsigned long AutosaveCheckTick_JmpBack = AutosaveCheckTick_Jmp + 5;
 __declspec(naked) void inline AutosaveCheckTick()
@@ -3034,7 +3040,7 @@ __declspec(naked) void inline AutosaveCheckTick()
         mov eax,[eax+0xE4]
         test eax, eax
         jz go_out
-        mov ebx,1500
+        mov ebx, Autosave_timer
         div ebx // В eax - результат деления
         cmp dx,0
         jnz go_out
@@ -3094,7 +3100,7 @@ __declspec(naked) void inline AutosaveCheckMarker()
         mov eax,[eax+0xE4]
         test eax, eax
         jz go_out
-        mov ebx,1500
+        mov ebx, Autosave_timer
         div ebx // В eax - результат деления
         cmp dx,0
         pop edx
@@ -3136,7 +3142,7 @@ __declspec(naked) void inline AutosaveMakeFileName()
         mov eax,0x802A38
         mov eax,[eax]
         mov eax,[eax+0xE4]
-        mov ebx,1500
+        mov ebx, Autosave_timer
         div ebx //В eax - результат деления
         cmp dx,0
         jnz originalcode
@@ -3178,7 +3184,7 @@ __declspec(naked) void inline AutosaveFillNameBuffer()
         mov eax,0x802A38
         mov eax,[eax]
         mov eax,[eax+0xE4]
-        mov ebx,1500
+        mov ebx, Autosave_timer
         div ebx //В eax - результат деления
         cmp dx,0
         jnz go_out
@@ -3239,7 +3245,7 @@ __declspec(naked) void inline AutosaveDontCheckIfFileExists()
         mov eax,[eax+0xE4]
         test eax, eax
         jz go_out
-        mov ebx,1500
+        mov ebx, Autosave_timer
         div ebx //В eax - результат деления
         cmp dx,0
         jnz go_out
@@ -3265,118 +3271,6 @@ __declspec(naked) void inline AutosaveDontCheckIfFileExists()
         jmp[AutosaveDontCheckIfFileExists_JmpBack]
     }
 }
-
-//static unsigned long AutosaveDontCheckIfFileExists_Jmp = 0x005355BD;
-//static unsigned long AutosaveDontCheckIfFileExists_JmpBack = AutosaveDontCheckIfFileExists_Jmp + 5;
-//__declspec(naked) void inline AutosaveDontCheckIfFileExists()
-//{
-//    __asm {
-//        push eax
-//        push ebx
-//        push edx
-//        
-//        call[AutosaveCheck]
-//        test eax, eax
-//        jz go_out
-//
-//        xor edx,edx
-//        mov eax,0x802A38
-//        mov eax,[eax]
-//        mov eax,[eax+0xE4]
-//        test eax, eax
-//        jz go_out
-//        mov ebx,1500
-//        div ebx //В eax - результат деления
-//        cmp dx,0
-//        jnz go_out
-//
-//            //Пропуск проверки
-//        pop edx
-//        pop ebx
-//        pop eax
-//                // pop edx
-//
-//        push edx
-//        push ebx
-//        push eax
-//
-//        mov al,[ebx+0x000001A4]
-//        push 00
-//        push 00
-//        push 00
-//        push 00
-//        push 00
-//        push 00
-//        push 0x0000C0B1
-//        push 0x0000C0A1
-//        cmp al,0xE
-//        push 00
-//        push 0x007C3894
-//        je exitt
-//        mov eax, 0x0040577C
-//        call eax
-//        add esp,8
-//        mov ecx,ebx
-//        push eax
-//        push 1
-//        push 0x7C
-//        push 0x5D
-//        push 0x01
-//        push 00
-//        mov eax, 0x0040398B
-//        call eax
-//        push 00
-//        push 00
-//        push 00
-//        push 00
-//        push 00
-//        push 00
-//        push 0x0000C0B2
-//        push 0x0000C0A2
-//        push 00
-//        push 0x007C3894
-//        mov [ebx+0x000001BD],eax
-//        mov eax, 0x0040577C
-//        call eax
-//        add esp,8
-//        mov ecx,ebx
-//        push eax
-//        push 1
-//        push 0x7C
-//        push 0x00000094
-//        push 1
-//        push 0
-//        mov eax, 0x0040398B
-//        call eax
-//        mov [ebx+0x000001C1],eax
-//        mov eax,[ebx+0x000001E1]
-//        push eax
-//        mov ecx,ebx
-//
-//        mov eax, 0x00403FBC
-//        call eax
-//
-//        pop eax
-//        pop ebx
-//        pop edx
-//        mov eax, 0x00402874
-//        call eax
-//
-//            // mov eax,0
-//        jmp exitt
-//
-//        go_out:
-//        pop edx
-//        pop ebx
-//        pop eax
-//
-//        mov eax, 0x00402874
-//        call eax
-//
-//        exitt:
-//        jmp[AutosaveDontCheckIfFileExists_JmpBack]
-//    }
-//}
 
 static unsigned long AutosaveCheckGameMode_Jmp = 0x00533613;
 static unsigned long AutosaveCheckGameMode_JmpBack = AutosaveCheckGameMode_Jmp + 7;
@@ -3428,7 +3322,7 @@ __declspec(naked) void inline AutosaveSkipToggleMenu()
         mov eax,0x802A38
         mov eax,[eax]
         mov eax,[eax+0xE4]
-        mov ebx,1500
+        mov ebx, Autosave_timer
         div ebx //В eax - результат деления
         cmp dx,0
         pop edx
@@ -5278,8 +5172,10 @@ __declspec(naked) void inline PrivateOrderSounds()
         jb originalcode
 
         pop ecx
+        cmp ecx,3
+        jb not_order
         cmp ecx,4
-        jne not_order
+        ja not_order
 
         mov al,[esi+0x24] // player owner
         push ebx
@@ -5422,11 +5318,18 @@ __declspec(naked) void inline CheckHumanResearchCenters()
 
         mov eax,[esi+0x24]
         mov al,[eax+0x007F586E]
+        cmp al, 100
+        ja outt
+
         cmp al, human_limit // max centers
+        jb outt
 
         pop eax
-        jb exitt
         mov eax,0
+        jmp exitt
+
+        outt:
+        pop eax
 
         exitt:
         jmp[CheckHumanResearchCenters_JmpBack]
@@ -5464,13 +5367,19 @@ __declspec(naked) void inline CheckSIModules()
 
         mov eax,[ebx+0x24]
         mov al,[eax+0x007F586E]
+        cmp al, 100
+        ja outt
         cmp al, si_limit // max modules
+        jb outt
+        
 
         pop eax
-        jb exitt
-
         unavailable:
         mov eax,0
+        jmp exitt
+            
+        outt:
+        pop eax
 
         exitt:
         jmp[CheckSIModules_JmpBack]
@@ -5620,9 +5529,9 @@ __declspec(naked) void inline CapturedTechBuildings()
         sub [eax],1
 
         
-        mov eax,[ebx+0x24]
-        lea eax,[eax+0x007F586E]
-        add [eax],1
+        //mov eax,[ebx+0x24]
+        //lea eax,[eax+0x007F586E]
+        //add [eax],1
 
         pop eax
 
@@ -5648,6 +5557,8 @@ __declspec(naked) void inline AntiAbuseHumanCenters()
 
         mov eax,[ebx+0x24]
         mov al,[eax+0x007F586E]
+        cmp al, 100
+        ja outt
         cmp al, human_limit // max centers
 
         pop eax
@@ -5666,12 +5577,84 @@ __declspec(naked) void inline AntiAbuseHumanCenters()
         mov edx,0x00458C63
         jmp edx
 
+        outt:
+        pop eax
+
         originalcode:
         push esi
         mov ecx, ebx
         mov dword ptr [ebx+1117], 17
 
         jmp[AntiAbuseHumanCenters_JmpBack]
+    }
+}
+
+static unsigned long NoCaptureAllyBuildings_Jmp = 0x0054B0F9;
+static unsigned long NoCaptureAllyBuildings_JmpBack = NoCaptureAllyBuildings_Jmp + 6;
+__declspec(naked) void inline NoCaptureAllyBuildings()
+{
+    __asm {
+        mov ecx,[ebx+1186]
+        cmp ecx, 7
+
+        mov ecx,[ebx+1178]
+        jne originalcode
+        test ecx, ecx
+        jz originalcode
+
+        push ecx
+
+        push ebx
+        mov ebx,[ecx+36] // player
+        push edx
+        mov edx,-1
+        jmp loopy
+
+            // start
+        loopy_pre:
+        pop ecx
+
+        loopy:
+        inc edx
+        cmp dl,8
+        jnb enemy_building
+        xor eax,eax
+
+        mov al,bl
+        cmp al,dl // не сравнивать с собой
+        je loopy
+        
+        lea eax,[eax+eax*8]
+        mov al,[eax+eax*8+0x008087EA] // взять команду игрока
+        push ecx
+        lea ecx,[edx+edx*8]
+        lea ecx,[ecx+ecx*8+0x008087EB]
+        push edx
+        mov edx,[ecx]
+        test edx,edx
+        pop edx
+        jz loopy_pre
+        dec ecx
+        mov cl,[ecx] // взять команду игрока-счетчика
+        cmp cl,al
+        pop ecx
+        jne loopy
+
+        // same_team:
+        pop edx
+        pop ebx
+        pop ecx
+        mov ecx,0
+        mov dword ptr [ebx+1178], 0
+        jmp originalcode
+
+        enemy_building:
+        pop edx
+        pop ebx
+        pop ecx
+
+        originalcode:
+        jmp[NoCaptureAllyBuildings_JmpBack]
     }
 }
 
@@ -6466,6 +6449,262 @@ __declspec(naked) void inline AimPredictionSubmarines()
         jmp[AimPredictionSubmarines_JmpBack]
     }
 }
+
+static unsigned long AimPredictionSubmarinesDef0_Jmp = 0x004614A0;
+static unsigned long AimPredictionSubmarinesDef0_JmpBack = AimPredictionSubmarinesDef0_Jmp + 15;
+__declspec(naked) void inline AimPredictionSubmarinesDef0()
+{
+    __asm {
+        push edi
+        push eax
+        push edx
+        push ecx
+            // get target pointer
+        mov ecx, [esi+1155]
+        push ecx
+        mov ecx, [esi+1163]
+        push ecx
+        mov ecx, [esi+1159]
+        push ecx
+        mov ecx, 0x7FA174
+        mov eax, 0x4028BA
+        call eax
+        mov edi, eax
+            //
+        pop ecx
+        pop edx
+        pop eax
+        
+        mov [ebp-0x4A], dx
+        mov dx,[ebp-0x18] // Z target final
+
+        push ebx // ecx free, edi = target ptr
+        push eax
+        push ecx
+
+                // move check
+        mov eax,[edi+0xE3] // move flag (1, 2)
+        test eax,eax
+        jz exitt
+
+            // target has order check
+        mov eax,[edi+0x9F]
+        test eax,eax
+        jz exitt
+
+            // moving
+        mov eax,[edi+0x9F] // order
+        mov ecx,[edi+0xA3]           // path length
+        lea ecx,[ecx+ecx*8]
+        // movsx eax, word ptr [eax+48] //X target in order
+        movsx ebx, word ptr [edi+0x47] // X current
+        cmp bx, [eax+ecx*8-0x48] // X target in order
+        jne horizontal
+                               // mov eax,[edi+9F] //order
+            // movsx eax, word ptr [eax+4A] //Y target in order
+        movsx ebx, word ptr [edi+0x49] // Y current
+        cmp bx, [eax+ecx*8-0x46] // Y target in order
+        jne horizontal
+            // jmp exitt
+
+            // vertical
+        cmp [edi+227], 0
+        jz skip
+        mov ebx,[edi+175] //направление движения
+        cmp ebx, 0x2FFE
+        jb skip
+
+            // Calc distance
+        push ecx
+        push edx
+                // mov edi, [ebp-0x14]
+        movsx eax,word ptr [edi+0x4B]
+        push eax
+        movsx ecx,word ptr [edi+0x49]
+        push ecx
+        movsx edx,word ptr [edi+0x47]
+        push edx
+        movsx eax,word ptr [esi+0x4B]
+        push eax
+        movsx ecx,word ptr [esi+0x49]
+        push ecx
+        movsx edx,word ptr [esi+0x47]
+        push edx
+        mov eax, 0x006AADD0
+        call eax
+        pop edx
+        pop ecx
+            //---
+            // imul eax, 2 // тиков полёта снаряда до цели (примерная скорость снаряда = 100)
+        mov ecx, eax
+        imul ecx, 201 // distance
+        push edx
+        push ecx
+        mov edx, [esi+1946]
+        push edx
+        mov eax, 0x004025AE // func_get_speed
+        call eax
+        pop ecx 
+
+        mov edx, eax
+        mov eax, ecx
+        mov ecx, edx
+
+        xor edx, edx
+        div ecx // тиков полёта снаряда до цели
+
+            // sub eax,2 //корректировка
+            // mov ecx, [esi+12]
+        mov cl, [edi+98] // half submarine speed
+        and ecx,0xFF
+        imul eax, ecx
+        cmp ebx, 0x2FFE
+        pop edx
+        je up
+        cmp ebx, 0x4FFE
+        je down
+        jmp skip
+            
+        down:
+                   // mov ebx,[esi+0x0C]
+                   // movsx ecx,word ptr [edi+69] // Z*200
+        sub dx, ax
+        cmp dx, 100
+        ja put_bottom
+        mov dx, 100
+        put_bottom:
+                   // mov dword ptr [esi+0x28],ecx
+        jmp exitt
+
+        up:
+                   // mov ebx,[esi+0x0C]
+                   // movsx ecx,word ptr [edi+69]
+        add dx, ax
+        cmp dx, 1110
+        jb put_top
+        mov dx, 1110
+        put_top:
+            // mov dword ptr [esi+0x28],ecx
+        jmp exitt
+
+        skip:
+        jmp exitt
+
+
+        horizontal: // define direction
+        mov eax,[edi+0xAF]
+        test eax,eax
+        jnz non_zero
+        mov eax,1 // X
+        mov ebx,0 // Y
+        jmp calc // 0
+
+        non_zero:
+        cmp eax,180
+        je degree_180
+        jb under_180
+        mov ebx,1
+        cmp eax,270
+        je degree_270
+        jb degree_225
+        cmp eax,360
+        ja exitt
+        mov eax,1 // 315
+        jmp calc
+
+        degree_180:
+        mov eax,-1
+        mov ebx,0          // 180
+        jmp calc
+
+        under_180:
+        mov ebx,-1
+
+        // dimension_2:
+        cmp eax,90
+        jne not_90
+        mov eax,0 // 90
+        jmp calc
+
+        not_90:
+        cmp eax,45
+        je degree_45
+        mov eax,-1 // 135
+        jmp calc
+
+        degree_45:
+        mov eax,1 // 45
+        jmp calc
+
+        degree_270:
+        mov eax,0 // 270
+        jmp calc
+
+        degree_225:
+        mov eax,-1 // 225
+
+
+        calc:
+        test eax,eax
+        jz calc_Y
+        mov ax,[ebp-0x84] // X target final
+        jns inceasing_X
+            // decreasing_X:
+        xor ecx,ecx
+        mov cl,[edi+0x61] //реальная скорость
+                     // sub ecx,#17
+        imul ecx,7
+        sub eax,ecx // add to X axis
+
+        set_X:
+        mov [ebp-0x84],ax
+        jmp exitt
+
+        inceasing_X:
+        xor ecx,ecx
+        mov cl,[edi+0x61] //реальная скорость, от 6 до 21
+                     // sub ecx,#17
+        imul ecx,7
+        add eax,ecx // add to X axis
+        jmp set_X
+
+
+        calc_Y:
+        test ebx,ebx
+        mov ax,[ebp-0x82] // Y target final
+        jns inceasing_Y
+            // decreasing_Y:
+        xor ecx,ecx
+        mov cl,[edi+0x61] //реальная скорость
+                     // sub ecx,#17
+        imul ecx,7
+        sub eax,ecx // add to Y axis
+
+        set_Y:
+        mov [ebp-0x82],ax
+        jmp exitt
+
+        inceasing_Y:
+        xor ecx,ecx
+        mov cl,[edi+0x61] //реальная скорость
+                     // sub ecx,#17
+        imul ecx,7
+        add eax,ecx          // add to X axis
+        jmp set_Y
+
+
+        exitt:
+        pop ecx
+        pop eax
+        pop ebx
+        pop edi
+        mov [ebp-0x48], dx
+        mov edx,[esi+0x24]
+
+        jmp[AimPredictionSubmarinesDef0_JmpBack]
+    }
+}
+
 
 static unsigned long AimPredictionSubmarinesDef1_Jmp = 0x00461A54;
 static unsigned long AimPredictionSubmarinesDef1_JmpBack = AimPredictionSubmarinesDef1_Jmp + 15;
@@ -9183,7 +9422,18 @@ __declspec(naked) void inline LasAbsorbSubmarines()
     }
 }
 
-static BYTE plugin_version = 4;
+static unsigned long ContinueMoveSmallDelay_Jmp = 0x0045FA9B;
+static unsigned long ContinueMoveSmallDelay_JmpBack = ContinueMoveSmallDelay_Jmp + 7;
+__declspec(naked) void inline ContinueMoveSmallDelay()
+{
+    __asm {
+        cmp ax, 5
+
+        jmp[ContinueMoveSmallDelay_JmpBack]
+    }
+}
+
+static BYTE plugin_version = 6;
 static BYTE author_number = GetPrivateProfileInt(L"GameVersion", L"Author_id", 1, ini_file);
 static BYTE version_number = GetPrivateProfileInt(L"GameVersion", L"Version", 0, ini_file);
 static unsigned long ChangeGameVersion_Jmp = 0x005B324F;

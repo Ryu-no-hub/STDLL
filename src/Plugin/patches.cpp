@@ -55,13 +55,7 @@ using namespace Patcher;
 // Implement your patches here
 static bool AutosaveIPXNetGame(Patcher::SPatch &patch)
 {
-    patch.WriteJumpSized(AutosaveCheckTick_Jmp, 5, (unsigned long)AutosaveCheckTick);
-    patch.WriteJumpSized(AutosaveCheckMarker_Jmp, 8, (unsigned long)AutosaveCheckMarker);
-    patch.WriteJumpSized(AutosaveMakeFileName_Jmp, 5, (unsigned long)AutosaveMakeFileName);
-    patch.WriteJumpSized(AutosaveDontCheckIfFileExists_Jmp, 5, (unsigned long)AutosaveDontCheckIfFileExists);
-    //patch.WriteJumpSized(AutosaveCheckGameMode_Jmp, 7, (unsigned long)AutosaveCheckGameMode);
-    patch.WriteJumpSized(AutosaveSkipToggleMenu_Jmp, 7, (unsigned long)AutosaveSkipToggleMenu);
-    patch.WriteJumpSized(DontResetHostFlag_Jmp, 8, (unsigned long)DontResetHostFlag);
+    
     return true;
 }
 
@@ -81,6 +75,18 @@ static bool FixesQoL(Patcher::SPatch &patch) {
 
     // GENERAL
     patch.WriteJumpSized(ChangeGameVersion_Jmp, 5, (unsigned long)ChangeGameVersion);
+
+    bool enable_autosave = GetPrivateProfileInt(L"Plugins", L"Autosave", FALSE, ini_file);
+    if (enable_autosave)
+    {
+        patch.WriteJumpSized(AutosaveCheckTick_Jmp, 5, (unsigned long)AutosaveCheckTick);
+        patch.WriteJumpSized(AutosaveCheckMarker_Jmp, 8, (unsigned long)AutosaveCheckMarker);
+        patch.WriteJumpSized(AutosaveMakeFileName_Jmp, 5, (unsigned long)AutosaveMakeFileName);
+        patch.WriteJumpSized(AutosaveDontCheckIfFileExists_Jmp, 5,(unsigned long)AutosaveDontCheckIfFileExists);
+        // patch.WriteJumpSized(AutosaveCheckGameMode_Jmp, 7, (unsigned long)AutosaveCheckGameMode);
+        patch.WriteJumpSized(AutosaveSkipToggleMenu_Jmp, 7, (unsigned long)AutosaveSkipToggleMenu);
+        patch.WriteJumpSized(DontResetHostFlag_Jmp, 8, (unsigned long)DontResetHostFlag); 
+    }
 
     patch.WriteU32((void *)0x004D4539, 0x8B04FAC1); // Take corium when finish building fix
 
@@ -178,9 +184,6 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     patch.WriteByte((void *)0x0041C4AF, 32); // Max sub id to not skip in defining view mode
 
     
-    patch.WriteByte((void *)0x007D2220, GetPrivateProfileInt(L"Paralyze_Ray", L"Time", 375, ini_file)); 
-    patch.WriteByte((void *)0x007D2210, GetPrivateProfileInt(L"Neuro_Paralysis_Shell", L"Time", 250, ini_file));
-    
 
     patch.WriteJumpSized(MessageResearchComplete_Jmp, 6, (unsigned long)MessageResearchComplete);
 
@@ -217,6 +220,11 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     patch.WriteJumpSized(CoriumMiningUpgrades_Jmp, 5, (unsigned long)CoriumMiningUpgrades);
     patch.WriteJumpSized(EnergyForSoliton_Jmp, 9, (unsigned long)EnergyForSoliton);
     patch.WriteJumpSized(OpenBldMenuOnSelection_Jmp, 5, (unsigned long)OpenBldMenuOnSelection);
+    //patch.WriteNops((void *)0x0045FA94, 14); // fast rebuild waypoint on collision
+    patch.WriteJumpSized(ContinueMoveSmallDelay_Jmp, 7, (unsigned long)ContinueMoveSmallDelay);
+    patch.WriteJumpSized(NoCaptureAllyBuildings_Jmp, 6, (unsigned long)NoCaptureAllyBuildings);
+
+    patch.WriteNops((void *)0x004623BF, 2); // fast change depth on attack
 
 
     // No dodge
@@ -284,17 +292,20 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     patch.WriteU32((void *)0x007E0584, 500); // Terminator corium (600 vanila)
 
 
-    //patch.WriteU32((void *)0x007E615C, 750); // Depth mine prodtime
-    //patch.WriteU32((void *)0x007E6170, 750); // Laser snare prodtime
-    //patch.WriteU32((void *)0x007E6328, 750); // Acoustic mines prodtime
+    patch.WriteU32((void *)0x007E615C, GetPrivateProfileInt(L"Depth_Mine", L"Production_time", 500, ini_file)); // Depth mine prodtime
+    patch.WriteU32((void *)0x007E6170, GetPrivateProfileInt(L"Laser_Snare", L"Production_time", 500, ini_file)); // Laser snare prodtime
+    patch.WriteU32((void *)0x007E6328, GetPrivateProfileInt(L"Acoustic_Mine", L"Production_time", 500, ini_file)); // Acoustic mines prodtime
 
-     patch.WriteU32((void *)0x007E6168, 30); // Depth mine storage arsenal
-     patch.WriteU32((void *)0x007E617C, 30); // Laser snare storage arsenal
-     patch.WriteU32((void *)0x007E6334, 30);  // Acoustic mines storage arsenal
+     patch.WriteU32((void *)0x007E6168, GetPrivateProfileInt(L"Depth_Mine", L"Storage_arsenal", 20, ini_file)); // Depth mine storage arsenal
+     patch.WriteU32((void *)0x007E617C, GetPrivateProfileInt(L"Laser_Snare", L"Storage_arsenal", 20, ini_file)); // Laser snare storage arsenal
+     patch.WriteU32((void *)0x007E6334, GetPrivateProfileInt(L"Acoustic_Mine", L"Storage_arsenal", 20, ini_file));  // Acoustic mines storage arsenal
 
     patch.WriteJumpSized(UpgParcherDmg_Jmp, 5, (unsigned long)UpgParcherDmg);
 
-
+    
+    //patch.WriteU32((void *)0x004E5029, 2); // dispersion screen always detects invis (dep to radar)
+    patch.WriteByte((void *)0x00483598, 0x74); // auto use paralyze ray
+    
 
     // Multiplayer mode cheats
     // patch.WriteByte((void *)0x00521D4B, 2); // Cheat read gamemode check
@@ -377,12 +388,12 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     patch.WriteU32((void *)0x007A8DDC, GetPrivateProfileInt(L"Defender", L"lasmines_ammo", 15, ini_file));
     patch.WriteU32((void *)0x007A8E1C, GetPrivateProfileInt(L"Bio_Assaulter", L"Mines_ammo", 5, ini_file));
 
-    patch.WriteByte((void *)0x00645E92, 0); // Cassete subshell check upgrade
-    patch.WriteU32((void *)0x007E66C0, 30); // Cassete subshell T1
-    patch.WriteU32((void *)0x007E66C4, 45); // Cassete subshell T2
-    patch.WriteU32((void *)0x007E66C8, 60); // Cassete subshell T3
-    patch.WriteU32((void *)0x007E66CC, 75); // Cassete subshell T4
-    patch.WriteU32((void *)0x007E66D0, 90); // Cassete subshell T5
+    //patch.WriteByte((void *)0x00645E92, 0); // Cassete subshell check upgrade
+    //patch.WriteU32((void *)0x007E66C0, 30); // Cassete subshell T1
+    //patch.WriteU32((void *)0x007E66C4, 45); // Cassete subshell T2
+    //patch.WriteU32((void *)0x007E66C8, 60); // Cassete subshell T3
+    //patch.WriteU32((void *)0x007E66CC, 75); // Cassete subshell T4
+    //patch.WriteU32((void *)0x007E66D0, 90); // Cassete subshell T5
 
     // REPAIR
     // WS
@@ -499,6 +510,7 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     patch.WriteU32((void *)0x007BF578, GetPrivateProfileInt(L"Economics", L"Starting_corium_3", 4000, ini_file)); // Starting corium t3
 
     patch.WriteU32((void *)0x00550CB0, 500); // Starting trade amount
+    patch.WriteU32((void *)0x004C08CF, 0x903F4389); // mine interface short type fix
 
     patch.WriteJumpSized(TradeStep10_Jmp, 5, (unsigned long)TradeStep10);
 
@@ -547,7 +559,7 @@ static bool FixesQoL(Patcher::SPatch &patch) {
 
     patch.WriteByte((void *)0x00430881, 6); // Light torpedo jump to higher speed (-> 60)
     patch.WriteByte((void *)0x004308A3, 6); // Acid shell jump to higher speed (48 -> 60)
-    patch.WriteByte((void *)0x004308A1, 6); // Energy shell jump to higher speed (-> 60)
+    patch.WriteByte((void *)0x004308A1, 4); // Energy shell jump to higher speed (-> 72)
 
     patch.WriteJumpSized(LasAbsorb2TimesLess_Jmp, 5, (unsigned long)LasAbsorb2TimesLess);
     patch.WriteJumpSized(LasAbsorbSubmarines_Jmp, 5, (unsigned long)LasAbsorbSubmarines);
@@ -557,10 +569,17 @@ static bool FixesQoL(Patcher::SPatch &patch) {
  
     patch.WriteByte((void *)0x004E4197, 5); // Replenish pod capacity (shift, result=4000)
 
-    patch.WriteU16((void *)0x004DEBA6, 10000);       // Power protector charge 1
-    patch.WriteU16((void *)0x004DED31, 10000);      // Power protector charge 2
-    patch.WriteU16((void *)0x004DED21, 10000);       // Power protector charge 3
-    patch.WriteU32((void *)0x004C0309, 0x346DC5D6); // Power protector indicator adjust (2^43/10000)
+    static DWORD ff_charge = GetPrivateProfileInt(L"Force_field", L"Charge", 5000, ini_file);
+    static DWORD ff_charge_timer = GetPrivateProfileInt(L"Force_field", L"Charge_timer", 45, ini_file);
+    
+    patch.WriteU32((void *)0x004DEBA6, ff_charge);
+    patch.WriteU32((void *)0x004DED31, ff_charge);
+    patch.WriteU32((void *)0x004DED21, ff_charge);
+    patch.WriteU32((void *)0x004C0309, pow(2,43)/ff_charge); // Power protector indicator adjust (2^43/10000)
+
+    patch.WriteU32((void *)0x004DECE3, ff_charge_timer);
+    patch.WriteU32((void *)0x004DECF1, ff_charge_timer*4); // No oxygen
+
 
     //PANEL
     //patch.WriteByte((void *)0x0048798F, 6); // SI patrol instead of move Skat, Escort, Dreadnaught
@@ -978,6 +997,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     
     patch.WriteByte((void *)0x007BFAC8, 0); // WS Capture upg
     patch.WriteByte((void *)0x007BFB60, 0); // BO Capture upg
+    patch.WriteByte((void *)0x007BFB4F, 0); // BO Torp upg
     patch.WriteByte((void *)0x007BFBF8, 0); // SI Capture upg
 
     patch.WriteByte((void *)0x007BFBD6, 0); // SI TRPEVADE unavailable
@@ -1011,23 +1031,26 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteByte((void *)0x007BFDC7, 1);  // WS TERMINATOR dep2 lvl
     patch.WriteByte((void *)0x007BFD5A, 21); // WS UPG USG dep
     patch.WriteByte((void *)0x007BFE09, 11); // WS PLASMACANN dep
-    patch.WriteByte((void *)0x007BFE0E, 0);  // WS PLASMACANN dep2
+    patch.WriteByte((void *)0x007BFE0E, 7);  // WS PLASMACANN dep2
     patch.WriteByte((void *)0x007BFE3B, 25); // WS NUKE dep
     patch.WriteByte((void *)0x007BFDD7, 4);  // WS LSRSCRN dep
     patch.WriteByte((void *)0x007BFDDB, 3);  // WS LSRSCRN dep lvl
-    patch.WriteByte((void *)0x007BFCAB, 0);  // WS DMG T2 dep
+    //patch.WriteByte((void *)0x007BFCAB, 0);  // WS DMG T2 dep
     patch.WriteByte((void *)0x007BFC79, 0);  // WS DPTHMINE dep
     patch.WriteByte((void *)0x007BFD73, 15); // WS SENT DMG dep
     patch.WriteByte((void *)0x007C00AC, 5);  // WS SPEED T3 dep
     // patch.WriteByte((void *)0x007C0048, 11); // WS SPEED T4 dep
     patch.WriteByte((void *)0x007C00F7, 0);  // WS UPGMINE dep
-    patch.WriteByte((void *)0x007C00DE, 30);  // WS TORPPROD dep
+    patch.WriteByte((void *)0x007C00DE, 30);  // WS AMMOPROD dep
     patch.WriteByte((void *)0x007C00E2, 1);  // WS TORPPROD dep lvl
     patch.WriteByte((void *)0x007C0093, 5);  // WS MOBILEPLATF dep
     //patch.WriteByte((void *)0x007BFC2E, 0);  // WS MEDTORP dep
     patch.WriteByte((void *)0x007BFD28, 1);  // WS HFCANNSPEED dep
     patch.WriteByte((void *)0x007BFC79, 0);  // WS MINELAYER dep
     patch.WriteByte((void *)0x007BFE6D, 0);  // WS FINDTELE dep
+    patch.WriteByte((void *)0x007BFE86, 9);  // WS FINDMINE dep
+    patch.WriteByte((void *)0x007BFEB8, 9);  // WS FINDLASSNARE dep
+    
     patch.WriteByte((void *)0x007BFE54, 64); // WS TELEPORT dep
     // patch.WriteByte((void *)0x007BFF99, ); // WS UPGHACK dep
     patch.WriteByte((void *)0x007BFF1C, 63); // WS ANTINUKE dep
@@ -1040,21 +1063,26 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteByte((void *)0x007C00C9, 1);  // WS REPUPG dep lvl
     patch.WriteByte((void *)0x007BFFCB, 13); // WS DEFHACK dep
 
-    patch.WriteU32((void *)0x007E5868, 6000); // WS DEFHACK time
+    patch.WriteU32((void *)0x007E5498, 3000); // WS RADAR time
+    patch.WriteU32((void *)0x007E5548, 3000); // WS HACK time
+    patch.WriteU32((void *)0x007E5868, 3000); // WS DEFHACK time
+    patch.WriteU32((void *)0x007E5848, 4500); // WS UPGHACK time
     patch.WriteU32((void *)0x007E5598, 6000); // WS LIBERATOR time
     patch.WriteU32((void *)0x007E54CC, 6000); // WS SPD T3 time
-    patch.WriteU32((void *)0x007E54D0, 6000); // WS SPD T4 time
+    patch.WriteU32((void *)0x007E54D0, 6000); // WS SPD T4 timeg
     patch.WriteU32((void *)0x007E55C8, 7500); // WS PSIFIELD time
     patch.WriteU32((void *)0x007E5608, 6000); // WS NUKE time
     patch.WriteU32((void *)0x007E5618, 7500); // WS CORIUM276 time
-    patch.WriteU32((void *)0x007E5528, 7500); // WS UPG HFCANN time
-    patch.WriteU32((void *)0x007E5638, 4500); // WS UPG USG time
+    patch.WriteU32((void *)0x007E5528, 9000); // WS UPG HFCANN time
+    patch.WriteU32((void *)0x007E5638, 7500); // WS UPG USG time
     patch.WriteU32((void *)0x007E55F8, 9000); // WS TERMINATOR time
+    patch.WriteU32((void *)0x007E55D8, 6750);   // WS CYBER time
+    
     patch.WriteU32((void *)0x007E5668, 7500); // WS PLASMACANN time
     //patch.WriteU32((void *)0x007E5898, 9000); // WS ANTINUKE time (vanilla 6 min)
     patch.WriteU32((void *)0x007E5578, 3000); // WS TURRETS FLOAT time
     patch.WriteU32((void *)0x007E5598, 4500); // WS LIBERATOR time
-    patch.WriteU32((void *)0x007E5588, 4500); // WS DISPSCREEN time
+    patch.WriteU32((void *)0x007E5588, 3000); // WS DISPSCREEN time
 
     patch.WriteU32((void *)0x007E54B8, 4500); // WS ARMOR T2 time
     patch.WriteU32((void *)0x007E54BC, 7500); // WS ARMOR T3 time
@@ -1062,33 +1090,37 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
 
     patch.WriteU32((void *)0x007E54D8, 4500); // WS DMG T1 time
     patch.WriteU32((void *)0x007E54DC, 6000); // WS DMG T2 time
-    patch.WriteU32((void *)0x007E5878, 6000); // WS TELEFIND time
-    patch.WriteU32((void *)0x007E5838, 7500); // WS LASMINEFIND time
+    patch.WriteU32((void *)0x007E54E0, 6750); // WS DMG T3 time
+    patch.WriteU32((void *)0x007E54E4, 7500); // WS DMG T4 time
+    patch.WriteU32((void *)0x007E5E08, 4500); // WS TORPSPEED time
+    patch.WriteU32((void *)0x007E5878, 4500); // WS TELEFIND time
+    patch.WriteU32((void *)0x007E5838, 6000); // WS LASMINEFIND time
+    patch.WriteU32((void *)0x007E5E18, 4500); // WS LASMINEFIND time
     patch.WriteU32((void *)0x007E5558, 3000); // WS MARAUDER time
-    patch.WriteU32((void *)0x007E5628, 9000); // WS LSRSCRN time
+    patch.WriteU32((void *)0x007E5628, 7500); // WS LSRSCRN time
     patch.WriteU32((void *)0x007E5658, 7500); // WS MINESPEED time
     patch.WriteU32((void *)0x007E54F8, 4500); // WS CRUISER time
     patch.WriteU32((void *)0x007E5678, 4500); // WS UPGREPAIR time
     //patch.WriteU32((void *)0x007E55A8, 6000); // WS TELEPORT time
     patch.WriteU32((void *)0x007E5688, 4500); // WS UPG TELEPORT time
     patch.WriteU32((void *)0x007E5828, 4500); // WS TELESHIELD time
-    //patch.WriteU32((void *)0x007E5648, 3000); // WS UPG LOCATOR time
+    patch.WriteU32((void *)0x007E5648, 4500); // WS UPG LOCATOR time
     patch.WriteU32((void *)0x007E5DE8, 6000); // WS SENT DMG time
+    patch.WriteU32((void *)0x007E55E8, 3000); // WS AMMOPROD time
 
-    // patch.WriteU32((void *)0x007C028B, );   // BO PARALYZE dep
-    // patch.WriteU32((void *)0x007C028F, );   // BO PARALYZE dep lvl
-    patch.WriteU32((void *)0x007C0290, 54);   // BO PARALYZE dep2
-    patch.WriteU32((void *)0x007C0294, 1);   // BO PARALYZE dep2 lvl
+     patch.WriteU32((void *)0x007C028B, 42);   // BO AVENGER dep
+     patch.WriteU32((void *)0x007C028F, 1);   // BO AVENGER dep lvl
+    patch.WriteU32((void *)0x007C0290, 0);   // BO AVENGER dep2
+    patch.WriteU32((void *)0x007C0294, 0);   // BO AVENGER dep2 lvl
     patch.WriteByte((void *)0x007C04CA, 39);  // BO PHANTOM dep
-    patch.WriteByte((void *)0x007C02A4, 43);   // BO UPGEM dep
     //patch.WriteByte((void *)0x007C02A8, 0);   // BO UPGEM dep lvl
     patch.WriteByte((void *)0x007C02A9, 0);  // BO UPGEM dep2
     patch.WriteByte((void *)0x007C0515, 132); // BO DEFHACK dep
     patch.WriteByte((void *)0x007C04E3, 132); // BO UPGRAIDER dep
     patch.WriteByte((void *)0x007C068C, 128); // BO UPG REPSPD dep
-    patch.WriteByte((void *)0x007C01DC, 34);  // BO UPG DESTR dep
-    patch.WriteByte((void *)0x007C01E1, 131); // BO UPG DESTR dep2
-    patch.WriteByte((void *)0x007C01E5, 3);   // BO UPG DESTR dep2 lvl
+    patch.WriteByte((void *)0x007C01DC, 150);  // BO UPG DESTR dep
+    patch.WriteByte((void *)0x007C01E1, 0); // BO UPG DESTR dep2
+    patch.WriteByte((void *)0x007C01E5, 0);   // BO UPG DESTR dep2 lvl
     patch.WriteByte((void *)0x007C0628, 130); // BO SPEED T3 dep
     // patch.WriteByte((void *)0x007C06A5, ); // BO SPEED T4 dep
     patch.WriteByte((void *)0x007C04B1, 36); // BO SCOUT dep
@@ -1103,67 +1135,75 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteByte((void *)0x007C065A, 138); // BO TORPPROD dep
     patch.WriteByte((void *)0x007C065E, 1); // BO TORPPROD dep lvl
     patch.WriteByte((void *)0x007C0646, 0);   // BO CYBER dep
+    patch.WriteByte((void *)0x007C0646, 0); // BO AVENGER dep
     patch.WriteByte((void *)0x007C060F, 130); // BO MOBILEPLATF dep
-    patch.WriteByte((void *)0x007C025E, 0);   // BO Magnetic_Mine_LauncherAUNCHER dep2
-    patch.WriteByte((void *)0x007C0272, 40);  // BO EMTORP dep
+    patch.WriteByte((void *)0x007C025E, 0);   // BO Magnetic_Mine_Launcher dep2
+    patch.WriteByte((void *)0x007C0272, 41);  // BO EMTORP 
+    patch.WriteByte((void *)0x007C02A4, 43);  // BO UPGEM dep
     patch.WriteByte((void *)0x007C0560, 137); // BO LASBOMB dep
-    patch.WriteByte((void *)0x007C0565, 50);   // BO LASBOMB dep2
-    patch.WriteByte((void *)0x007C0673, 0);   // BO UPG MINESPD dep
-    patch.WriteByte((void *)0x007C033A, 51);  // BO LIGHTLASSPD dep
-    patch.WriteByte((void *)0x007C02EF, 51);  // BO RUBY dep
+    patch.WriteByte((void *)0x007C0565, 48);   // BO LASBOMB dep2
+    patch.WriteByte((void *)0x007C0673, 0);   // BO UPG MINESPD depg
+    patch.WriteByte((void *)0x007C033A, 54);  // BO LIGHTLASSPD dep
+    patch.WriteByte((void *)0x007C02EF, 54);  // BO RUBY dep
     patch.WriteByte((void *)0x007C036C, 55);  // BO HEAVYLASRATE dep
-    patch.WriteByte((void *)0x007C0353, 57);  // BO LASRATE dep
+    patch.WriteByte((void *)0x007C0353, 46);  // BO LASRATE dep
     //patch.WriteByte((void *)0x007C0357, 1);   // BO LASRATE dep lvl
     //patch.WriteByte((void *)0x007C0358, 57);  // BO LASRATE dep2
     //patch.WriteByte((void *)0x007C035C, 1);   // BO LASRATE dep2 lvl
-    patch.WriteByte((void *)0x007C0385, 35);  // BO RECHARGEST dep
-    patch.WriteByte((void *)0x007C0579, 42);  // BO SHIELDGEN dep
-    patch.WriteByte((void *)0x007C05AB, 48);  // BO FORCEFIELD dep
+    patch.WriteByte((void *)0x007C0385, 38);  // BO RECHARGEST dep
+    patch.WriteByte((void *)0x007C0579, 50);  // BO SHIELDGEN dep
+    patch.WriteByte((void *)0x007C05AB, 38);  // BO FORCEFIELD dep
     // patch.WriteByte((void *)0x007C0498, ); // BO UPGHACK dep
     patch.WriteByte((void *)0x007C052E, 127); // BO LOCSHIELD dep
     patch.WriteByte((void *)0x007C0466, 134); // BO STEALTH dep
-    patch.WriteByte((void *)0x007C03B7, 143);   // BO TELEPORT dep
-    patch.WriteByte((void *)0x007C041B, 135);   // BO UPGTELE dep
+    patch.WriteByte((void *)0x007C03B7, 143);  // BO TELEPORT dep
+    patch.WriteByte((void *)0x007C041B, 135);  // BO UPGTELE dep
     patch.WriteByte((void *)0x007C0420, 0);   // BO UPGTELE dep2
     patch.WriteByte((void *)0x007C03D0, 0);   // BO FINDTELE dep
     patch.WriteByte((void *)0x007C03D5, 0);   // BO FINDTELE dep2
-    patch.WriteByte((void *)0x007C03E9, 143);   // BO FINDMINES dep
-    patch.WriteByte((void *)0x007C0402, 143); // BO FINDLASMINES dep
+    patch.WriteByte((void *)0x007C03E9, 37);  // BO FINDMINES dep
+    patch.WriteByte((void *)0x007C0402, 37);  // BO FINDLASMINES dep
     patch.WriteByte((void *)0x007C05F6, 0);   // BO REPAIR dep
     patch.WriteByte((void *)0x007C0484, 0);   // BO RAIDER dep2
     patch.WriteByte((void *)0x007C0489, 0);   // BO RAIDER dep2
     patch.WriteU32((void *)0x007C0547, 141);  // BO UPGLOCATOR dep
-    //patch.WriteU32((void *)0x007C05C4, 142);  // BO ANTISMP dep
+    //patch.WriteU32((void *)0x007C05C4, 142); // BO ANTISMP dep
     patch.WriteU32((void *)0x007C05C9, 142);  // BO ANTISMP dep2
     patch.WriteU32((void *)0x007C05CD, 1);    // BO ANTISMP dep2 lvl
     patch.WriteU32((void *)0x007C01F5, 0);    // BO DEFENDER dep
     patch.WriteU32((void *)0x007C0240, 34);   // BO CASSETE dep
-    patch.WriteU32((void *)0x007C01C7, 3);    // BO TORPSPEED dep lvl
+    patch.WriteU32((void *)0x007C01C3, 34);   // BO TORPSPEED dep
+    patch.WriteU32((void *)0x007C01C7, 1);    // BO TORPSPEED dep lvl
     patch.WriteU32((void *)0x007C01AA, 150);  // BO DMG T4 dep
     patch.WriteU32((void *)0x007C01AE, 1);    // BO DMG T4 dep lvl
-    patch.WriteU32((void *)0x007C02D6, 56);   // BO LIGHTLASRANGE dep 
+    patch.WriteU32((void *)0x007C02D6, 51);   // BO LIGHTLASRANGE dep 
+    patch.WriteU32((void *)0x007C0308, 35);   // BO HEAVYLASER dep
+    patch.WriteU32((void *)0x007C0321, 38);   // BO HEAVYLASRANGE dep
     
 
     patch.WriteU32((void *)0x007E5D08, 4500); // BO UPGLOCATOR time
     patch.WriteU32((void *)0x007E5C88, 6000); // BO ARMOR T2 time
     patch.WriteU32((void *)0x007E5C8C, 7500); // BO ARMOR T3 time
     patch.WriteU32((void *)0x007E5C90, 9000); // BO ARMOR T4 time
-    patch.WriteU32((void *)0x007E56A8, 9000); // BO HEAVYCRUISER time
+    patch.WriteU32((void *)0x007E56A8, 7500); // BO HEAVYCRUISER time
+    patch.WriteU32((void *)0x007E5758, 6000); // BO PARALYZE time
+    patch.WriteU32((void *)0x007E5768, 4500); // BO UPG RECHARGEST time
     // patch.WriteU32((void *)0x007E58A8, 9000); // BO ANTISMP time
     patch.WriteU32((void *)0x007E5748, 6000); // BO USGDEF time
     patch.WriteU32((void *)0x007E5D18, 7500); // BO UPGMINE time
-    patch.WriteU32((void *)0x007E5C68, 4500); // BO RADAR time
-    patch.WriteU32((void *)0x007E5CB8, 4500); // BO HACK time
-    patch.WriteU32((void *)0x007E5D48, 3000); // BO UPGHACK time
-    patch.WriteU32((void *)0x007E5D58, 6000); // BO DEFHACK time
-    patch.WriteU32((void *)0x007E5D98, 7500); // BO PHANTOMUPG time
-    patch.WriteU32((void *)0x007E56D8, 4500); // BO HEAVYLAS time
-    patch.WriteU32((void *)0x007E57E8, 6000); // BO HEAVYLASRANGE time
-    patch.WriteU32((void *)0x007E5818, 6000); // BO LASRATE time
+    patch.WriteU32((void *)0x007E5C68, 3000); // BO RADAR time
+    patch.WriteU32((void *)0x007E5CB8, 3000); // BO HACK time
+    patch.WriteU32((void *)0x007E5D48, 4500); // BO UPGHACK time
+    patch.WriteU32((void *)0x007E5D58, 3000); // BO DEFHACK time
+    patch.WriteU32((void *)0x007E5D98, 6000); // BO PHANTOMUPG time
+    patch.WriteU32((void *)0x007E5758, 6000); // BO AVENGER time
+    patch.WriteU32((void *)0x007E56D8, 6000); // BO HEAVYLAS time
+    patch.WriteU32((void *)0x007E57E8, 4500); // BO HEAVYLASRANGE time
+    patch.WriteU32((void *)0x007E5818, 9000); // BO LASRATE time
     patch.WriteU32((void *)0x007E57B8, 3000); // BO RAIDER time
-    patch.WriteU32((void *)0x007E5778, 4500); // BO SHIELDGEN time
-    patch.WriteU32((void *)0x007E5798, 6000); // BO FORCEFIELD time
-    patch.WriteU32((void *)0x007E5888, 7500); // BO MINEFIND time
+    patch.WriteU32((void *)0x007E5778, 6000); // BO SHIELDGEN time
+    patch.WriteU32((void *)0x007E5798, 7500); // BO FORCEFIELD time
+    patch.WriteU32((void *)0x007E5888, 6000); // BO MINEFIND time
     patch.WriteU32((void *)0x007E5D28, 4500); // BO UPGREPAIR time
     patch.WriteU32((void *)0x007E5D38, 4500); // BO UPGTELE time
     patch.WriteU32((void *)0x007E5698, 4500); // BO DESTROYER time
@@ -1174,12 +1214,16 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007E5CA0, 7000); // BO SPEED T3 time
     patch.WriteU32((void *)0x007E56F8, 6000); // BO CASSETTE time
     patch.WriteU32((void *)0x007E5DA8, 6000); // BO UPG EMTORP time
-    patch.WriteU32((void *)0x007E5788, 9000); // BO LASBOMB time
-    patch.WriteU32((void *)0x007E57D8, 4500); // BO LIGHTLASRANGE time
+    patch.WriteU32((void *)0x007E5788, 10500); // BO LASBOMB time
+    patch.WriteU32((void *)0x007E57D8, 3000); // BO LIGHTLASRANGE time
+    patch.WriteU32((void *)0x007E57F8, 6000); // BO LIGHTLASRATE time
     patch.WriteU32((void *)0x007E5CC8, 3000); // BO TURRETS FLOAT time
-    //patch.WriteU32((void *)0x007E5708, 4500); // BO Magnetic_Mine_Launcher time
+    patch.WriteU32((void *)0x007E5708, 5250); // BO MML time
+    patch.WriteU32((void *)0x007E5728, 4500); // BO EM time
     patch.WriteU32((void *)0x007E5DD8, 4500); // BO TORPSPEED time
-    patch.WriteU32((void *)0x007E57F8, 4500); // BO AVENGER time
+    patch.WriteU32((void *)0x007E56C8, 4500); // BO LASMINES time
+    patch.WriteU32((void *)0x007E5D88, 3000); // BO LASMINEFIND time
+    
     
 
     // patch.WriteByte((void *)0x007C0A2F, ); // SI ARMOR T3 dep
@@ -1205,11 +1249,11 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteByte((void *)0x007C0970, 0);   // SI SPEED T4 dep2 lvl
     patch.WriteByte((void *)0x007C0D4F, 122); // SI UPGBHESHELLS dep
     patch.WriteByte((void *)0x007C0D53, 1); // SI UPGBHESHELLS dep lvl
-    patch.WriteByte((void *)0x007C0903, 81);  // SI NRG T3 dep
+    patch.WriteByte((void *)0x007C0903, 78);  // SI NRG T3 dep
     // patch.WriteByte((void *)0x007C0908, );  // SI NRG T3 dep2
     // patch.WriteByte((void *)0x007C090C, );  // SI NRG T3 dep2 lvl
-    //patch.WriteByte((void *)0x007C094E, 78); // SI NRG T4 dep
-    //patch.WriteByte((void *)0x007C0952, 2);  // SI NRG T4 dep lvl
+    patch.WriteByte((void *)0x007C094E, 81); // SI NRG T4 dep
+    patch.WriteByte((void *)0x007C0952, 1);  // SI NRG T4 dep lvl
     patch.WriteByte((void *)0x007C09CB, 84); // SI SHELLPROD dep
     //patch.WriteByte((void *)0x007C09CF, 2); // SI SHELLPROD dep lvl
     // patch.WriteByte((void *)0x007C0D9A, 2);    // SI NRGSHLDNEUTR dep
@@ -1217,118 +1261,129 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteByte((void *)0x007C091C, 78);  // SI NRGTRANSF dep
     patch.WriteByte((void *)0x007C0920, 1);   // SI NRGTRANSF dep lvl
     patch.WriteByte((void *)0x007C0A93, 119); // SI ORBITLAS dep
-    patch.WriteByte((void *)0x007C0A98, 0);   // SI ORBITLAS dep2
+    patch.WriteByte((void *)0x007C0A98, 94);   // SI ORBITLAS dep2
     patch.WriteByte((void *)0x007C0999, 78);  // SI UPGNRGMINE dep
     patch.WriteByte((void *)0x007C099D, 2);   // SI UPGNRGMINE dep lvl
     patch.WriteByte((void *)0x007C0AAC, 71);  // SI ANTISMP dep
     //patch.WriteByte((void *)0x007C0AB1, 119);  // SI ANTISMP dep2
     //patch.WriteByte((void *)0x007C0AB5, 1);   // SI ANTISMP dep2 lvl
     // patch.WriteByte((void *)0x007C0AB0, 2);  // SI ANTISMP dep lvl
-    // patch.WriteByte((void *)0x007C0B42, ); // SI PSISHIELD dep
-    // patch.WriteByte((void *)0x007C0B46, ); // SI PSISHIELD dep lvl
-    patch.WriteByte((void *)0x007C0A48, 101); // SI IONARMR dep
-    patch.WriteByte((void *)0x007C0A4C, 2); // SI IONARMR dep lvl
-    patch.WriteByte((void *)0x007C0B2E, 0); // SI IONARMR T4 dep2
-    patch.WriteByte((void *)0x007C0B32, 0); // SI IONARMR T4 dep2 lvl
+    patch.WriteByte((void *)0x007C0B47, 106);    // SI PSISHIELD dep2
+    patch.WriteByte((void *)0x007C0B4B, 1);    // SI PSISHIELD dep2 lvl
+    patch.WriteByte((void *)0x007C0A48, 101); // SI IONARMOR dep
+    patch.WriteByte((void *)0x007C0A4C, 3); // SI IONARMOR dep lvl
+    patch.WriteByte((void *)0x007C0B2E, 0); // SI IONARMOR T4 dep2
+    patch.WriteByte((void *)0x007C0B32, 0); // SI IONARMOR T4 dep2 lvl
     // patch.WriteByte((void *)0x007C0C0A, 0);   // SI DMG T2 dep
     // patch.WriteByte((void *)0x007C0C0E, 0);   // SI DMG T2 dep lvl
     patch.WriteByte((void *)0x007C0C23, 124); // SI DMG T3 dep
     // patch.WriteByte((void *)0x007C0C27, ); // SI DMG T3 dep lvl 
-    patch.WriteByte((void *)0x007C09B2, 78); // SI MOLECULAR dep
-    patch.WriteByte((void *)0x007C09B6, 3);  // SI MOLECULAR dep lvl
+    patch.WriteByte((void *)0x007C09B2, 79); // SI MOLECULAR dep
+    patch.WriteByte((void *)0x007C09B6, 1);  // SI MOLECULAR dep lvl
     patch.WriteByte((void *)0x007C09B7, 0);  // SI MOLECULAR dep2
     patch.WriteByte((void *)0x007C09BB, 0);  // SI MOLECULAR dep2 lvl
     patch.WriteByte((void *)0x007C09FD, 0); // SI UPGCORMINE dep
     // patch.WriteByte((void *)0x007C0AC5, ); // SI VACBOMB dep
     patch.WriteByte((void *)0x007C0ACA, 107);   // SI VACBOMB dep2
     patch.WriteByte((void *)0x007C0ACE, 1);   // SI VACBOMB dep2 lvl
-    patch.WriteByte((void *)0x007C0A7A, 101); // SI LASABSORB dep
-    patch.WriteByte((void *)0x007C0A7E, 3);  // SI LASABSORB dep lvl
+    patch.WriteByte((void *)0x007C0A7A, 102); // SI LASABSORB dep
+    patch.WriteByte((void *)0x007C0A7E, 1);  // SI LASABSORB dep lvl
     patch.WriteByte((void *)0x007C0A61, 101); // SI REGEN dep
     patch.WriteByte((void *)0x007C0A65, 1);  // SI REGEN dep lvl
-    patch.WriteByte((void *)0x007C0A66, 0);  // SI REGEN dep2
-    patch.WriteByte((void *)0x007C0A6A, 0);  // SI REGEN dep2 lvl
+    patch.WriteByte((void *)0x007C0A66, 81);  // SI REGEN dep2
+    patch.WriteByte((void *)0x007C0A6A, 1);  // SI REGEN dep2 lvl
     patch.WriteByte((void *)0x007C086D, 69); // SI USURPER dep
     patch.WriteByte((void *)0x007C0872, 0); // SI USURPER dep2
     patch.WriteByte((void *)0x007C07D7, 73); // SI RESIDENT dep
     patch.WriteByte((void *)0x007C07DC, 0);  // SI RESIDENT dep2
     // patch.WriteByte((void *)0x007C07E0, );  // SI RESIDENT dep2 lvl
-    // patch.WriteByte((void *)0x007C07BE, ); // SI BIOLOCSCREEN dep
-    patch.WriteByte((void *)0x007C07A5, 68);  // SI BIOLOCSCAN dep
-    patch.WriteByte((void *)0x007C0809, 70);  // SI INVISFIND dep
-    patch.WriteByte((void *)0x007C06DD, 96);  // SI TELELOC dep
-    patch.WriteByte((void *)0x007C06E1, 1);   // SI TELELOC dep lvl
-    patch.WriteByte((void *)0x007C06F6, 0);   // SI TELEPORTAL dep
-    patch.WriteByte((void *)0x007C06FA, 0);   // SI TELEPORTAL dep lvl
-    patch.WriteByte((void *)0x007C0728, 95);  // SI TELEPORTALSEC dep
-    patch.WriteByte((void *)0x007C070F, 98);  // SI QUANTUMPAR dep
-    patch.WriteByte((void *)0x007C0714, 77);  // SI QUANTUMPAR dep2
-    patch.WriteByte((void *)0x007C0718, 1);   // SI QUANTUMPAR dep2 lvl
+     patch.WriteByte((void *)0x007C07BE, 68); // SI BIOLOCSCREEN dep
+    patch.WriteByte((void *)0x007C07A5, 72);  // SI BIOLOCSCAN dep
+    patch.WriteByte((void *)0x007C0809, 72);  // SI INVISFIND dep
+    patch.WriteByte((void *)0x007C06DD, 0);  // SI TELEPERSONAL dep
+    patch.WriteByte((void *)0x007C06E1, 0);   // SI TELEPERSONAL dep lvl
+    patch.WriteByte((void *)0x007C06F6, 95);  // SI TELEPORTAL dep
+    patch.WriteByte((void *)0x007C06FA, 1);   // SI TELEPORTAL dep lvl
+    patch.WriteByte((void *)0x007C0728, 96);  // SI TELEPORTALSEC dep
+    patch.WriteByte((void *)0x007C070F, 77);  // SI QUANTUMPAR dep
+    patch.WriteByte((void *)0x007C0714, 0);  // SI QUANTUMPAR dep2
+    patch.WriteByte((void *)0x007C0718, 0);   // SI QUANTUMPAR dep2 lvl
     patch.WriteByte((void *)0x007C0935, 108); // SI RECYCLE dep
-    patch.WriteByte((void *)0x007C07F0, 96);  // SI TELEFIND dep
-    patch.WriteByte((void *)0x007C0980, 123); // SI IONFIELD dep
+    patch.WriteByte((void *)0x007C07F0, 0);   // SI TELEFIND dep
+    patch.WriteByte((void *)0x007C0822, 116);   // SI MINEFIND dep
+    patch.WriteByte((void *)0x007C083B, 116);   // SI LASMINEFIND dep
+    patch.WriteByte((void *)0x007C0980, 92); // SI IONFIELD dep
     patch.WriteByte((void *)0x007C0985, 0);   // SI IONFIELD dep2
     // patch.WriteByte((void *)0x007C0989, );   // SI IONFIELD dep2 lvl
     patch.WriteByte((void *)0x007C0D09, 0);   // SI PARALYZE dep
     patch.WriteByte((void *)0x007C0D0D, 0);   // SI PARALYZE dep lvl
     patch.WriteByte((void *)0x007C078C, 69);  // SI DEFHACK dep
-    patch.WriteByte((void *)0x007C0773, 114); // SI DEFHACK dep
-    patch.WriteByte((void *)0x007C0B42, 106); // SI ANTIPSI dep
-    patch.WriteByte((void *)0x007C0B46, 1);   // SI ANTIPSI dep lvl
-    patch.WriteByte((void *)0x007C0BF1, 85);  // SI UPGPULSAR dep
-    patch.WriteByte((void *)0x007C0B8D, 90);  // SI DPT dep
-    patch.WriteByte((void *)0x007C0BA6, 90);  // SI GASLAUNCHER dep
-    patch.WriteByte((void *)0x007C0C55, 89);  // SI PARCHER dep
+    patch.WriteByte((void *)0x007C0773, 114); // SI UPGHACK dep
+    patch.WriteByte((void *)0x007C0B42, 106); // SI PSISHIELD dep
+    patch.WriteByte((void *)0x007C0B46, 1);   // SI PSISHIELD dep lvl
+    patch.WriteByte((void *)0x007C0BF1, 89);  // SI UPGPULSAR dep
+    patch.WriteByte((void *)0x007C0B8D, 85);  // SI DPT dep
+    patch.WriteByte((void *)0x007C0BA6, 85);  // SI GASLAUNCHER dep
+    patch.WriteByte((void *)0x007C0C55, 90);  // SI PARCHER dep
     patch.WriteU32((void *)0x007C0D9E, 1);    // SI NEUTRSHIELD dep lvl
+    patch.WriteByte((void *)0x007C0AFB, 3);  // SI USGDEF dep lvl
     
     
 
-    //patch.WriteU32((void *)0x007E59D8, 6000);  // SI GASSHLLNCHR time
-    //patch.WriteU32((void *)0x007E5A48, 7500);  // SI UPG GASSHLLNCHR time
-    patch.WriteU32((void *)0x007E5B50, 10500); // SI SPEED T4 time
-    patch.WriteU32((void *)0x007E5B48, 4500); // SI SPEED T2 time
-    patch.WriteU32((void *)0x007E58E8, 4500);  // SI DEFHACK time
+    patch.WriteU32((void *)0x007E59D8, 3750);  // SI GASSHLLNCHR time
+    patch.WriteU32((void *)0x007E5A48, 6000);  // SI UPG GASSHLLNCHR time
+    patch.WriteU32((void *)0x007E5B50, 9000); // SI SPEED T4 time
+    patch.WriteU32((void *)0x007E5B4C, 6000);  // SI SPEED T3 time
+    patch.WriteU32((void *)0x007E5B48, 3000);  // SI SPEED T2 time
+    patch.WriteU32((void *)0x007E58C8, 3000);  // SI HACK time
+    patch.WriteU32((void *)0x007E58E8, 3000);  // SI DEFHACK time
     patch.WriteU32((void *)0x007E5AA8, 10500); // SI ANTINUKE time
-    patch.WriteU32((void *)0x007E58F8, 4500);  // SI DISPSCREEN time
-    patch.WriteU32((void *)0x007E5918, 5250);  // SI INVISFIND time
+    patch.WriteU32((void *)0x007E5B28, 6000); // SI IONFIELD time
+    patch.WriteU32((void *)0x007E58F8, 3000);  // SI LOCDISPSCREEN time
+    patch.WriteU32((void *)0x007E5918, 4500);  // SI INVISFIND time
     patch.WriteU32((void *)0x007E5B98, 3000);  // SI USURPER time
     patch.WriteU32((void *)0x007E5A38, 4500);  // SI IONREFLECTOR time
-    patch.WriteU32((void *)0x007E5C28, 6000);  // SI UPGIONREFLECTOR time
+    patch.WriteU32((void *)0x007E5C28, 3000);  // SI UPGIONREFLECTOR time
     patch.WriteU32((void *)0x007E59E8, 6000);  // SI SOLITON time
     patch.WriteU32((void *)0x007E5C08, 3750);  // SI UPGDPT time
-    patch.WriteU32((void *)0x007E5A78, 6000);  // SI PORTAL time
-    patch.WriteU32((void *)0x007E5948, 5250);  // SI FINDTELE time
-    patch.WriteU32((void *)0x007E5928, 4500);  // SI FINDMINES time
-    patch.WriteU32((void *)0x007E5938, 4500);  // SI FINDLASMINES time
-    patch.WriteU32((void *)0x007E5A98, 6000);  // SI PORTALCODE time
+    patch.WriteU32((void *)0x007E5A68, 7500);  // SI TELEPERSONAL time
+    patch.WriteU32((void *)0x007E5A78, 4500);  // SI PORTAL time
+    patch.WriteU32((void *)0x007E5948, 4500);  // SI FINDTELE time
+    patch.WriteU32((void *)0x007E5928, 3000);  // SI FINDMINES time
+    patch.WriteU32((void *)0x007E5938, 3000);  // SI FINDLASMINES time
+    patch.WriteU32((void *)0x007E5A98, 4500);  // SI PORTALCODE time
     patch.WriteU32((void *)0x007E5AB8, 6000);  // SI QUANTUMPAR time
     //patch.WriteU32((void *)0x007E5BE8, 3000);  // SI RESIDENT time
     patch.WriteU32((void *)0x007E59B8, 7500);  // SI CORMINESPEED time
-    patch.WriteU32((void *)0x007E5BB8, 4500);  // SI ACOUSTICMINES time
-    patch.WriteU32((void *)0x007E5BA8, 4500);  // SI BIOASSAULTER time
-    patch.WriteU32((void *)0x007E5BD8, 6000);  // SI UPGBIO time
+    patch.WriteU32((void *)0x007E5BB8, 6000);  // SI ACOUSTICMINES time
+    patch.WriteU32((void *)0x007E5BA8, 6000);  // SI BIOASSAULTER time
+    patch.WriteU32((void *)0x007E5BD8, 4500);  // SI UPGBIO time
     // patch.WriteU32((void *)0x007E5C18, 6000); // SI DMG T2 time
-    patch.WriteU32((void *)0x007E5C1C, 6000); // SI DMG T3 time
+    patch.WriteU32((void *)0x007E5C1C, 9000); // SI DMG T3 time
     patch.WriteU32((void *)0x007E5C18, 6000); // SI RECYCLE time
-    patch.WriteU32((void *)0x007E595C, 4500); // SI NRG T3 time
+    patch.WriteU32((void *)0x007E595C, 3750); // SI NRG T3 time
     patch.WriteU32((void *)0x007E5960, 6000); // SI NRG T4 time
-    patch.WriteU32((void *)0x007E5AD8, 6000); // SI REGEN time
+    patch.WriteU32((void *)0x007E5AD8, 4500); // SI REGEN time
+    patch.WriteU32((void *)0x007E5BF8, 3000); // SI SHELLPROD time
+    patch.WriteU32((void *)0x007E5988, 3000); // SI ENERGIZER time
     
-    patch.WriteU32((void *)0x007E5B78, 5250); // SI DREADNAUGHT time
+
+    patch.WriteU32((void *)0x007E5B78, 6000); // SI DREADNAUGHT time
     patch.WriteU32((void *)0x007E5978, 5250); // SI UPGACCUM time
     patch.WriteU32((void *)0x007E5AF8, 4500); // SI LASABSORB time
     patch.WriteU32((void *)0x007E5B88, 7500); // SI PARALYZE time
-    patch.WriteU32((void *)0x007E5B4C, 4500); // SI SPEED T3 time
-    patch.WriteU32((void *)0x007E5AC8, 6000); // SI ARMOR T2 time
-    //patch.WriteU32((void *)0x007E5ACC, 10500); // SI ARMOR T3 time
-    //patch.WriteU32((void *)0x007E5AD0, 7500); // SI ARMOR T4 time
+    patch.WriteU32((void *)0x007E5AC8, 4500); // SI ARMOR T2 time
+    patch.WriteU32((void *)0x007E5ACC, 6750); // SI ARMOR T3 time
+    patch.WriteU32((void *)0x007E5AD0, 7500); // SI ARMOR T4 time
     patch.WriteU32((void *)0x007E5A88, 6750); // SI ORBITLAS time
     patch.WriteU32((void *)0x007E5BC8, 9000); // SI VACBOMB time
     patch.WriteU32((void *)0x007E5A18, 6000); // SI PULSARUPG time
     patch.WriteU32((void *)0x007E5A48, 7500); // SI PARCHER time
     patch.WriteU32((void *)0x007E5C38, 6000); // SI UPG DREDNAUGHT time
-    patch.WriteU32((void *)0x007E58D8, 3000); // SI BIOLOCSCAN time
+    patch.WriteU32((void *)0x007E58D8, 4500); // SI BIOLOCSCAN time
     patch.WriteU32((void *)0x007E5AE8, 6000); // SI IONARMOR time
+    patch.WriteU32((void *)0x007E5B08, 6000); // SI PSISHIELD time
+    
     
 
     // SPEED Upgrade
@@ -1468,9 +1523,49 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteU32Triple((void *)0x007E1D7C, GetPrivateProfileInt(L"EM_Launcher", L"Corium", 80, ini_file));
 
     patch.WriteU32Triple((void *)0x007E1DA0, GetPrivateProfileInt(L"Lasbomb_Launcher", L"Corium", 3000, ini_file));
+
+    
+    // SI
+    patch.WriteU32((void *)0x007E1EB0, GetPrivateProfileInt(L"Silicon_Extractor", L"Corium", 0, ini_file));  // Silicon_Extractor Corium 1000
+    patch.WriteU32((void *)0x007E1DE4, GetPrivateProfileInt(L"Core", L"Corium", 300, ini_file)); // SI Core Corium 4000
+    patch.WriteU32((void *)0x007E1E44, GetPrivateProfileInt(L"Arsenal_SI", L"Corium", 400, ini_file)); // SI Arsenal Corium 2400
+    patch.WriteU32((void *)0x007E1E50, GetPrivateProfileInt(L"Protoplasm_Generator", L"Corium", 0, ini_file)); // SI Protoplasm_Generator Corium 3600
+
+    patch.WriteU32((void *)0x007E1DF0, GetPrivateProfileInt(L"Tech_Module", L"Corium", 200, ini_file)); // SI Module_SI 10
+    patch.WriteU32((void *)0x007E1DFC, GetPrivateProfileInt(L"Tech_Module", L"Corium", 200, ini_file)); // SI Module 10
+    patch.WriteU32((void *)0x007E1E08, GetPrivateProfileInt(L"Tech_Module", L"Corium", 200, ini_file)); // SI Module 10
+    patch.WriteU32((void *)0x007E1E14, GetPrivateProfileInt(L"Tech_Module", L"Corium", 200, ini_file)); // SI Module 10
+    patch.WriteU32((void *)0x007E1E20, GetPrivateProfileInt(L"Tech_Module", L"Corium", 200, ini_file)); // SI Module 10
+    patch.WriteU32((void *)0x007E1E2C, GetPrivateProfileInt(L"Tech_Module", L"Corium", 200, ini_file)); // SI Module 10
+    patch.WriteU32((void *)0x007E1E38, GetPrivateProfileInt(L"Tech_Module", L"Corium", 200, ini_file)); // SI Module 10
+
+    patch.WriteU32((void *)0x007E1E5C, GetPrivateProfileInt(L"Biolocator", L"Corium", 50, ini_file)); // SI Biolocator 14
+    patch.WriteU32((void *)0x007E1E60, GetPrivateProfileInt(L"Corium_Mine_SI", L"Corium", 0, ini_file)); // SI Corium extractor 10
+    patch.WriteU32((void *)0x007E1E64, GetPrivateProfileInt(L"Corium_Mine_SI", L"Corium", 0, ini_file)); // SI Corium extractor 10
+    patch.WriteU32((void *)0x007E1E68, GetPrivateProfileInt(L"Corium_Mine_SI", L"Corium", 0, ini_file)); // SI Corium extractor 10 
+    patch.WriteU32((void *)0x007E1E74, GetPrivateProfileInt(L"Energy_converter", L"Corium", 200, ini_file)); // SI Energy_converter_SI 24
+    patch.WriteU32((void *)0x007E1E80, GetPrivateProfileInt(L"Depot_SI", L"Corium", 0, ini_file)); // SI Corium silo 10 Depot_SI
+    patch.WriteU32((void *)0x007E1E8C, GetPrivateProfileInt(L"Energy_accumulator", L"Corium", 0, ini_file)); // SI Energy_accumulator_SI 16
+    patch.WriteU32((void *)0x007E1E98, GetPrivateProfileInt(L"Replenish_pod", L"Corium", 50, ini_file)); // SI Replenish_pod_SI 14
+    patch.WriteU32((void *)0x007E1EA4, GetPrivateProfileInt(L"Recyclotron", L"Corium", 200, ini_file)); // SI Recyclotron_SI 22
+    patch.WriteU32((void *)0x007E1F10, GetPrivateProfileInt(L"Gate", L"Corium", 150, ini_file)); // SI Gate 26
+    patch.WriteU32((void *)0x007E1F1C, GetPrivateProfileInt(L"Ion_field_generator", L"Corium", 400, ini_file)); // SI Ion_field_generator 20
+    patch.WriteU32((void *)0x007E1F28, GetPrivateProfileInt(L"Molecular_repair_facility", L"Corium", 500, ini_file)); // SI Molecular 18
+    patch.WriteU32((void *)0x007E1F40, GetPrivateProfileInt(L"Orbital_laser", L"Corium", 3000, ini_file)); // SI Orbital_laser 24
+    patch.WriteU32((void *)0x007E1F58, GetPrivateProfileInt(L"Vacuum_Bomb", L"Corium", 3000, ini_file)); // SI Vacuum_bomb_launcher_SI 14
+    patch.WriteU32((void *)0x007E1F64, GetPrivateProfileInt(L"Quantum_Paralyzer", L"Corium", 600, ini_file)); // SI Quantum_Paralyzer 16
+    
+    patch.WriteU32Triple((void *)0x007E1EFC, GetPrivateProfileInt(L"Pulsar", L"Corium", 50, ini_file));
+    patch.WriteU32Triple((void *)0x007E1EB4, GetPrivateProfileInt(L"Soliton", L"Corium", 500, ini_file));
+    patch.WriteU32Triple((void *)0x007E1EC0, GetPrivateProfileInt(L"Gas_Shell_Launcher", L"Corium", 300, ini_file));
+    patch.WriteU32Triple((void *)0x007E1ECC, GetPrivateProfileInt(L"Double_Plasma_Turret", L"Corium", 200, ini_file));
+    patch.WriteU32Triple((void *)0x007E1EF0, GetPrivateProfileInt(L"Bio_Mine_Launcher", L"Corium", 350, ini_file)); 
+    patch.WriteU32Triple((void *)0x007E1EE4, GetPrivateProfileInt(L"Jump_Mine_Launcher", L"Corium", 300, ini_file));
+    patch.WriteU32((void *)0x007E1EE0, GetPrivateProfileInt(L"Ion_Reflector", L"Corium", 200, ini_file));
+    patch.WriteU32Triple((void *)0x007E1F44, GetPrivateProfileInt(L"Parcher", L"Corium", 350, ini_file));
     
     // AMMO
-    // WS
+    // WS 
     patch.WriteU32((void *)0x00794098, GetPrivateProfileInt(L"HF_Cannon", L"Ammo", 0, ini_file));
     patch.WriteU32((void *)0x007940A0, GetPrivateProfileInt(L"STOLp", L"Ammo", 40, ini_file));
     patch.WriteU32((void *)0x00794130, GetPrivateProfileInt(L"Plasma_Cannon", L"Ammo", 0, ini_file));
@@ -2288,7 +2383,8 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteByte((void *)0x0045094E, GetPrivateProfileInt(L"Phantom", L"Discharge", 30, ini_file));
 
     patch.WriteByte((void *)0x007D2220, GetPrivateProfileInt(L"Paralyze_Ray", L"Time", 375, ini_file)); 
-    patch.WriteByte((void *)0x007D2210, GetPrivateProfileInt(L"Neuro_Paralysis_Shell", L"Time", 250, ini_file));
+    patch.WriteByte((void *)0x007D2210, GetPrivateProfileInt(L"Neuro_Paralysis_Shell", L"Time_1", 125, ini_file));
+    patch.WriteByte((void *)0x007D2210, GetPrivateProfileInt(L"Neuro_Paralysis_Shell", L"Time_2", 250, ini_file));
 
     //--------------------------------------------------------------------------------------------------------------------
 
@@ -2429,7 +2525,8 @@ static bool Flagships(Patcher::SPatch &patch)
     patch.WriteU32((void *)0x007A8C58, GetPrivateProfileInt(L"Flagship_SI", L"Ammo", 20, ini_file)); // weapon
     //patch.WriteJumpSized(SIFlagshipRange7_Jmp, 5, (unsigned long)SIFlagshipRange7);
     patch.WriteNops((void *)0x004622FF, 9); // No overwrite 5 range
-    patch.WriteNops((void *)0x004653D8, 9); // No overwrite 5 range again    
+    patch.WriteNops((void *)0x004653D8, 9); // No overwrite 5 range again
+    patch.WriteNops((void *)0x00459324, 9); // No overwrite 5 range and again
     return true;
 }
 static bool AimPrediction(Patcher::SPatch &patch)
@@ -2440,6 +2537,7 @@ static bool AimPrediction(Patcher::SPatch &patch)
     patch.WriteJumpSized(ModifyTurretFix_Jmp, 5, (unsigned long)ModifyTurretFix);
     patch.WriteJumpSized(ModifyTurretFix2_Jmp, 5, (unsigned long)ModifyTurretFix2);
     patch.WriteJumpSized(AimPredictionSubmarines_Jmp, 7, (unsigned long)AimPredictionSubmarines);
+    patch.WriteJumpSized(AimPredictionSubmarinesDef0_Jmp, 15, (unsigned long)AimPredictionSubmarinesDef0);
     patch.WriteJumpSized(AimPredictionSubmarinesDef1_Jmp, 15, (unsigned long)AimPredictionSubmarinesDef1);
     patch.WriteJumpSized(AimPredictionSubmarinesDef2_Jmp, 15, (unsigned long)AimPredictionSubmarinesDef2);
     patch.WriteJumpSized(AimPredictionSubmarinesDef3_Jmp, 15, (unsigned long)AimPredictionSubmarinesDef3);
@@ -2494,7 +2592,7 @@ static bool ResearchBuildingsLimit(Patcher::SPatch &patch)
     patch.WriteJumpSized(DestroyedModulesAndHumanCentersBuilding_Jmp, 5, (unsigned long)DestroyedModulesAndHumanCentersBuilding);
     patch.WriteJumpSized(DismantledModulesAndHumanCenters_Jmp, 6, (unsigned long)DismantledModulesAndHumanCenters);
     patch.WriteJumpSized(CancelledModulesAndHumanCenters_Jmp, 6, (unsigned long)CancelledModulesAndHumanCenters);
-    patch.WriteJumpSized(CapturedTechBuildings_Jmp, 6, (unsigned long)CapturedTechBuildings);
+    //patch.WriteJumpSized(CapturedTechBuildings_Jmp, 6, (unsigned long)CapturedTechBuildings);
     patch.WriteJumpSized(AntiAbuseHumanCenters_Jmp, 13, (unsigned long)AntiAbuseHumanCenters);
     //patch.WriteNops((void *)AntiAbuseHumanCenters_Jmp, 10); // Disable use of techcenters limit area
 
