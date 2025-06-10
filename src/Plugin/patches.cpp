@@ -2962,8 +2962,6 @@ static const PatchFunction Patches[] = {
     Flagships,
 
     LobbyAnnouncements,
-    
-    //AutosaveIPXNetGame,
 
     SiResearchModulesReduce2,
 
