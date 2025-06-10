@@ -5909,6 +5909,9 @@ __declspec(naked) void inline ModifyAimGpsV2()
         push ebx
         push edi
 
+        cmp [edi+565], 63
+        je idle
+
         //order
         mov edx,[esi+0x0C]
         mov eax,[edx+0x9F]
@@ -6096,6 +6099,10 @@ __declspec(naked) void inline ModifyTurretTurnV2()
 {
     __asm {
         push edx
+        
+        cmp [edi+565], 63
+        je idle
+
             // order:
         mov edx,[eax+0x9F]
         test edx,edx
@@ -6244,6 +6251,10 @@ __declspec(naked) void inline ModifyTurretTurnCheckV2()
 {
     __asm {
         push edx
+        
+        cmp [esi+565], 63
+        je idle
+
             // order:
         mov edx,[eax+0x9F]
         test edx,edx
