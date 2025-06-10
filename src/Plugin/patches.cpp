@@ -53,11 +53,11 @@ using namespace Patcher;
 //}
 
 // Implement your patches here
-static bool AutosaveIPXNetGame(Patcher::SPatch &patch)
-{
-    
-    return true;
-}
+//static bool AutosaveIPXNetGame(Patcher::SPatch &patch)
+//{
+//    
+//    return true;
+//}
 
 static bool FixesQoL(Patcher::SPatch &patch) {
     // 1. config check
@@ -76,7 +76,7 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     // GENERAL
     patch.WriteJumpSized(ChangeGameVersion_Jmp, 5, (unsigned long)ChangeGameVersion);
 
-    bool enable_autosave = GetPrivateProfileInt(L"Plugins", L"Autosave", FALSE, ini_file);
+    BYTE enable_autosave = GetPrivateProfileInt(L"Plugins", L"Autosave", FALSE, ini_file);
     if (enable_autosave)
     {
         patch.WriteJumpSized(AutosaveCheckTick_Jmp, 5, (unsigned long)AutosaveCheckTick);
@@ -150,8 +150,9 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     //patch.WriteByte((void *) 0x0054F116, 0); // New command (27(22 slot)) jumptable for command size = 12
     //patch.WriteByte((void *)0x00438715, 1);
 
-    patch.WriteJumpSized(BoxCursorLoadCheck1_Jmp, 5, (unsigned long)BoxCursorLoadCheck1);
+    patch.WriteJumpSized(BoxCursorLoadCheck1_Jmp, 7, (unsigned long)BoxCursorLoadCheck1);
     patch.WriteJumpSized(BoxCursorLoadCheck2_Jmp, 10, (unsigned long)BoxCursorLoadCheck2);
+    patch.WriteJumpSized(BoxCursorLoadCheck3_Jmp, 5, (unsigned long)BoxCursorLoadCheck3);
 
     patch.WriteJumpSized(AlwaysShowHP_Jmp, 6, (unsigned long)AlwaysShowHP);
     patch.WriteJumpSized(DecreaseShowHPState_Jmp, 8, (unsigned long)DecreaseShowHPState);
@@ -223,6 +224,15 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     //patch.WriteNops((void *)0x0045FA94, 14); // fast rebuild waypoint on collision
     patch.WriteJumpSized(ContinueMoveSmallDelay_Jmp, 7, (unsigned long)ContinueMoveSmallDelay);
     patch.WriteJumpSized(NoCaptureAllyBuildings_Jmp, 6, (unsigned long)NoCaptureAllyBuildings);
+    //patch.WriteJumpSized(AIGetMapSizeCase_Jmp, 5, (unsigned long)AIGetMapSizeCase);
+
+    //patch.WriteJumpSized(NoOffsetFromMapBorderIfValue_Jmp, 5, (unsigned long)NoOffsetFromMapBorderIfValue);
+    //patch.WriteJumpSized(AIPlaceBuildingNearUnsuitable_Jmp, 7, (unsigned long)AIPlaceBuildingNearUnsuitable);
+    //patch.WriteNops((void *)0x00661221, 92); // AIPlaceBuildingNearUnsutable
+
+    patch.WriteNops((void *)0x004BE758, 13); // DontChangeInterface object Name
+    patch.WriteNops((void *)0x004BE768, 5); // DontChangeInterface object Name
+    patch.WriteNops((void *)0x004BE773, 3); // DontChangeInterface object Name
 
     patch.WriteNops((void *)0x004623BF, 2); // fast change depth on attack
 
@@ -1018,8 +1028,8 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteByte((void *)0x007BFDF0, 4);  // WS ARMR T4 dep
     patch.WriteByte((void *)0x007BFDF4, 2);  // WS ARMR T4 dep lvl
     patch.WriteByte((void *)0x007BFDF5, 0);  // WS ARMR T4 dep2
-    patch.WriteByte((void *)0x007C002F, 5);  // WS CYBER dep
-    patch.WriteByte((void *)0x007C0033, 2);  // WS CYBER dep lvl
+    patch.WriteByte((void *)0x007C002F, 61);  // WS CYBER dep
+    patch.WriteByte((void *)0x007C0033, 1);  // WS CYBER dep lvl
     patch.WriteByte((void *)0x007C0034, 0);  // WS CYBER dep2
     patch.WriteByte((void *)0x007BFFE4, 22); // WS SHRKCNTRL dep
     patch.WriteByte((void *)0x007BFD8C, 15); // WS PSIFIELD dep
@@ -1043,7 +1053,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteByte((void *)0x007C00F7, 0);  // WS UPGMINE dep
     patch.WriteByte((void *)0x007C00DE, 30);  // WS AMMOPROD dep
     patch.WriteByte((void *)0x007C00E2, 1);  // WS TORPPROD dep lvl
-    patch.WriteByte((void *)0x007C0093, 5);  // WS MOBILEPLATF dep
+    patch.WriteByte((void *)0x007C0093, 1);  // WS MOBILEPLATF dep
     //patch.WriteByte((void *)0x007BFC2E, 0);  // WS MEDTORP dep
     patch.WriteByte((void *)0x007BFD28, 1);  // WS HFCANNSPEED dep
     patch.WriteByte((void *)0x007BFC79, 0);  // WS MINELAYER dep
@@ -1136,12 +1146,12 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteByte((void *)0x007C065E, 1); // BO TORPPROD dep lvl
     patch.WriteByte((void *)0x007C0646, 0);   // BO CYBER dep
     patch.WriteByte((void *)0x007C0646, 0); // BO AVENGER dep
-    patch.WriteByte((void *)0x007C060F, 130); // BO MOBILEPLATF dep
+    patch.WriteByte((void *)0x007C060F, 51); // BO MOBILEPLATF dep
     patch.WriteByte((void *)0x007C025E, 0);   // BO Magnetic_Mine_Launcher dep2
     patch.WriteByte((void *)0x007C0272, 41);  // BO EMTORP 
     patch.WriteByte((void *)0x007C02A4, 43);  // BO UPGEM dep
     patch.WriteByte((void *)0x007C0560, 137); // BO LASBOMB dep
-    patch.WriteByte((void *)0x007C0565, 48);   // BO LASBOMB dep2
+    patch.WriteByte((void *)0x007C0565, 50);  // BO LASBOMB dep2
     patch.WriteByte((void *)0x007C0673, 0);   // BO UPG MINESPD depg
     patch.WriteByte((void *)0x007C033A, 54);  // BO LIGHTLASSPD dep
     patch.WriteByte((void *)0x007C02EF, 54);  // BO RUBY dep
@@ -1151,8 +1161,8 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     //patch.WriteByte((void *)0x007C0358, 57);  // BO LASRATE dep2
     //patch.WriteByte((void *)0x007C035C, 1);   // BO LASRATE dep2 lvl
     patch.WriteByte((void *)0x007C0385, 38);  // BO RECHARGEST dep
-    patch.WriteByte((void *)0x007C0579, 50);  // BO SHIELDGEN dep
-    patch.WriteByte((void *)0x007C05AB, 38);  // BO FORCEFIELD dep
+    patch.WriteByte((void *)0x007C0579, 56);  // BO SHIELDGEN dep
+    patch.WriteByte((void *)0x007C05AB, 48);  // BO FORCEFIELD dep
     // patch.WriteByte((void *)0x007C0498, ); // BO UPGHACK dep
     patch.WriteByte((void *)0x007C052E, 127); // BO LOCSHIELD dep
     patch.WriteByte((void *)0x007C0466, 134); // BO STEALTH dep
@@ -2557,6 +2567,22 @@ static bool OneDepotFor2Mines(Patcher::SPatch &patch)
     patch.WriteJumpSized(Transport_waiting_mine_distance2_Jmp, 6, (unsigned long)Transport_waiting_mine_distance2);
     return true;
 }
+
+static bool OneDepotFor2Mines2(Patcher::SPatch &patch)
+{
+    patch.WriteByte((void *)0x004693A6, 2); // Transport waiting distance set after depot
+    patch.WriteByte((void *)0x00467488, 2); // Transport waiting distance set after mine
+    patch.WriteByte((void *)0x004696F9, 2); // Transport waiting distance 3
+    patch.WriteByte((void *)0x004699A1, 2); // Transport waiting distance set after mine order
+    patch.WriteJumpSized(TransportDepotDecision_Jmp, 5, (unsigned long)TransportDepotDecision);
+    patch.WriteJumpSized(TransportDepotDecision2_Jmp, 5, (unsigned long)TransportDepotDecision2);
+
+    patch.WriteByte((void *)0x004691B2, 2);    // Resource unload speed divisor
+    patch.WriteJumpSized(Transport_waiting_depot_distance_Jmp, 6, (unsigned long)Transport_waiting_depot_distance);
+    patch.WriteJumpSized(Transport_waiting_mine_distance2_Jmp, 6, (unsigned long)Transport_waiting_mine_distance2);
+    return true;
+}
+
 static bool EconomicsAndOther(Patcher::SPatch &patch)
 {
     // patch.WriteByte((void *)0x004E4794, 10); // Silicon excavation check (vanilla 10)
@@ -2564,7 +2590,7 @@ static bool EconomicsAndOther(Patcher::SPatch &patch)
     // patch.WriteByte((void *)0x004E47DA, 10);  // Silicon excavation check 2 (vanilla 10)
     // patch.WriteU32((void *)0x007BF598, 10);  // Gold level t2
     // patch.WriteU32((void *)0x007BF57C, 5000); // Starting metal t1
-    // patch.WriteU32((void *)0x007BF588, 5000); // Starting silicon t1
+    // patch.WriteU32((void *)0x007BF588, 5000); // Starting silicon t1 
 
 
     patch.WriteJumpSized(RangeAllSubs6_Jmp, 6, (unsigned long)RangeAllSubs6);
@@ -2929,7 +2955,7 @@ static const PatchFunction Patches[] = {
     //Yaml,
     //Put your patch functions here:     
     FixesQoL, 
-    OneDepotFor2Mines,
+    OneDepotFor2Mines2,
     AimPrediction,
     BalancingTacticsTree,
     ResearchBuildingsLimit,
@@ -2937,7 +2963,7 @@ static const PatchFunction Patches[] = {
 
     LobbyAnnouncements,
     
-    AutosaveIPXNetGame,
+    //AutosaveIPXNetGame,
 
     SiResearchModulesReduce2,
 

@@ -26,7 +26,7 @@ namespace Patcher {
 //static LPCWSTR ini_file = full_path.c_str();
 
     
-static auto game_mode_ptr = (BYTE *)0x00808783;
+static auto game_mode_ptr = (BYTE *)0x00808783; // 2 - singleplayer, 3 - standard muliplayer
 static auto game_submode_ptr = (DWORD *)0x00808784;
 static char *player_name_ptr = (char *)0x00807DDD;
 
@@ -224,10 +224,13 @@ void inline AnnounceGamePlayerLeft()
     }
 }
 
+static BYTE autosave_mode = GetPrivateProfileInt(L"Plugins", L"Autosave", FALSE, ini_file);
 bool inline AutosaveCheck()
 {
-    // return (*game_mode_ptr == 3 && *host_flag);
-    return (*host_flag);
+    if (autosave_mode == 1)
+        return (*game_mode_ptr == 3 && *host_flag);
+    else // == 2
+        return (*host_flag);
 }
 
 bool inline ReadDbFile()
@@ -459,7 +462,7 @@ static unsigned long Transport_waiting_mine_distance_Jmp = 0x0046971C;
 static unsigned long Transport_waiting_mine_distance_JmpBack = Transport_waiting_mine_distance_Jmp + 6;
 __declspec(naked) void inline Transport_waiting_mine_distance()
 {
-    __asm mov edi, 1;
+    __asm mov edi, 2;
     __asm mov[esi + 0x000000B7], edi;
 
     __asm jmp[Transport_waiting_mine_distance_JmpBack];
@@ -469,10 +472,39 @@ static unsigned long Transport_waiting_mine_distance2_Jmp = 0x00469863;
 static unsigned long Transport_waiting_mine_distance2_JmpBack = Transport_waiting_mine_distance2_Jmp + 6;
 __declspec(naked) void inline Transport_waiting_mine_distance2()
 {
-    __asm mov edi, 1;
-    __asm mov[esi + 0x000000B7], edi;
+    __asm {
 
-    __asm jmp[Transport_waiting_mine_distance2_JmpBack];
+        push eax
+        push ecx
+
+        mov edi, [esi+36]
+        mov eax, 0x00808AF4
+        sub eax, 156
+        xor ecx, ecx
+
+        loopy:
+        add eax, 156
+        mov cl, [eax]
+        cmp edi, ecx
+        jne loopy
+
+        mov al, byte ptr [eax+2]
+        and eax, 0xFF
+        test eax, eax   
+        
+        jz ai_player
+        mov edi, 1
+        jmp exitt
+
+        ai_player:
+        mov edi, 3
+
+        exitt:
+        pop ecx
+        pop eax
+        mov[esi + 0x000000B7], edi;
+        jmp[Transport_waiting_mine_distance2_JmpBack];
+    }
 }
 
 static unsigned long OpenMap_Jmp = 0x00553B98;
@@ -513,6 +545,128 @@ __declspec(naked) void inline OpenMap()
 
     __asm exitt:;
     __asm jmp[OpenMap_JmpBack];
+}
+
+static unsigned long TransportDepotDecision_Jmp = 0x004438BB;
+static unsigned long TransportDepotDecision_JmpBack = TransportDepotDecision_Jmp + 5;
+__declspec(naked) void inline TransportDepotDecision()
+{
+    __asm {
+        add eax, edx
+
+        push eax
+        push ecx
+        push edx
+
+        mov eax, [ebp-4]
+        mov edx, [ebp+8]
+        mov ecx, [ebp-0x88]
+        push 1
+        push eax
+        push edx
+        mov eax, 0x004028BA // STAllPlayersC::GetObjPtr(int,ushort,int)
+        call eax
+
+        mov eax, [eax+36]
+        mov edx, 0x00808AF4
+        sub edx, 156
+        xor ecx, ecx
+
+        loopy:
+        //cmp edx, 0x00808FD4
+        //ja outt
+        add edx, 156
+        mov cl, [edx]
+        cmp eax, ecx
+        jne loopy
+
+        mov dl, byte ptr [edx+2]
+        and edx, 0xFF
+        test edx, edx
+        //outt:        
+
+        pop edx
+        pop ecx
+        pop eax
+        
+        jz ai_player
+        cmp ecx, 100
+        jmp exitt
+
+        ai_player:
+        cmp eax, 100
+
+        exitt:
+        jmp[TransportDepotDecision_JmpBack]
+    }
+}
+
+static unsigned long TransportDepotDecision2_Jmp = 0x004438E5;
+static unsigned long TransportDepotDecision2_JmpBack = TransportDepotDecision2_Jmp + 5;
+__declspec(naked) void inline TransportDepotDecision2()
+{
+    __asm {
+        add eax, edx
+
+        push eax
+        push ecx
+        push edx
+
+        mov eax, [ebp-4]
+        mov edx, [ebp+8]
+        mov ecx, [ebp-0x88]
+        push 1
+        push eax
+        push edx
+        mov eax, 0x004028BA // STAllPlayersC::GetObjPtr(int,ushort,int)
+        call eax
+
+        mov eax, [eax+36]
+        mov edx, 0x00808AF4
+        sub edx, 156
+        xor ecx, ecx
+
+        loopy:
+        //cmp edx, 0x00808FD4
+        //ja outt
+        add edx, 156
+        mov cl, [edx]
+        cmp eax, ecx
+        jne loopy
+
+        mov dl, byte ptr [edx+2]
+        and edx, 0xFF
+        test edx, edx
+        //outt:       
+
+        pop edx
+        pop ecx
+        pop eax
+        
+        jz ai_player
+        cmp ecx, 100
+        jmp exitt
+
+        ai_player:
+        cmp eax, 100
+
+        exitt:
+        jmp[TransportDepotDecision2_JmpBack]
+    }
+}
+
+
+static unsigned long DontChangeInterfaceName_Jmp = 0x0065588C;
+static unsigned long DontChangeInterfaceName_JmpBack = DontChangeInterfaceName_Jmp + 5;
+__declspec(naked) void inline DontChangeInterfaceName()
+{
+    __asm {
+        mov ecx, ebx
+        pop edx
+
+        exitt:
+        jmp[DontChangeInterfaceName_JmpBack]
+    }
 }
 
 static int bhe_expansion_rate_1 = GetPrivateProfileInt(L"BHE_Shell", L"ExpansionRate_1", 7, ini_file);
@@ -1533,21 +1687,26 @@ __declspec(naked) void inline AltRMBNoDoubleOrder()
 }
 
 static unsigned long BoxCursorLoadCheck1_Jmp = 0x004855DC;
-static unsigned long BoxCursorLoadCheck1_JmpBack = BoxCursorLoadCheck1_Jmp + 5;
+static unsigned long BoxCursorLoadCheck1_JmpBack = BoxCursorLoadCheck1_Jmp + 7;
 __declspec(naked) void inline BoxCursorLoadCheck1()
 {
     __asm {
+        cmp eax,0x000001AE
+        je outt
         cmp eax,0x000001A4
         je outt
-        jmp originalcode
+        cmp eax,0x00000172
+        je artifact
+        jmp[BoxCursorLoadCheck1_JmpBack]
+        
+        artifact:
+        mov ebx, [esi+1783]
+        mov edx, 0x00486036
+        jmp edx
 
         outt:
         mov eax, 0x004855F0
         jmp eax
-
-        originalcode:
-        cmp eax,0x000001AE
-        jmp[BoxCursorLoadCheck1_JmpBack]
     }
 }
 
@@ -1556,16 +1715,48 @@ static unsigned long BoxCursorLoadCheck2_JmpBack = BoxCursorLoadCheck2_Jmp + 10;
 __declspec(naked) void inline BoxCursorLoadCheck2()
 {
     __asm {
-        cmp dword ptr [edi+0x20],0x1A4
-        je exitt
-
         cmp dword ptr [edi+0x20],0x14
-        je exitt
+        je check_si_platf
+        cmp dword ptr [edi+0x20],0x1A4
+        je stay
+        cmp dword ptr [edi+0x20],0x172
+        je stay
+
         mov eax, 0x00485CAA
         jmp eax
 
-        exitt:
+        check_si_platf:
+        mov edx, [edi]
+        cmp ebx, 27
+        mov ecx, edi
+        je stay
+        mov eax, 0x0048608A
+        jmp eax
+        
+        stay:
         jmp[BoxCursorLoadCheck2_JmpBack]
+    }
+}
+
+static unsigned long BoxCursorLoadCheck3_Jmp = 0x0048604B;
+static unsigned long BoxCursorLoadCheck3_JmpBack = BoxCursorLoadCheck3_Jmp + 5;
+__declspec(naked) void inline BoxCursorLoadCheck3()
+{
+    __asm {
+        cmp ebx, 27
+        mov ecx, edi
+        je change_cursor
+        cmp ebx, 7
+        je change_cursor
+        cmp ebx, 19
+        je change_cursor
+
+
+        mov eax, 0x0048608A
+        jmp eax
+        
+        change_cursor:
+        jmp[BoxCursorLoadCheck3_JmpBack]
     }
 }
 
@@ -3031,7 +3222,7 @@ __declspec(naked) void inline AutosaveCheckTick()
         push edx
         
         call[AutosaveCheck]
-        test eax, eax
+        test al, al
         jz go_out
 
         xor edx,edx
@@ -3091,7 +3282,7 @@ __declspec(naked) void inline AutosaveCheckMarker()
         push edx
         
         call[AutosaveCheck]
-        test eax, eax
+        test al, al
         jz go_out
 
         xor edx,edx
@@ -3133,7 +3324,7 @@ __declspec(naked) void inline AutosaveMakeFileName()
         mov edi,[eax]
         
         call[AutosaveCheck]
-        test eax, eax
+        test al, al
         jz exitt
 
         push ebx
@@ -3175,7 +3366,7 @@ __declspec(naked) void inline AutosaveFillNameBuffer()
 {
     __asm {
         call[AutosaveCheck]
-        test eax, eax
+        test al, al
         jz originalcode
 
         push ebx
@@ -3236,7 +3427,7 @@ __declspec(naked) void inline AutosaveDontCheckIfFileExists()
         push edx
         
         call[AutosaveCheck]
-        test eax, eax
+        test al, al
         jz go_out
 
         xor edx,edx
@@ -3315,7 +3506,7 @@ __declspec(naked) void inline AutosaveSkipToggleMenu()
         push edx
         
         call[AutosaveCheck]
-        test eax, eax
+        test al, al
         jz go_out
 
         xor edx,edx
@@ -5603,45 +5794,28 @@ __declspec(naked) void inline NoCaptureAllyBuildings()
         jz originalcode
 
         push ecx
-
         push ebx
-        mov ebx,[ecx+36] // player
-        push edx
-        mov edx,-1
-        jmp loopy
 
-            // start
-        loopy_pre:
-        pop ecx
 
-        loopy:
-        inc edx
-        cmp dl,8
-        jnb enemy_building
-        xor eax,eax
+        mov ebx,[ecx+36] // игрок - хозяин здания
+                
+        lea ebx,[ebx+ebx*8]
+        mov al,[ebx+ebx*8+0x008087EA] // взять команду
 
-        mov al,bl
-        cmp al,dl // не сравнивать с собой
-        je loopy
+
+        mov ebx,0x0080874D // игрок - я
+        xor ecx, ecx
+        mov cl,[ebx]
         
-        lea eax,[eax+eax*8]
-        mov al,[eax+eax*8+0x008087EA] // взять команду игрока
-        push ecx
-        lea ecx,[edx+edx*8]
-        lea ecx,[ecx+ecx*8+0x008087EB]
-        push edx
-        mov edx,[ecx]
-        test edx,edx
-        pop edx
-        jz loopy_pre
-        dec ecx
-        mov cl,[ecx] // взять команду игрока-счетчика
-        cmp cl,al
-        pop ecx
-        jne loopy
+        lea ecx,[ecx+ecx*8]
+        mov ecx,[ecx+ecx*8+0x008087EA] // взять команду
+        and ecx, 0xFF
 
-        // same_team:
-        pop edx
+        
+        cmp al,cl
+        jne enemy_building
+
+            // same_team:
         pop ebx
         pop ecx
         mov ecx,0
@@ -5649,7 +5823,6 @@ __declspec(naked) void inline NoCaptureAllyBuildings()
         jmp originalcode
 
         enemy_building:
-        pop edx
         pop ebx
         pop ecx
 
@@ -5657,6 +5830,76 @@ __declspec(naked) void inline NoCaptureAllyBuildings()
         jmp[NoCaptureAllyBuildings_JmpBack]
     }
 }
+
+
+//static unsigned long NoCaptureAllyBuildings_Jmp = 0x0054B0F9;
+//static unsigned long NoCaptureAllyBuildings_JmpBack = NoCaptureAllyBuildings_Jmp + 6;
+//__declspec(naked) void inline NoCaptureAllyBuildings()
+//{
+//    __asm {
+//        mov ecx,[ebx+1186]
+//        cmp ecx, 7
+//
+//        mov ecx,[ebx+1178]
+//        jne originalcode
+//        test ecx, ecx
+//        jz originalcode
+//
+//        push ecx
+//
+//        push ebx
+//        mov ebx,[ecx+36] // player
+//        push edx
+//        mov edx,-1
+//        jmp loopy
+//
+//            // start
+//        loopy_pre:
+//        pop ecx
+//
+//        loopy:
+//        inc edx
+//        cmp dl,8
+//        jnb enemy_building
+//        xor eax,eax
+//
+//        mov al,bl
+//        cmp al,dl // не сравнивать с собой
+//        je loopy
+//        
+//        lea eax,[eax+eax*8]
+//        mov al,[eax+eax*8+0x008087EA] // взять команду игрока
+//        push ecx
+//        lea ecx,[edx+edx*8]
+//        lea ecx,[ecx+ecx*8+0x008087EB]
+//        push edx
+//        mov edx,[ecx]
+//        test edx,edx
+//        pop edx
+//        jz loopy_pre
+//        dec ecx
+//        mov cl,[ecx] // взять команду игрока-счетчика
+//        cmp cl,al
+//        pop ecx
+//        jne loopy
+//
+//        // same_team:
+//        pop edx
+//        pop ebx
+//        pop ecx
+//        mov ecx,0
+//        mov dword ptr [ebx+1178], 0
+//        jmp originalcode
+//
+//        enemy_building:
+//        pop edx
+//        pop ebx
+//        pop ecx
+//
+//        originalcode:
+//        jmp[NoCaptureAllyBuildings_JmpBack]
+//    }
+//}
 
 static unsigned long ModifyAimGpsV2_Jmp = 0x004C3902;
 static unsigned long ModifyAimGpsV2_JmpBack = ModifyAimGpsV2_Jmp + 7;
@@ -9433,7 +9676,150 @@ __declspec(naked) void inline ContinueMoveSmallDelay()
     }
 }
 
-static BYTE plugin_version = 6;
+//static unsigned long NoOffsetFromMapBorderIfValue_Jmp = 0x00675B1E;
+//static unsigned long NoOffsetFromMapBorderIfValue_JmpBack = NoOffsetFromMapBorderIfValue_Jmp + 5;
+//__declspec(naked) void inline NoOffsetFromMapBorderIfValue()
+//{
+//    __asm {
+//        cmp [ebp+0x20], 252
+//        jne originalcode
+//        mov esi, 0
+//
+//        originalcode:
+//        mov esi, 1
+//        jmp[NoOffsetFromMapBorderIfValue_JmpBack]
+//    }
+//}
+
+static unsigned long still_wrong_Jmp = 0x006613BA;
+static unsigned long AIPlaceBuildingNearUnsuitable_Jmp = 0x0066121A;
+static unsigned long AIPlaceBuildingNearUnsuitable_JmpBack = AIPlaceBuildingNearUnsuitable_Jmp + 7;
+__declspec(naked) void inline AIPlaceBuildingNearUnsuitable()
+{
+    __asm {
+
+        lea eax,[ebx+0x12]
+        push 0x000000FD
+        lea ecx,[ebx+0x10]
+        push eax
+        lea edx,[ebx+0x0E]
+
+        xor eax, eax
+
+        mov ax,word ptr [ebx+0x12]
+        push ecx
+        xor ecx, ecx
+        mov cx,word ptr [ebx+0x10]
+        push edx
+        xor edx, edx
+        mov dx,word ptr [ebx+0x0E]
+        push eax
+        push ecx
+        push edx
+        mov eax, 0x00401D9D //j_func_find_closest_available_coords
+        call eax
+        //call ST.exe+0x1D9D
+        add esp, 0x1C
+
+
+
+        //movsx ebx,word ptr [ebx+0x0E]   // x order
+        //mov [ebp-0x10],ebx // put x order ptr
+
+        //mov ebx,[ebp+8] // take order obj again
+        //movsx ebx,word ptr [ebx+0x10]   // y order
+        //mov [ebp-0x14],ebx // put y order ptr
+
+        //mov ebx,[ebp+8] // take order obj again
+        //movsx ebx,word ptr [ebx+0x12]   // z order
+        //mov [ebp-0x18],ebx // put z order ptr
+        
+        //mov eax,[esi+0x00000284] // tactitian
+        mov edi,[ebp-0x04] // building id
+
+        movsx eax,word ptr [ebx+0x0E] // x order
+        movsx edx,word ptr [ebx+0x10] // y order
+        movsx ecx,word ptr [ebx+0x12] // z order
+
+
+
+        mov ebx,[ebp-0x0C]
+        mov edi,[edi]
+        push ebx
+        push ecx
+        push edx
+        push eax
+        lea eax,[ebp-0x18] // take z order ptr
+        lea ecx,[ebp-0x14] // take y order ptr
+        push eax
+        mov eax,[esi+0x24] // player
+        lea edx,[ebp-0x10] // take x order ptr
+        push ecx
+        push edx
+        push edi
+        push eax
+        mov eax, 0x00403F03 //j_func_ai_tloChkOrFindBuildingPlace
+        call eax
+        add esp,0x24
+
+        test eax,eax
+        je still_wrong
+        jmp[AIPlaceBuildingNearUnsuitable_JmpBack]
+
+        still_wrong:
+        jmp[still_wrong_Jmp]
+    }
+}
+
+//static unsigned long AIGetMapSizeCase_Jmp = 0x0067780D;
+//static unsigned long AIGetMapSizeCase_JmpBack = AIGetMapSizeCase_Jmp + 5;
+//__declspec(naked) void inline AIGetMapSizeCase()
+//{
+//    __asm {
+//        cmp [ebp+8], 226
+//        jne originalcode
+//        cmp [ebp+0x1C], 200
+//        jne originalcode
+//        
+//        mov eax, 0x007FB240 // map_size_x
+//        mov ax, [eax]
+//        mov word ptr [ebp+0xC], ax
+//        mov word ptr [ebp-4], ax
+//        mov [ebp+0x10], 1
+//        and eax, 0xFFFF
+//        mov esp, ebp
+//        pop ebp
+//        retn
+//
+//        originalcode:
+//        mov edx, [ebp+0x1C]
+//        test edx, edx
+//        jmp[AIGetMapSizeCase_JmpBack]
+//    }
+//}
+
+//static unsigned long AIGetMapSizeCase_out = 0x004B2051;
+//static unsigned long AIGetMapSizeCase_Jmp = 0x004B1FF0;
+//static unsigned long AIGetMapSizeCase_JmpBack = AIGetMapSizeCase_Jmp + 5;
+//__declspec(naked) void inline AIGetMapSizeCase()
+//{
+//    __asm {
+//        cmp [ebp+0x20], 200
+//        jne originalcode
+//        
+//        xor edx, edx
+//        mov eax, 0x007FB240 // map_size_x
+//        mov dx, [eax]
+//        jmp[AIGetMapSizeCase_out]
+//
+//        originalcode:
+//        mov eax, [ebp+0x20]
+//        add eax, esi
+//        jmp[AIGetMapSizeCase_JmpBack]
+//    }
+//}
+
+static BYTE plugin_version = 7;
 static BYTE author_number = GetPrivateProfileInt(L"GameVersion", L"Author_id", 1, ini_file);
 static BYTE version_number = GetPrivateProfileInt(L"GameVersion", L"Version", 0, ini_file);
 static unsigned long ChangeGameVersion_Jmp = 0x005B324F;
