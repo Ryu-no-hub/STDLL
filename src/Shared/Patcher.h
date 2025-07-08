@@ -452,7 +452,7 @@ static unsigned long Transport_waiting_depot_distance_Jmp = 0x004676F6;
 static unsigned long Transport_waiting_depot_distance_JmpBack = Transport_waiting_depot_distance_Jmp + 6;
 __declspec(naked) void inline Transport_waiting_depot_distance()
 {
-    __asm mov edi, 1;
+    __asm mov edi, 2;
     __asm mov[esi + 0x000000B7], edi;
 
     __asm jmp[Transport_waiting_depot_distance_JmpBack];
@@ -468,9 +468,9 @@ __declspec(naked) void inline Transport_waiting_mine_distance()
     __asm jmp[Transport_waiting_mine_distance_JmpBack];
 }
 
-static unsigned long Transport_waiting_mine_distance2_Jmp = 0x00469863;
-static unsigned long Transport_waiting_mine_distance2_JmpBack = Transport_waiting_mine_distance2_Jmp + 6;
-__declspec(naked) void inline Transport_waiting_mine_distance2()
+static unsigned long Transport_waiting_mine_distance2_ai_humans_Jmp = 0x00469863;
+static unsigned long Transport_waiting_mine_distance2_ai_humans_JmpBack = Transport_waiting_mine_distance2_ai_humans_Jmp + 6;
+__declspec(naked) void inline Transport_waiting_mine_distance2_ai_humans()
 {
     __asm {
 
@@ -493,7 +493,7 @@ __declspec(naked) void inline Transport_waiting_mine_distance2()
         test eax, eax   
         
         jz ai_player
-        mov edi, 1
+        mov edi, 2
         jmp exitt
 
         ai_player:
@@ -502,6 +502,17 @@ __declspec(naked) void inline Transport_waiting_mine_distance2()
         exitt:
         pop ecx
         pop eax
+        mov[esi + 0x000000B7], edi;
+        jmp[Transport_waiting_mine_distance2_ai_humans_JmpBack];
+    }
+}
+
+static unsigned long Transport_waiting_mine_distance2_Jmp = 0x00469863;
+static unsigned long Transport_waiting_mine_distance2_JmpBack = Transport_waiting_mine_distance2_Jmp + 6;
+__declspec(naked) void inline Transport_waiting_mine_distance2()
+{
+    __asm {
+        mov edi, 2;
         mov[esi + 0x000000B7], edi;
         jmp[Transport_waiting_mine_distance2_JmpBack];
     }
@@ -9327,8 +9338,9 @@ __declspec(naked) void inline PatrolMidButtonSI()
     __asm {
         mov byte ptr [esi+12], 72
         mov byte ptr [esi+13], 47
-        mov byte ptr [esi+14], 6
-        mov byte ptr [esi+20], 1
+        mov byte ptr [esi+14], 6 // patrol
+        mov byte ptr [esi+20], 1 // patrol activate
+        // mov byte ptr [esi+9], 6 // [esi+11] - правый верхний, [esi+9] - левый верхний
 
         jmp[PatrolMidButtonSI_JmpBack]
     }
@@ -9830,7 +9842,299 @@ __declspec(naked) void inline AIPlaceBuildingNearUnsuitable()
 //    }
 //}
 
-static BYTE plugin_version = 7;
+//static unsigned long HotKeyBuild_Jmp = 0x0071BA08;
+static unsigned long Noclick_Jmp = 0x0071BE01;
+
+static unsigned long HotKeyBuild_Jmp = 0x0071BDC2;
+static unsigned long HotKeyBuild_JmpBack = HotKeyBuild_Jmp + 5;
+__declspec(naked) void inline HotKeyBuild()
+{
+    __asm {
+
+        // mov ebx, [ebp-4]
+        // mov [ebp-0x34], eax
+
+        mov eax, 0x00801684 // проверка выдвинутости панели строительства
+        mov eax,[eax]
+        test eax,eax
+        jz exitt
+        cmp [eax+404], 1
+        jne exitt
+
+        
+        push edx // проверка нажатия Q с момента последнего вызова функции GetAsyncKetState()
+        push 0x51
+        mov eax, 0x0085BDF0
+        call dword ptr [eax] // GetAsyncKetState()
+        mov ecx, eax
+        and eax,1
+        test eax,eax
+        pop edx
+        push 1
+        jnz loopy
+
+        pop ecx
+        
+        push edx // проверка нажатия W с момента последнего вызова функции GetAsyncKetState()
+        push 0x57
+        mov eax, 0x0085BDF0
+        call dword ptr [eax] // GetAsyncKetState()
+        mov ecx, eax
+        and eax,1
+        test eax,eax
+        pop edx
+        push 2
+        jnz loopy
+
+        pop ecx
+        
+        push edx // проверка нажатия E с момента последнего вызова функции GetAsyncKetState()
+        push 0x45
+        mov eax, 0x0085BDF0
+        call dword ptr [eax] // GetAsyncKetState()
+        mov ecx, eax
+        and eax,1
+        test eax,eax
+        pop edx
+        push 3
+        jnz loopy
+
+        pop ecx
+        
+        push edx // проверка нажатия R с момента последнего вызова функции GetAsyncKetState()
+        push 0x52
+        mov eax, 0x0085BDF0
+        call dword ptr [eax] // GetAsyncKetState()
+        mov ecx, eax
+        and eax,1
+        test eax,eax
+        pop edx
+        push 4
+        jnz loopy
+
+        pop ecx
+        
+        push edx // проверка нажатия T с момента последнего вызова функции GetAsyncKetState()
+        push 0x54
+        mov eax, 0x0085BDF0
+        call dword ptr [eax] // GetAsyncKetState()
+        mov ecx, eax
+        and eax,1
+        test eax,eax
+        pop edx
+        push 5
+        jnz loopy
+
+        pop ecx
+        push 0
+
+
+        exitt:
+        cmp[ebp-0x20], esi
+        jnz pre_loopy
+        jmp[Noclick_Jmp]
+
+        pre_loopy:
+        push 0
+
+        loopy:
+        jmp[HotKeyBuild_JmpBack]
+    }
+}
+
+static unsigned long HotKeyBuildCheckButtons_Jmp = 0x0071BDE1;
+static unsigned long HotKeyBuildCheckButtons_JmpBack = HotKeyBuildCheckButtons_Jmp + 6;
+__declspec(naked) void inline HotKeyBuildCheckButtons()
+{
+    __asm {
+        
+        mov ecx, [ebp-8] // кнопка
+        lea edx, [ebp-48] // курсор
+        pop eax
+        test eax,eax
+        jz exitt
+        
+        cmp eax, 1
+        je Q_button
+        cmp eax, 2
+        je W_button
+        cmp eax, 3
+        je E_button
+        cmp eax, 4
+        je R_button
+        cmp eax, 5
+        je T_button
+        jmp exitt
+
+        Q_button: // #4
+        push eax
+            
+        mov eax, [ecx+324]
+        cmp eax, 49311
+        jne outt
+        //cmp dword ptr [ecx+28], 3 // флаг - курсор на кнопке
+        //jne outt
+        
+        cmp dword ptr [ecx+28], 1
+        jne outt
+        cmp dword ptr [ecx+32], 1
+        jne outt
+
+        //вызов функции нажатия кнопки
+        push ecx
+        push edx
+        
+        mov edx,[ecx+28]
+        lea eax,[ecx+308]
+        mov [ecx+328],edx
+        push eax
+        mov eax, 0x006E6020
+        call eax
+
+        pop edx
+        pop ecx
+        //
+        jmp outt
+
+
+
+        W_button: // #3
+        push eax
+            
+        mov eax, [ecx+324]
+        cmp eax, 49312
+        jne outt
+       /* cmp dword ptr [ecx+28], 3
+        jne outt*/
+        
+        cmp dword ptr [ecx+28], 1
+        jne outt
+        cmp dword ptr [ecx+32], 1
+        jne outt
+
+             // вызов функции нажатия кнопки
+        push ecx
+        push edx
+        
+        mov edx,[ecx+28]
+        lea eax,[ecx+308]
+        mov [ecx+328],edx
+        push eax
+        mov eax, 0x006E6020
+        call eax
+
+        pop edx
+        pop ecx
+        //
+        jmp outt
+
+
+
+        E_button: // #3
+        push eax
+            
+        mov eax, [ecx+324]
+        cmp eax, 49313
+        jne outt
+        /*cmp dword ptr [ecx+28], 3
+        jne outt*/
+        
+        cmp dword ptr [ecx+28], 1
+        jne outt
+        cmp dword ptr [ecx+32], 1
+        jne outt
+
+             // вызов функции нажатия кнопки
+        push ecx
+        push edx
+        
+        mov edx,[ecx+28]
+        lea eax,[ecx+308]
+        mov [ecx+328],edx
+        push eax
+        mov eax, 0x006E6020
+        call eax
+
+        pop edx
+        pop ecx
+                 //
+        jmp outt
+
+
+
+        R_button: // #3
+        push eax
+            
+        mov eax, [ecx+324]
+        cmp eax, 49314
+        jne outt
+        /*cmp dword ptr [ecx+28], 3
+        jne outt*/
+        
+        cmp dword ptr [ecx+28], 1
+        jne outt
+        cmp dword ptr [ecx+32], 1
+        jne outt
+
+             // вызов функции нажатия кнопки
+        push ecx
+        push edx
+        
+        mov edx,[ecx+28]
+        lea eax,[ecx+308]
+        mov [ecx+328],edx
+        push eax
+        mov eax, 0x006E6020
+        call eax
+
+        pop edx
+        pop ecx
+                 //
+        jmp outt
+
+
+
+        T_button: // #3
+        push eax
+            
+        mov eax, [ecx+324]
+        cmp eax, 49315
+        jne outt
+        /*cmp dword ptr [ecx+28], 3
+        jne outt*/
+        
+        cmp dword ptr [ecx+28], 1
+        jne outt
+        cmp dword ptr [ecx+32], 1
+        jne outt
+
+             // вызов функции нажатия кнопки
+        push ecx
+        push edx
+        
+        mov edx,[ecx+28]
+        lea eax,[ecx+308]
+        mov [ecx+328],edx
+        push eax
+        mov eax, 0x006E6020
+        call eax
+
+        pop edx
+        pop ecx
+                 //
+        jmp outt
+
+
+
+        exitt:
+        push eax
+
+        outt:
+        jmp[HotKeyBuildCheckButtons_JmpBack]
+    }
+}
+
+static BYTE plugin_version = 9;
 static BYTE author_number = GetPrivateProfileInt(L"GameVersion", L"Author_id", 1, ini_file);
 static BYTE version_number = GetPrivateProfileInt(L"GameVersion", L"Version", 0, ini_file);
 static unsigned long ChangeGameVersion_Jmp = 0x005B324F;

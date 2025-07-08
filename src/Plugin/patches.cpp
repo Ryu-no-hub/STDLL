@@ -406,8 +406,13 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     //patch.WriteU32((void *)0x007E66D0, 90); // Cassete subshell T5
 
     // REPAIR
+    static SHORT rcp = GetPrivateProfileInt(L"Economics", L"RepairCoeff", 50, ini_file); //repair cost percent
+    rcp = rcp > 100 ? 100 : rcp < 0 ? 0 : rcp;
+    static float rcpf = rcp / static_cast<float>(100);
+
     // WS
-    patch.WriteU32((void *)0x007E29FC, 400);  // Repair_Docks repair cost WS
+    patch.WriteU32((void *)0x007E29FC, GetPrivateProfileInt(L"Repair_Docks", L"Metal", 700, ini_file) * rcpf);  // Repair_Docks repair cost WS
+
     patch.WriteU32((void *)0x007E0920, 100);  // Repair speed Sentinel dock
     patch.WriteU32((void *)0x007E0924, 225);  // Repair speed Hunter dock
     patch.WriteU32((void *)0x007E0928, 550);  // Repair speed Cruiser dock
@@ -420,22 +425,23 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     patch.WriteU32((void *)0x007E0948, 400);  // Repair speed Liberator dock
     patch.WriteU32((void *)0x007E094C, 250);  // Repair speed Builder WS dock
     patch.WriteU32((void *)0x007E08F4, 1500); // Repair speed Flagship WS dock
-    
-    patch.WriteU32((void *)0x007E0860, GetPrivateProfileInt(L"Sentinel", L"Metal", 400, ini_file) / 2);
-    patch.WriteU32((void *)0x007E0864, GetPrivateProfileInt(L"Hunter", L"Metal", 400, ini_file) / 2);
-    patch.WriteU32((void *)0x007E0868, GetPrivateProfileInt(L"Cruiser", L"Metal", 400, ini_file) / 2);
-    patch.WriteU32((void *)0x007E086C, GetPrivateProfileInt(L"Bomber", L"Metal", 400, ini_file) / 2);
-    patch.WriteU32((void *)0x007E0870, GetPrivateProfileInt(L"Minelayer", L"Metal", 400, ini_file) / 2);
-    patch.WriteU32((void *)0x007E0874, GetPrivateProfileInt(L"Marauder", L"Metal", 400, ini_file) / 2);
-    patch.WriteU32((void *)0x007E0878, GetPrivateProfileInt(L"Repair_Platform_WS", L"Metal", 400, ini_file) / 2);
-    patch.WriteU32((void *)0x007E087C, GetPrivateProfileInt(L"Transport_Humans", L"Metal", 400, ini_file) / 2);
-    patch.WriteU32((void *)0x007E0884, GetPrivateProfileInt(L"Terminator", L"Metal", 400, ini_file) / 2);
-    patch.WriteU32((void *)0x007E0888, GetPrivateProfileInt(L"Liberator", L"Metal", 400, ini_file) / 2);
-    patch.WriteU32((void *)0x007E088C, GetPrivateProfileInt(L"Builder_Humans", L"Metal", 400, ini_file) / 2);
-    patch.WriteU32((void *)0x007E08F4, GetPrivateProfileInt(L"Flagship_WS", L"Metal", 400, ini_file) / 2);
+
+
+    patch.WriteU32((void *)0x007E0860, GetPrivateProfileInt(L"Sentinel", L"Metal", 200, ini_file) * rcpf);
+    patch.WriteU32((void *)0x007E0864, GetPrivateProfileInt(L"Hunter", L"Metal", 400, ini_file) * rcpf);
+    patch.WriteU32((void *)0x007E0868, GetPrivateProfileInt(L"Cruiser", L"Metal", 1000, ini_file) * rcpf);
+    patch.WriteU32((void *)0x007E086C, GetPrivateProfileInt(L"Bomber", L"Metal", 1000, ini_file) * rcpf);
+    patch.WriteU32((void *)0x007E0870, GetPrivateProfileInt(L"Minelayer", L"Metal", 700, ini_file) * rcpf);
+    patch.WriteU32((void *)0x007E0874, GetPrivateProfileInt(L"Marauder", L"Metal", 800, ini_file) * rcpf);
+    patch.WriteU32((void *)0x007E0878, GetPrivateProfileInt(L"Repair_Platform_WS", L"Metal", 800, ini_file) * rcpf);
+    patch.WriteU32((void *)0x007E087C, GetPrivateProfileInt(L"Transport_Humans", L"Metal", 600, ini_file) * rcpf);
+    patch.WriteU32((void *)0x007E0884, GetPrivateProfileInt(L"Terminator", L"Metal", 200, ini_file) * rcpf);
+    patch.WriteU32((void *)0x007E0888, GetPrivateProfileInt(L"Liberator", L"Metal", 1000, ini_file) * rcpf);
+    patch.WriteU32((void *)0x007E088C, GetPrivateProfileInt(L"Builder_Humans", L"Metal", 700, ini_file) * rcpf);
+    patch.WriteU32((void *)0x007E08F4, GetPrivateProfileInt(L"Flagship_WS", L"Metal", 1000, ini_file) * rcpf);
 
     // BO
-    patch.WriteU32((void *)0x007E2A00, 400);  // Repair_Docks repair cost BO
+    patch.WriteU32((void *)0x007E2A00, GetPrivateProfileInt(L"Repair_Docks", L"Metal", 700, ini_file) * rcpf);  // Repair_Docks repair cost BO
 
     patch.WriteU32((void *)0x007E096C, 125);  // Repair speed Transport dock
     patch.WriteU32((void *)0x007E0968, 125);  // Repair speed Repair Platf dock
@@ -449,18 +455,18 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     patch.WriteU32((void *)0x007E097C, 250);  // Repair speed Builder BO dock
     patch.WriteU32((void *)0x007E0978, 500);  // Repair speed Avenger dock
 
-    patch.WriteU32((void *)0x007E08AC, GetPrivateProfileInt(L"Transport_Humans", L"Metal", 400, ini_file) / 2); 
-    patch.WriteU32((void *)0x007E08A8, GetPrivateProfileInt(L"Repair_Platform_WS", L"Metal", 400, ini_file) / 2);
-    patch.WriteU32((void *)0x007E08A4, GetPrivateProfileInt(L"Raider", L"Metal", 400, ini_file) / 2);
-    patch.WriteU32((void *)0x007E08B4, GetPrivateProfileInt(L"Phantom", L"Metal", 400, ini_file) / 2);
-    patch.WriteU32((void *)0x007E089C, GetPrivateProfileInt(L"Invader", L"Metal", 400, ini_file) / 2);
-    patch.WriteU32((void *)0x007E0898, GetPrivateProfileInt(L"Heavy_Cruiser", L"Metal", 400, ini_file) / 2);
-    patch.WriteU32((void *)0x007E0890, GetPrivateProfileInt(L"Fighter", L"Metal", 400, ini_file) / 2);
-    patch.WriteU32((void *)0x007E0894, GetPrivateProfileInt(L"Destroyer", L"Metal", 400, ini_file) / 2);
-    patch.WriteU32((void *)0x007E08A0, GetPrivateProfileInt(L"Defender", L"Metal", 400, ini_file) / 2);
-    patch.WriteU32((void *)0x007E08BC, GetPrivateProfileInt(L"Builder_Humans", L"Metal", 400, ini_file) / 2);
-    patch.WriteU32((void *)0x007E08B8, GetPrivateProfileInt(L"Avenger", L"Metal", 400, ini_file) / 2);
-    patch.WriteU32((void *)0x007E08F8, GetPrivateProfileInt(L"Flagship_BO", L"Metal", 400, ini_file) / 2);
+    patch.WriteU32((void *)0x007E08AC, GetPrivateProfileInt(L"Transport_Humans", L"Metal", 600, ini_file) * rcpf); 
+    patch.WriteU32((void *)0x007E08A8, GetPrivateProfileInt(L"Repair_Platform_BO", L"Metal", 800, ini_file) * rcpf);
+    patch.WriteU32((void *)0x007E08A4, GetPrivateProfileInt(L"Raider", L"Metal", 700, ini_file) * rcpf);
+    patch.WriteU32((void *)0x007E08B4, GetPrivateProfileInt(L"Phantom", L"Metal", 1000, ini_file) * rcpf);
+    patch.WriteU32((void *)0x007E089C, GetPrivateProfileInt(L"Invader", L"Metal", 800, ini_file) * rcpf);
+    patch.WriteU32((void *)0x007E0898, GetPrivateProfileInt(L"Heavy_Cruiser", L"Metal", 1200, ini_file) * rcpf);
+    patch.WriteU32((void *)0x007E0890, GetPrivateProfileInt(L"Fighter", L"Metal", 300, ini_file) * rcpf);
+    patch.WriteU32((void *)0x007E0894, GetPrivateProfileInt(L"Destroyer", L"Metal", 500, ini_file) * rcpf);
+    patch.WriteU32((void *)0x007E08A0, GetPrivateProfileInt(L"Defender", L"Metal", 700, ini_file) * rcpf);
+    patch.WriteU32((void *)0x007E08BC, GetPrivateProfileInt(L"Builder_Humans", L"Metal", 700, ini_file) * rcpf);
+    patch.WriteU32((void *)0x007E08B8, GetPrivateProfileInt(L"Avenger", L"Metal", 1200, ini_file) * rcpf);
+    patch.WriteU32((void *)0x007E08F8, GetPrivateProfileInt(L"Flagship_BO", L"Metal", 1000, ini_file) * rcpf);
 
     
     patch.WriteByte((void *)0x004C8625, 4); // Repair speed shift - ALL BUILDINGS
@@ -527,6 +533,8 @@ static bool FixesQoL(Patcher::SPatch &patch) {
     
     patch.WriteByte((void *)0x004F1203, 0x58); // Keep build panel on build
     patch.WriteNops((void *)0x004F1204, 4);   // Keep build panel on build
+    patch.WriteJumpSized(HotKeyBuild_Jmp, 5, (unsigned long)HotKeyBuild);
+    patch.WriteJumpSized(HotKeyBuildCheckButtons_Jmp, 6, (unsigned long)HotKeyBuildCheckButtons);
 
     //------
     patch.WriteByte((void *)0x0047A9D1, 0xEC); // Teleport charge use personal (-20)
@@ -592,20 +600,38 @@ static bool FixesQoL(Patcher::SPatch &patch) {
 
 
     //PANEL
-    //patch.WriteByte((void *)0x0048798F, 6); // SI patrol instead of move Skat, Escort, Dreadnaught
-    //patch.WriteByte((void *)0x00487EE8, 6); // SI patrol instead of move Bioassaulter
+    patch.WriteByte((void *)0x00487020, 6); // WS BO patrol instead of move Marauder, Raider
+    patch.WriteByte((void *)0x004870EC, 6); // WS BO patrol instead of move Minelayers, Liberator 
+    patch.WriteByte((void *)0x004873ED, 6); // WS patrol instead of move DC-Bomber
+
+    patch.WriteByte((void *)0x0044D3B3, 6); // WS BO patrol instead of move Marauder, Raider group
+    patch.WriteByte((void *)0x0044D3DE, 6); // WS patrol instead of move Minelayer, Liberator group
+    patch.WriteByte((void *)0x0044D45D, 6); // WS patrol instead of move DC-Bomber group
+
+
+    patch.WriteByte((void *)0x004871E4, 6); // BO patrol instead of move Avenger
+    patch.WriteByte((void *)0x004872F5, 6); // BO patrol instead of move Phantom
+    patch.WriteByte((void *)0x0048789E, 6); // BO patrol instead of move Scout
+    patch.WriteByte((void *)0x0044D5C7, 6); // BO patrol instead of move Defender group
+    patch.WriteByte((void *)0x0044D407, 6); // BO patrol instead of move Avenger group
+    patch.WriteByte((void *)0x0044D432, 6); // BO patrol instead of move Phantom group
+    patch.WriteByte((void *)0x0044D545, 6); // BO patrol instead of move Scout group
+    
+    patch.WriteJumpSized(PatrolMidButtonSI_Jmp, 8, (unsigned long)PatrolMidButtonSI); // SI patrol bottom mid button Skat, Escort, Dreadnaught, Flagship
+    patch.WriteJumpSized(PatrolMidButtonSIPara_Jmp, 8, (unsigned long)PatrolMidButtonSIPara); // SI patrol bottom mid button Paralyzer
+    patch.WriteByte((void *)0x00487EE8, 6); // SI patrol instead of move Bioassaulter
     patch.WriteByte((void *)0x004879DA, 6); // SI patrol instead of move Usurper
+    patch.WriteByte((void *)0x004880C3, 6); // SI patrol instead of move Resident
+
     patch.WriteByte((void *)0x0044D59F, 6); // SI patrol instead of move Usurper group
     patch.WriteByte((void *)0x0044D68C, 6); // SI patrol instead of move Bioassaulter group
-    //patch.WriteByte((void *)0x00488009, 6); // SI patrol instead of move Paralyser
+    patch.WriteByte((void *)0x0044D6F3, 6); // SI patrol instead of move Resident group
+    patch.WriteU16((void *)0x0044D646, 0x0601); // SI patrol bottom mid button Paralyser group
+    patch.WriteJumpSized(PatrolMidButtonSIGroup_Jmp, 10, (unsigned long)PatrolMidButtonSIGroup);// SI patrol bottom mid button group mix
 
-    patch.WriteJumpSized(PatrolMidButtonSI_Jmp, 8, (unsigned long)PatrolMidButtonSI);
-    patch.WriteJumpSized(PatrolMidButtonSIBIO_Jmp, 8, (unsigned long)PatrolMidButtonSIBIO);
-    patch.WriteByte((void *)0x004881B1, 15); // Bio change slot for check mines ammo to deactivate button 1
-    patch.WriteByte((void *)0x004881B7, 15); // Bio change slot for check mines ammo to deactivate button 2
-
-    patch.WriteJumpSized(PatrolMidButtonSIPara_Jmp, 8, (unsigned long)PatrolMidButtonSIPara);
-    patch.WriteJumpSized(PatrolMidButtonSIGroup_Jmp, 10, (unsigned long)PatrolMidButtonSIGroup);
+    //patch.WriteJumpSized(PatrolMidButtonSIBIO_Jmp, 8, (unsigned long)PatrolMidButtonSIBIO);
+    //patch.WriteByte((void *)0x004881B1, 15); // Bio change slot for check mines ammo to deactivate button 1
+    //patch.WriteByte((void *)0x004881B7, 15); // Bio change slot for check mines ammo to deactivate button 2
 
     return true;
 }
@@ -1060,8 +1086,10 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteByte((void *)0x007BFE6D, 0);  // WS FINDTELE dep
     patch.WriteByte((void *)0x007BFE86, 9);  // WS FINDMINE dep
     patch.WriteByte((void *)0x007BFEB8, 9);  // WS FINDLASSNARE dep
-    
+
     patch.WriteByte((void *)0x007BFE54, 64); // WS TELEPORT dep
+    patch.WriteByte((void *)0x007BFED1, 19); // WS UPGTELEPORT dep
+    
     // patch.WriteByte((void *)0x007BFF99, ); // WS UPGHACK dep
     patch.WriteByte((void *)0x007BFF1C, 63); // WS ANTINUKE dep
     // patch.WriteByte((void *)0x007BFF21, 0);  // WS ANTINUKE dep2
@@ -1271,7 +1299,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteByte((void *)0x007C091C, 78);  // SI NRGTRANSF dep
     patch.WriteByte((void *)0x007C0920, 1);   // SI NRGTRANSF dep lvl
     patch.WriteByte((void *)0x007C0A93, 119); // SI ORBITLAS dep
-    patch.WriteByte((void *)0x007C0A98, 94);   // SI ORBITLAS dep2
+    patch.WriteByte((void *)0x007C0A98, 0);   // SI ORBITLAS dep2
     patch.WriteByte((void *)0x007C0999, 78);  // SI UPGNRGMINE dep
     patch.WriteByte((void *)0x007C099D, 2);   // SI UPGNRGMINE dep lvl
     patch.WriteByte((void *)0x007C0AAC, 71);  // SI ANTISMP dep
@@ -1802,7 +1830,7 @@ static bool BalancingTacticsTree(Patcher::SPatch &patch)
     patch.WriteByte((void *)0x00792288, GetPrivateProfileInt(L"Light_Laser", L"Range_1", 7, ini_file)); // Light_Laser first range 7
     patch.WriteByte((void *)0x0079228C, GetPrivateProfileInt(L"Light_Laser", L"Range_2", 9, ini_file)); // Light_Laser second range 8
     patch.WriteByte((void *)0x007922C8, GetPrivateProfileInt(L"Heavy_Laser", L"Range_1", 8, ini_file)); // Heavy_Laser first range 6
-    patch.WriteByte((void *)0x007922CC, GetPrivateProfileInt(L"Heavy_Laser", L"Range_2	", 10, ini_file)); // Heavy_Laser second range 8 
+    patch.WriteByte((void *)0x007922CC, GetPrivateProfileInt(L"Heavy_Laser", L"Range_2", 10, ini_file)); // Heavy_Laser second range 8 
     patch.WriteByte((void *)0x00792298, GetPrivateProfileInt(L"Magnetic_Mine_Launcher", L"Range", 8, ini_file)); // Magnetic_Mine_Launcher range 7 
     patch.WriteByte((void *)0x007922A0, GetPrivateProfileInt(L"Magnetic_Mine_Launcher", L"Range_Mines", 8, ini_file));  // Magnetic_Mine_Launcher mines range 8 
     patch.WriteByte((void *)0x007922D8, GetPrivateProfileInt(L"EM_Launcher", L"Range", 8, ini_file)); // EM_Launcher first range 9
@@ -2572,7 +2600,7 @@ static bool OneDepotFor2Mines2(Patcher::SPatch &patch)
 {
     patch.WriteByte((void *)0x004693A6, 2); // Transport waiting distance set after depot
     patch.WriteByte((void *)0x00467488, 2); // Transport waiting distance set after mine
-    patch.WriteByte((void *)0x004696F9, 2); // Transport waiting distance 3
+    patch.WriteByte((void *)0x004696F9, 2); // Transport waiting distance 3à
     patch.WriteByte((void *)0x004699A1, 2); // Transport waiting distance set after mine order
     patch.WriteJumpSized(TransportDepotDecision_Jmp, 5, (unsigned long)TransportDepotDecision);
     patch.WriteJumpSized(TransportDepotDecision2_Jmp, 5, (unsigned long)TransportDepotDecision2);
