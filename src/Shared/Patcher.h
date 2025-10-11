@@ -44,7 +44,7 @@ static std::string players_won_lost;
 static std::string format_my = "+%s,";
 static std::string format_notmy = "-%s,";
 
-static std::string BOT_TOKEN = "MTEzOTU5ODAwNTk2NDY1MjU4NQ.GDRJJ4.9ET1k7Pge4v8CT6WCrYdGWY3F19DDC2b0tvBvg";
+static std::string BOT_TOKEN = "";
 
 static auto host_flag = (DWORD *)0x007F5866;
 static bool bot_is_running = false;
