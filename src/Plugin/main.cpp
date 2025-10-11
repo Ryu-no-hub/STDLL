@@ -1,3 +1,4 @@
+#define NOMINMAX
 #include "patches.h"
 #include "config.h"
 #include "VersionInfo.h"

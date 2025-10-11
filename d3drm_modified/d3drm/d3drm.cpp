@@ -1,12 +1,10 @@
-#include <Windows.h>
-#include <math.h>
+#include <windows.h>
 #include <cstdint>
 #include "types.h"
-#include "../shared/gameversion.h"
-#include "../shared/file.h"
+#include "gameversion.h"
+#include "file.h"
 #include "injector.h"
 #include <string>
-#include <fstream>
 
 using namespace std;
 
@@ -15,9 +13,11 @@ using namespace std;
 #else
 	#pragma comment(lib, "../Release/shared.lib")
 #endif
+//#pragma comment(lib, "urlmon.lib") // Link with urlmon.lib
 
 #pragma comment(linker, "/EXPORT:D3DRMVectorModulus=_D3DRMVectorModulus@4")
-extern "C" float __stdcall D3DRMVectorModulus(D3DVector3* vector)
+
+extern "C" float __stdcall D3DRMVectorModulus(D3DVector3 *vector)
 {
 	if (vector == nullptr)
 		return 0.f;
@@ -44,6 +44,21 @@ uint32_t GetSubTitansVersion()
 	}
 }
 
+std::wstring StringToWString(const std::string &str)
+{
+    if (str.empty())
+        return std::wstring();
+
+    // Calculate required buffer size
+    int size_needed = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), (int)str.size(), nullptr, 0);
+
+    std::wstring wstrTo(size_needed, 0);
+
+    MultiByteToWideChar(CP_UTF8, 0, str.c_str(), (int)str.size(), &wstrTo[0], size_needed);
+
+    return wstrTo;
+}
+
 DWORD LoadPlugins(unsigned long gameVersion)
 {
     void *v1;
@@ -56,13 +71,12 @@ DWORD LoadPlugins(unsigned long gameVersion)
     auto result = GetCurrentDirectoryA(260, Buffer);
 
     string FileDirectory(Buffer);
-
     if (result)
     {
         lstrcatA(Buffer, "\\plugins\\*.asi");
         auto file = FindFirstFileA(Buffer, &FindFileData);
         v1 = file;
-        if (result != -1)
+        if (result != -1) 
         {
             do
             {
@@ -72,7 +86,17 @@ DWORD LoadPlugins(unsigned long gameVersion)
                 auto pluglib = LoadLibraryA(FullPath);
                 if (!pluglib)
                 {
-                    MessageBox(NULL, L"No plugins detected", L"d3drm", MB_ICONINFORMATION);
+                    DWORD errorMessageID = ::GetLastError();
+
+                    LPCSTR messageBuffer = nullptr;
+                    size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                                                     FORMAT_MESSAGE_FROM_SYSTEM |
+                                                     FORMAT_MESSAGE_IGNORE_INSERTS,
+                                                 NULL, errorMessageID,
+                                                 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                                                 (LPSTR)&messageBuffer, 0, NULL);
+                    MessageBoxA(NULL, messageBuffer, "d3drm", MB_ICONINFORMATION);
+                    //MessageBox(NULL, L"No plugins detected", L"d3drm", MB_ICONINFORMATION);
                     //ExitProcess(-1);
                 }
                 else
@@ -106,6 +130,8 @@ BOOLEAN __stdcall DllMain(HINSTANCE handle, DWORD reason, LPVOID reserved)
 		if (!File::Exists(L"SubTitans.dll"))
 			return TRUE;
 
+
+		//LoadPlugins(gameVersion, bot);
 		LoadPlugins(gameVersion);
 
 		return Injector::Apply(gameVersion);
